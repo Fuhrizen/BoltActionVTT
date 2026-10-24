@@ -1,0 +1,9 @@
+dist/
+node_modules/
+private/
+upload/
+*.pdf
+*.absdoc
+*.docx
+*.log
+.DS_Store

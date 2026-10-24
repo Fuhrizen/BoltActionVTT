@@ -1,0 +1,16 @@
+{
+  "name": "boltaction-foundry-vtt",
+  "version": "0.1.0-alpha.1",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "node tools/validate.mjs",
+    "test": "node --test",
+    "build": "node tools/package.mjs",
+    "scaffold": "node tools/scaffold.mjs",
+    "tasks": "node tools/tasks.mjs"
+  }
+}

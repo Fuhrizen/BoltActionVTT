@@ -1,0 +1,222 @@
+[
+  {
+    "slug": "assault",
+    "name": "Assault",
+    "type": "trait",
+    "system": {
+      "slug": "assault",
+      "effect": "Check movement and close-combat benefits manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "team",
+    "name": "Team",
+    "type": "trait",
+    "system": {
+      "slug": "team",
+      "effect": "Track crew availability manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "fixed",
+    "name": "Fixed",
+    "type": "trait",
+    "system": {
+      "slug": "fixed",
+      "effect": "Apply firing arc and movement restrictions manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "shaped-charge",
+    "name": "Shaped Charge",
+    "type": "trait",
+    "system": {
+      "slug": "shaped-charge",
+      "effect": "Check penetration exceptions manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "one-shot",
+    "name": "One Shot",
+    "type": "trait",
+    "system": {
+      "slug": "one-shot",
+      "effect": "Remove or mark expended after use.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "flamethrower",
+    "name": "Flamethrower",
+    "type": "trait",
+    "system": {
+      "slug": "flamethrower",
+      "effect": "Roll shot count and resolve fuel, pins and morale manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "indirect-fire",
+    "name": "Indirect Fire",
+    "type": "trait",
+    "system": {
+      "slug": "indirect-fire",
+      "effect": "Resolve ranging, visibility and minimum range manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "howitzer",
+    "name": "Howitzer",
+    "type": "trait",
+    "system": {
+      "slug": "howitzer",
+      "effect": "Choose direct or indirect fire before resolving the attack.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "fanatics",
+    "name": "Fanatics",
+    "type": "trait",
+    "system": {
+      "slug": "fanatics",
+      "effect": "Resolve exceptional morale and assault behavior manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "he-1",
+    "name": "He 1",
+    "type": "trait",
+    "system": {
+      "slug": "he-1",
+      "effect": "1-inch HE template; resolve template hits and damage manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "he-2",
+    "name": "He 2",
+    "type": "trait",
+    "system": {
+      "slug": "he-2",
+      "effect": "2-inch HE template; resolve template hits and damage manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "he-3",
+    "name": "He 3",
+    "type": "trait",
+    "system": {
+      "slug": "he-3",
+      "effect": "3-inch HE template; resolve template hits and damage manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "he-4",
+    "name": "He 4",
+    "type": "trait",
+    "system": {
+      "slug": "he-4",
+      "effect": "4-inch HE template; resolve template hits and damage manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "initiative-training",
+    "name": "Initiative Training",
+    "type": "trait",
+    "system": {
+      "slug": "initiative-training",
+      "effect": "When an infantry NCO is lost, replacement succeeds on 2+; apply manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "machine-gun-training",
+    "name": "Machine Gun Training",
+    "type": "trait",
+    "system": {
+      "slug": "machine-gun-training",
+      "effect": "Add one shot to German light and medium machine guns manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "fire-and-manoeuvre",
+    "name": "Fire And Manoeuvre",
+    "type": "trait",
+    "system": {
+      "slug": "fire-and-manoeuvre",
+      "effect": "Eligible US rifle/carbine and BAR models ignore the movement shooting penalty; set modifier manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "air-support",
+    "name": "Air Support",
+    "type": "trait",
+    "system": {
+      "slug": "air-support",
+      "effect": "US air observers have two calls per game; track manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "artillery-support",
+    "name": "Artillery Support",
+    "type": "trait",
+    "system": {
+      "slug": "artillery-support",
+      "effect": "One regular artillery observer may be included without points cost; build the roster manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "bombardment",
+    "name": "Bombardment",
+    "type": "trait",
+    "system": {
+      "slug": "bombardment",
+      "effect": "For preparatory bombardment, roll twice per enemy unit and choose the preferred result manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "morale-reroll",
+    "name": "Morale Reroll",
+    "type": "trait",
+    "system": {
+      "slug": "morale-reroll",
+      "effect": "Infantry and artillery may repeat a failed morale check that would destroy them; apply the second result manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "extra-infantry",
+    "name": "Extra Infantry",
+    "type": "trait",
+    "system": {
+      "slug": "extra-infantry",
+      "effect": "One twelve-model inexperienced infantry squad may be added without points cost; configure options manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  },
+  {
+    "slug": "banzai-charge",
+    "name": "Banzai Charge",
+    "type": "trait",
+    "system": {
+      "slug": "banzai-charge",
+      "effect": "Eligible infantry runs toward the nearest visible enemy pass the order test automatically; confirm eligibility and move manually.",
+      "notes": "Manual reference; not automatically applied."
+    }
+  }
+]

@@ -1,0 +1,1114 @@
+[
+  {
+    "slug": "inexperienced-rifle-squad",
+    "name": "Inexperienced rifle squad",
+    "count": 5,
+    "weaponSlug": "rifle",
+    "system": {
+      "kind": "infantry",
+      "quality": "inexperienced",
+      "startingSize": 5,
+      "maxSize": 10,
+      "points": 0,
+      "notes": "Generic practice template; set points and verify army-list eligibility before matched play."
+    }
+  },
+  {
+    "slug": "regular-rifle-squad",
+    "name": "Regular rifle squad",
+    "count": 5,
+    "weaponSlug": "rifle",
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 5,
+      "maxSize": 10,
+      "points": 0,
+      "notes": "Generic practice template; set points and verify army-list eligibility before matched play."
+    }
+  },
+  {
+    "slug": "veteran-rifle-squad",
+    "name": "Veteran rifle squad",
+    "count": 5,
+    "weaponSlug": "rifle",
+    "system": {
+      "kind": "infantry",
+      "quality": "veteran",
+      "startingSize": 5,
+      "maxSize": 10,
+      "points": 0,
+      "notes": "Generic practice template; set points and verify army-list eligibility before matched play."
+    }
+  },
+  {
+    "slug": "mmg-team",
+    "name": "Machine-gun team",
+    "count": 3,
+    "weaponSlug": "mmg",
+    "weaponQuantity": 1,
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "points": 0,
+      "notes": "Generic practice template. Verify crew, movement, armour, points, weapon mounts and army-list eligibility. Create linked crew models for infantry teams; indirect fire and HE require manual resolution."
+    }
+  },
+  {
+    "slug": "anti-tank-rifle-team",
+    "name": "Anti-tank rifle team",
+    "count": 2,
+    "weaponSlug": "anti-tank-rifle",
+    "weaponQuantity": 1,
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 2,
+      "maxSize": 2,
+      "damageValue": 4,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "points": 0,
+      "notes": "Generic practice template. Verify crew, movement, armour, points, weapon mounts and army-list eligibility. Create linked crew models for infantry teams; indirect fire and HE require manual resolution."
+    }
+  },
+  {
+    "slug": "light-mortar-team",
+    "name": "Light mortar team",
+    "count": 2,
+    "weaponSlug": "light-mortar",
+    "weaponQuantity": 1,
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 2,
+      "maxSize": 2,
+      "damageValue": 4,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "points": 0,
+      "notes": "Generic practice template. Verify crew, movement, armour, points, weapon mounts and army-list eligibility. Create linked crew models for infantry teams; indirect fire and HE require manual resolution."
+    }
+  },
+  {
+    "slug": "light-at-gun-team",
+    "name": "Light anti-tank gun team",
+    "count": 3,
+    "weaponSlug": "light-at-gun",
+    "weaponQuantity": 1,
+    "system": {
+      "kind": "artillery",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "points": 0,
+      "notes": "Generic practice template. Verify crew, movement, armour, points, weapon mounts and army-list eligibility. Create linked crew models for infantry teams; indirect fire and HE require manual resolution."
+    }
+  },
+  {
+    "slug": "medium-tank-practice",
+    "name": "Medium tank practice template",
+    "count": 1,
+    "weaponSlug": "medium-at-gun",
+    "weaponQuantity": 1,
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 9,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "points": 0,
+      "notes": "Generic practice template. Verify crew, movement, armour, points, weapon mounts and army-list eligibility. Create linked crew models for infantry teams; indirect fire and HE require manual resolution."
+    }
+  },
+  {
+    "slug": "germany-wehrmacht",
+    "name": "Wehrmacht infantry squad",
+    "factionSlug": "germany",
+    "count": 5,
+    "weaponSlug": "rifle",
+    "profile": {
+      "sourcePage": "156",
+      "baseModels": 5,
+      "maxModels": 10,
+      "basePoints": 50,
+      "extraModelPoints": 10,
+      "ncoCount": 1,
+      "options": [
+        {
+          "weaponSlug": "smg",
+          "max": 2,
+          "costEach": 3,
+          "ncoAllowed": true
+        },
+        {
+          "weaponSlug": "assault-rifle",
+          "max": 3,
+          "costEach": 5,
+          "ncoAllowed": true
+        },
+        {
+          "weaponSlug": "lmg",
+          "max": 2,
+          "costEach": 20,
+          "loaderEach": 1
+        },
+        {
+          "weaponSlug": "panzerfaust",
+          "max": 4,
+          "costEach": 5,
+          "additional": true
+        },
+        {
+          "option": "anti-tank-grenades",
+          "costPerModel": 2,
+          "excludes": "panzerfaust"
+        }
+      ]
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 5,
+      "maxSize": 10,
+      "points": 50,
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
+    }
+  },
+  {
+    "slug": "germany-veteran-infantry",
+    "name": "German veteran infantry squad",
+    "factionSlug": "germany",
+    "count": 5,
+    "weaponSlug": "rifle",
+    "profile": {
+      "sourcePage": "156",
+      "baseModels": 5,
+      "maxModels": 10,
+      "basePoints": 65,
+      "extraModelPoints": 13,
+      "ncoCount": 1,
+      "options": [
+        {
+          "weaponSlug": "smg",
+          "max": 7,
+          "costEach": 3,
+          "ncoAllowed": true
+        },
+        {
+          "weaponSlug": "assault-rifle",
+          "max": 10,
+          "costEach": 5,
+          "ncoAllowed": true
+        },
+        {
+          "weaponSlug": "lmg",
+          "max": 2,
+          "costEach": 20,
+          "loaderEach": 1
+        },
+        {
+          "weaponSlug": "panzerfaust",
+          "max": 4,
+          "costEach": 5,
+          "additional": true
+        }
+      ]
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "veteran",
+      "startingSize": 5,
+      "maxSize": 10,
+      "points": 65,
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
+    }
+  },
+  {
+    "slug": "germany-inexperienced-infantry",
+    "name": "German inexperienced infantry squad",
+    "factionSlug": "germany",
+    "count": 5,
+    "weaponSlug": "rifle",
+    "profile": {
+      "sourcePage": "157",
+      "baseModels": 5,
+      "maxModels": 10,
+      "basePoints": 35,
+      "extraModelPoints": 7,
+      "ncoCount": 1,
+      "options": [
+        {
+          "weaponSlug": "smg",
+          "max": 3,
+          "costEach": 3,
+          "ncoAllowed": true
+        },
+        {
+          "weaponSlug": "panzerfaust",
+          "max": 4,
+          "costEach": 5,
+          "additional": true
+        },
+        {
+          "weaponSlug": "lmg",
+          "max": 1,
+          "costEach": 20,
+          "loaderEach": 1,
+          "excludedSubtype": "volkssturm"
+        },
+        {
+          "option": "shirkers",
+          "costPerModel": -3,
+          "subtype": "osttruppen"
+        },
+        {
+          "option": "green",
+          "cost": 0,
+          "subtype": "volkssturm"
+        }
+      ]
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "inexperienced",
+      "startingSize": 5,
+      "maxSize": 10,
+      "points": 35,
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
+    }
+  },
+  {
+    "slug": "united-states-regular-infantry",
+    "name": "US regular infantry squad",
+    "factionSlug": "united-states",
+    "count": 5,
+    "weaponSlug": "rifle",
+    "profile": {
+      "sourcePage": "168",
+      "baseModels": 5,
+      "maxModels": 12,
+      "basePoints": 50,
+      "extraModelPoints": 10,
+      "ncoCount": 1,
+      "options": [
+        {
+          "weaponSlug": "smg",
+          "max": 2,
+          "costEach": 3,
+          "ncoAllowed": true
+        },
+        {
+          "weaponSlug": "automatic-rifle",
+          "max": 1,
+          "costEach": 5
+        },
+        {
+          "option": "anti-tank-grenades",
+          "costPerModel": 2
+        }
+      ]
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 5,
+      "maxSize": 12,
+      "points": 50,
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
+    }
+  },
+  {
+    "slug": "united-states-veteran-infantry",
+    "name": "US veteran infantry squad",
+    "factionSlug": "united-states",
+    "count": 5,
+    "weaponSlug": "rifle",
+    "profile": {
+      "sourcePage": "169",
+      "baseModels": 5,
+      "maxModels": 12,
+      "basePoints": 65,
+      "extraModelPoints": 13,
+      "ncoCount": 1,
+      "options": [
+        {
+          "weaponSlug": "smg",
+          "max": 5,
+          "costEach": 3,
+          "ncoAllowed": true
+        },
+        {
+          "weaponSlug": "automatic-rifle",
+          "max": 2,
+          "costEach": 5
+        },
+        {
+          "option": "anti-tank-grenades",
+          "costPerModel": 2
+        }
+      ]
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "veteran",
+      "startingSize": 5,
+      "maxSize": 12,
+      "points": 65,
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
+    }
+  },
+  {
+    "slug": "united-states-inexperienced-infantry",
+    "name": "US inexperienced infantry squad",
+    "factionSlug": "united-states",
+    "count": 5,
+    "weaponSlug": "rifle",
+    "profile": {
+      "sourcePage": "169",
+      "baseModels": 5,
+      "maxModels": 12,
+      "basePoints": 35,
+      "extraModelPoints": 7,
+      "ncoCount": 1,
+      "options": [
+        {
+          "weaponSlug": "smg",
+          "max": 2,
+          "costEach": 3,
+          "ncoAllowed": true
+        },
+        {
+          "weaponSlug": "automatic-rifle",
+          "max": 1,
+          "costEach": 5
+        },
+        {
+          "option": "anti-tank-grenades",
+          "costPerModel": 2
+        }
+      ]
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "inexperienced",
+      "startingSize": 5,
+      "maxSize": 12,
+      "points": 35,
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
+    }
+  },
+  {
+    "slug": "great-britain-regular-infantry",
+    "name": "British regular infantry section",
+    "factionSlug": "great-britain",
+    "count": 5,
+    "weaponSlug": "rifle",
+    "profile": {
+      "sourcePage": "180",
+      "baseModels": 5,
+      "maxModels": 10,
+      "basePoints": 50,
+      "extraModelPoints": 10,
+      "ncoCount": 1,
+      "options": [
+        {
+          "weaponSlug": "smg",
+          "max": 2,
+          "costEach": 3,
+          "ncoAllowed": true,
+          "ncoOnly": false
+        },
+        {
+          "weaponSlug": "lmg",
+          "max": 1,
+          "costEach": 20,
+          "loaderEach": 1
+        },
+        {
+          "option": "anti-tank-grenades",
+          "costPerModel": 2
+        }
+      ]
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 5,
+      "maxSize": 10,
+      "points": 50,
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
+    }
+  },
+  {
+    "slug": "great-britain-veteran-infantry",
+    "name": "British veteran infantry section",
+    "factionSlug": "great-britain",
+    "count": 5,
+    "weaponSlug": "rifle",
+    "profile": {
+      "sourcePage": "180",
+      "baseModels": 5,
+      "maxModels": 10,
+      "basePoints": 65,
+      "extraModelPoints": 13,
+      "ncoCount": 1,
+      "options": [
+        {
+          "weaponSlug": "smg",
+          "max": 5,
+          "costEach": 3,
+          "ncoAllowed": true,
+          "ncoOnly": false
+        },
+        {
+          "weaponSlug": "lmg",
+          "max": 1,
+          "costEach": 20,
+          "loaderEach": 1
+        },
+        {
+          "option": "anti-tank-grenades",
+          "costPerModel": 2
+        }
+      ]
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "veteran",
+      "startingSize": 5,
+      "maxSize": 10,
+      "points": 65,
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
+    }
+  },
+  {
+    "slug": "great-britain-inexperienced-infantry",
+    "name": "British inexperienced infantry section",
+    "factionSlug": "great-britain",
+    "count": 5,
+    "weaponSlug": "rifle",
+    "profile": {
+      "sourcePage": "181",
+      "baseModels": 5,
+      "maxModels": 10,
+      "basePoints": 35,
+      "extraModelPoints": 7,
+      "ncoCount": 1,
+      "options": [
+        {
+          "weaponSlug": "smg",
+          "max": 1,
+          "costEach": 3,
+          "ncoAllowed": true,
+          "ncoOnly": true
+        },
+        {
+          "weaponSlug": "lmg",
+          "max": 1,
+          "costEach": 20,
+          "loaderEach": 1
+        },
+        {
+          "option": "anti-tank-grenades",
+          "costPerModel": 2
+        }
+      ]
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "inexperienced",
+      "startingSize": 5,
+      "maxSize": 10,
+      "points": 35,
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
+    }
+  },
+  {
+    "slug": "soviet-union-regular-infantry",
+    "name": "Soviet regular infantry squad",
+    "factionSlug": "soviet-union",
+    "count": 5,
+    "weaponSlug": "rifle",
+    "profile": {
+      "sourcePage": "191",
+      "baseModels": 5,
+      "maxModels": 12,
+      "basePoints": 50,
+      "extraModelPoints": 10,
+      "ncoCount": 1,
+      "options": [
+        {
+          "weaponSlug": "smg",
+          "max": 12,
+          "costEach": 3,
+          "ncoAllowed": true,
+          "ncoOnly": false
+        },
+        {
+          "weaponSlug": "lmg",
+          "max": 1,
+          "costEach": 20,
+          "loaderEach": 1
+        },
+        {
+          "option": "anti-tank-grenades",
+          "costPerModel": 2
+        }
+      ]
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 5,
+      "maxSize": 12,
+      "points": 50,
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
+    }
+  },
+  {
+    "slug": "soviet-union-veteran-infantry",
+    "name": "Soviet veteran infantry squad",
+    "factionSlug": "soviet-union",
+    "count": 5,
+    "weaponSlug": "rifle",
+    "profile": {
+      "sourcePage": "191",
+      "baseModels": 5,
+      "maxModels": 12,
+      "basePoints": 65,
+      "extraModelPoints": 13,
+      "ncoCount": 1,
+      "options": [
+        {
+          "weaponSlug": "smg",
+          "max": 12,
+          "costEach": 3,
+          "ncoAllowed": true,
+          "ncoOnly": false
+        },
+        {
+          "weaponSlug": "lmg",
+          "max": 1,
+          "costEach": 20,
+          "loaderEach": 1
+        },
+        {
+          "option": "anti-tank-grenades",
+          "costPerModel": 2
+        },
+        {
+          "weaponSlug": "panzerfaust",
+          "max": 1,
+          "costEach": 5,
+          "additional": true
+        }
+      ]
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "veteran",
+      "startingSize": 5,
+      "maxSize": 12,
+      "points": 65,
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
+    }
+  },
+  {
+    "slug": "soviet-union-inexperienced-infantry",
+    "name": "Soviet inexperienced infantry squad",
+    "factionSlug": "soviet-union",
+    "count": 5,
+    "weaponSlug": "rifle",
+    "profile": {
+      "sourcePage": "192",
+      "baseModels": 5,
+      "maxModels": 12,
+      "basePoints": 35,
+      "extraModelPoints": 7,
+      "ncoCount": 1,
+      "options": [
+        {
+          "weaponSlug": "smg",
+          "max": 1,
+          "costEach": 3,
+          "ncoAllowed": true,
+          "ncoOnly": true
+        },
+        {
+          "weaponSlug": "lmg",
+          "max": 1,
+          "costEach": 20,
+          "loaderEach": 1
+        },
+        {
+          "option": "anti-tank-grenades",
+          "costPerModel": 2
+        },
+        {
+          "option": "green",
+          "cost": 0
+        }
+      ]
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "inexperienced",
+      "startingSize": 5,
+      "maxSize": 12,
+      "points": 35,
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
+    }
+  },
+  {
+    "slug": "imperial-japan-regular-infantry",
+    "name": "IJA regular infantry squad",
+    "factionSlug": "imperial-japan",
+    "count": 7,
+    "weaponSlug": "rifle",
+    "profile": {
+      "sourcePage": "203",
+      "baseModels": 7,
+      "maxModels": 15,
+      "basePoints": 70,
+      "extraModelPoints": 10,
+      "ncoCount": 1,
+      "options": [
+        {
+          "weaponSlug": "smg",
+          "max": 1,
+          "costEach": 3,
+          "ncoOnly": true
+        },
+        {
+          "weaponSlug": "lmg",
+          "max": 1,
+          "costEach": 20,
+          "loaderEach": 1
+        },
+        {
+          "option": "anti-tank-grenades",
+          "costPerModel": 2
+        }
+      ]
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 7,
+      "maxSize": 15,
+      "points": 70,
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
+    }
+  },
+  {
+    "slug": "imperial-japan-veteran-infantry",
+    "name": "IJA veteran infantry squad",
+    "factionSlug": "imperial-japan",
+    "count": 7,
+    "weaponSlug": "rifle",
+    "profile": {
+      "sourcePage": "203",
+      "baseModels": 7,
+      "maxModels": 15,
+      "basePoints": 91,
+      "extraModelPoints": 13,
+      "ncoCount": 1,
+      "options": [
+        {
+          "weaponSlug": "smg",
+          "max": 1,
+          "costEach": 3,
+          "ncoOnly": true
+        },
+        {
+          "weaponSlug": "lmg",
+          "max": 1,
+          "costEach": 20,
+          "loaderEach": 1
+        },
+        {
+          "option": "anti-tank-grenades",
+          "costPerModel": 2
+        }
+      ]
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "veteran",
+      "startingSize": 7,
+      "maxSize": 15,
+      "points": 91,
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
+    }
+  },
+  {
+    "slug": "germany-panzer-iv",
+    "name": "Panzer IV (F2/G/H/J)",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "heavy-at-gun",
+    "weaponQuantity": 1,
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-at-gun",
+        "mount": "turret",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "160",
+      "pointsByQuality": {
+        "inexperienced": 188,
+        "regular": 235,
+        "veteran": 282
+      },
+      "damageValue": 9,
+      "options": [],
+      "manualRules": []
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "points": 235,
+      "damageValue": 9,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually."
+    }
+  },
+  {
+    "slug": "united-states-sherman-75",
+    "name": "M4 Sherman 75 mm",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "medium-at-gun",
+    "weaponQuantity": 1,
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-at-gun",
+        "mount": "turret",
+        "quantity": 1,
+        "heDiameter": 2
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "173",
+      "pointsByQuality": {
+        "inexperienced": 156,
+        "regular": 195,
+        "veteran": 234
+      },
+      "damageValue": 9,
+      "options": [
+        {
+          "weaponSlug": "hmg",
+          "mount": "pintle",
+          "cost": 25
+        },
+        {
+          "replaceWeapon": "medium-at-gun",
+          "weaponSlug": "medium-howitzer",
+          "cost": 0
+        }
+      ],
+      "manualRules": [
+        "fire-pins-1d3"
+      ]
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "points": 195,
+      "damageValue": 9,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually."
+    }
+  },
+  {
+    "slug": "united-states-sherman-76",
+    "name": "M4 Sherman 76 mm",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "heavy-at-gun",
+    "weaponQuantity": 1,
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-at-gun",
+        "mount": "turret",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "173",
+      "pointsByQuality": {
+        "inexperienced": 188,
+        "regular": 235,
+        "veteran": 282
+      },
+      "damageValue": 9,
+      "options": [
+        {
+          "weaponSlug": "hmg",
+          "mount": "pintle",
+          "cost": 25
+        }
+      ],
+      "manualRules": [
+        "fire-pins-1d3"
+      ]
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "points": 235,
+      "damageValue": 9,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually."
+    }
+  },
+  {
+    "slug": "great-britain-cromwell",
+    "name": "Cromwell",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "medium-at-gun",
+    "weaponQuantity": 1,
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-at-gun",
+        "mount": "turret",
+        "quantity": 1,
+        "heDiameter": 2
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "185",
+      "pointsByQuality": {
+        "inexperienced": 156,
+        "regular": 195,
+        "veteran": 234
+      },
+      "damageValue": 9,
+      "options": [
+        {
+          "replaceWeapon": "medium-at-gun",
+          "weaponSlug": "medium-howitzer",
+          "variant": "centaur-cs",
+          "cost": 0
+        }
+      ],
+      "manualRules": []
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "points": 195,
+      "damageValue": 9,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually."
+    }
+  },
+  {
+    "slug": "soviet-union-t34-76",
+    "name": "T-34/76",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "medium-at-gun",
+    "weaponQuantity": 1,
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-at-gun",
+        "mount": "turret",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "195",
+      "pointsByQuality": {
+        "inexperienced": 156,
+        "regular": 195,
+        "veteran": 234
+      },
+      "damageValue": 9,
+      "options": [],
+      "manualRules": []
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "points": 195,
+      "damageValue": 9,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually."
+    }
+  },
+  {
+    "slug": "imperial-japan-chi-ha",
+    "name": "Type 97 Chi-Ha",
+    "factionSlug": "imperial-japan",
+    "count": 1,
+    "weaponSlug": "light-howitzer",
+    "weaponQuantity": 1,
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-howitzer",
+        "mount": "turret",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "turret-rear",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "208",
+      "pointsByQuality": {
+        "inexperienced": 108,
+        "regular": 135,
+        "veteran": 162
+      },
+      "damageValue": 8,
+      "options": [],
+      "manualRules": []
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "points": 135,
+      "damageValue": 8,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually."
+    }
+  },
+  {
+    "slug": "imperial-japan-shinhoto-chi-ha",
+    "name": "Type 97-Kai Shinhoto Chi-Ha",
+    "factionSlug": "imperial-japan",
+    "count": 1,
+    "weaponSlug": "medium-at-gun",
+    "weaponQuantity": 1,
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-at-gun",
+        "mount": "turret",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "turret-rear",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "208",
+      "pointsByQuality": {
+        "inexperienced": 124,
+        "regular": 155,
+        "veteran": 186
+      },
+      "damageValue": 8,
+      "options": [],
+      "manualRules": []
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "points": 155,
+      "damageValue": 8,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually."
+    }
+  }
+]

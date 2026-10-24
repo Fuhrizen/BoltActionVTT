@@ -1,0 +1,21 @@
+name: Plan next work gates
+on:
+  workflow_dispatch:
+    inputs:
+      completed:
+        description: Comma-separated verified phase IDs (leave empty to start)
+        type: string
+        required: false
+permissions:
+  contents: read
+jobs:
+  plan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: node tools/tasks.mjs --json --completed "$COMPLETED"
+        env:
+          COMPLETED: ${{ inputs.completed }}
