@@ -1,9 +1,14 @@
-name: Draft tagged release
+name: Publish installable release
 on:
   push:
-    tags: ['v*']
+    branches: [main]
+    paths: ['system.json', '.github/workflows/release.yml']
+  workflow_dispatch:
 permissions:
   contents: write
+concurrency:
+  group: publish-release
+  cancel-in-progress: false
 jobs:
   release:
     runs-on: ubuntu-latest
@@ -13,11 +18,16 @@ jobs:
         with:
           node-version: 22
       - run: npm run check
-        env:
-          RELEASE_TAG: ${{ github.ref_name }}
       - run: npm test
       - run: npm run build
-      - run: gh release create "$RELEASE_TAG" dist/boltaction.zip dist/system.json --draft --verify-tag --title "$RELEASE_TAG" --notes 'Draft pending live Foundry V14 validation.'
+      - name: Publish versioned assets and latest manifest
         env:
           GH_TOKEN: ${{ github.token }}
-          RELEASE_TAG: ${{ github.ref_name }}
+        run: |
+          VERSION=$(node -p "JSON.parse(require('fs').readFileSync('system.json')).version")
+          TAG="v$VERSION"
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            echo "Version already published; bump system.json for a new release."
+            exit 0
+          fi
+          gh release create "$TAG" dist/boltaction.zip dist/system.json --target "$GITHUB_SHA" --latest --title "$TAG" --notes "Unofficial Bolt Action 2e alpha for Foundry V14. Live Foundry validation remains pending; specialist rules require manual adjudication."
