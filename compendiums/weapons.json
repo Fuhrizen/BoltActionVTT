@@ -1,0 +1,565 @@
+[
+  {
+    "slug": "rifle",
+    "name": "Rifle",
+    "type": "weapon",
+    "system": {
+      "slug": "rifle",
+      "range": 24,
+      "shots": 1,
+      "penetration": 0,
+      "traits": [],
+      "quantity": 1,
+      "notes": ""
+    },
+    "profile": {}
+  },
+  {
+    "slug": "pistol",
+    "name": "Pistol",
+    "type": "weapon",
+    "system": {
+      "slug": "pistol",
+      "range": 6,
+      "shots": 1,
+      "penetration": 0,
+      "traits": [
+        "assault"
+      ],
+      "quantity": 1,
+      "notes": ""
+    },
+    "profile": {}
+  },
+  {
+    "slug": "smg",
+    "name": "Submachine gun",
+    "type": "weapon",
+    "system": {
+      "slug": "smg",
+      "range": 12,
+      "shots": 2,
+      "penetration": 0,
+      "traits": [
+        "assault"
+      ],
+      "quantity": 1,
+      "notes": ""
+    },
+    "profile": {}
+  },
+  {
+    "slug": "automatic-rifle",
+    "name": "Automatic rifle",
+    "type": "weapon",
+    "system": {
+      "slug": "automatic-rifle",
+      "range": 30,
+      "shots": 2,
+      "penetration": 0,
+      "traits": [],
+      "quantity": 1,
+      "notes": ""
+    },
+    "profile": {}
+  },
+  {
+    "slug": "assault-rifle",
+    "name": "Assault rifle",
+    "type": "weapon",
+    "system": {
+      "slug": "assault-rifle",
+      "range": 18,
+      "shots": 2,
+      "penetration": 0,
+      "traits": [
+        "assault"
+      ],
+      "quantity": 1,
+      "notes": ""
+    },
+    "profile": {}
+  },
+  {
+    "slug": "lmg",
+    "name": "Light machine gun",
+    "type": "weapon",
+    "system": {
+      "slug": "lmg",
+      "range": 36,
+      "shots": 4,
+      "penetration": 0,
+      "traits": [
+        "team"
+      ],
+      "quantity": 1,
+      "notes": ""
+    },
+    "profile": {}
+  },
+  {
+    "slug": "mmg",
+    "name": "Medium machine gun",
+    "type": "weapon",
+    "system": {
+      "slug": "mmg",
+      "range": 36,
+      "shots": 5,
+      "penetration": 0,
+      "traits": [
+        "team",
+        "fixed"
+      ],
+      "quantity": 1,
+      "notes": ""
+    },
+    "profile": {}
+  },
+  {
+    "slug": "hmg",
+    "name": "Heavy machine gun",
+    "type": "weapon",
+    "system": {
+      "slug": "hmg",
+      "range": 36,
+      "shots": 3,
+      "penetration": 1,
+      "traits": [
+        "team",
+        "fixed"
+      ],
+      "quantity": 1,
+      "notes": ""
+    },
+    "profile": {}
+  },
+  {
+    "slug": "light-autocannon",
+    "name": "Light automatic cannon",
+    "type": "weapon",
+    "system": {
+      "slug": "light-autocannon",
+      "range": 48,
+      "shots": 2,
+      "penetration": 2,
+      "traits": [
+        "team",
+        "fixed",
+        "he-1"
+      ],
+      "quantity": 1,
+      "notes": "",
+      "heDiameter": 1
+    },
+    "profile": {
+      "heDiameter": 1
+    }
+  },
+  {
+    "slug": "heavy-autocannon",
+    "name": "Heavy automatic cannon",
+    "type": "weapon",
+    "system": {
+      "slug": "heavy-autocannon",
+      "range": 72,
+      "shots": 2,
+      "penetration": 3,
+      "traits": [
+        "team",
+        "fixed",
+        "he-1"
+      ],
+      "quantity": 1,
+      "notes": "",
+      "heDiameter": 1
+    },
+    "profile": {
+      "heDiameter": 1
+    }
+  },
+  {
+    "slug": "anti-tank-rifle",
+    "name": "Anti-tank rifle",
+    "type": "weapon",
+    "system": {
+      "slug": "anti-tank-rifle",
+      "range": 36,
+      "shots": 1,
+      "penetration": 2,
+      "traits": [
+        "team"
+      ],
+      "quantity": 1,
+      "notes": ""
+    },
+    "profile": {}
+  },
+  {
+    "slug": "piat",
+    "name": "PIAT",
+    "type": "weapon",
+    "system": {
+      "slug": "piat",
+      "range": 12,
+      "shots": 1,
+      "penetration": 5,
+      "traits": [
+        "team",
+        "shaped-charge"
+      ],
+      "quantity": 1,
+      "notes": ""
+    },
+    "profile": {}
+  },
+  {
+    "slug": "bazooka",
+    "name": "Bazooka",
+    "type": "weapon",
+    "system": {
+      "slug": "bazooka",
+      "range": 24,
+      "shots": 1,
+      "penetration": 5,
+      "traits": [
+        "team",
+        "shaped-charge"
+      ],
+      "quantity": 1,
+      "notes": ""
+    },
+    "profile": {}
+  },
+  {
+    "slug": "panzerschreck",
+    "name": "Panzerschreck",
+    "type": "weapon",
+    "system": {
+      "slug": "panzerschreck",
+      "range": 24,
+      "shots": 1,
+      "penetration": 6,
+      "traits": [
+        "team",
+        "shaped-charge"
+      ],
+      "quantity": 1,
+      "notes": ""
+    },
+    "profile": {}
+  },
+  {
+    "slug": "panzerfaust",
+    "name": "Panzerfaust",
+    "type": "weapon",
+    "system": {
+      "slug": "panzerfaust",
+      "range": 12,
+      "shots": 1,
+      "penetration": 6,
+      "traits": [
+        "one-shot",
+        "shaped-charge"
+      ],
+      "quantity": 1,
+      "notes": ""
+    },
+    "profile": {}
+  },
+  {
+    "slug": "light-at-gun",
+    "name": "Light anti-tank gun",
+    "type": "weapon",
+    "system": {
+      "slug": "light-at-gun",
+      "range": 48,
+      "shots": 1,
+      "penetration": 4,
+      "traits": [
+        "team",
+        "fixed",
+        "he-1"
+      ],
+      "quantity": 1,
+      "notes": "",
+      "heDiameter": 1
+    },
+    "profile": {
+      "heDiameter": 1
+    }
+  },
+  {
+    "slug": "medium-at-gun",
+    "name": "Medium anti-tank gun",
+    "type": "weapon",
+    "system": {
+      "slug": "medium-at-gun",
+      "range": 60,
+      "shots": 1,
+      "penetration": 5,
+      "traits": [
+        "team",
+        "fixed",
+        "he-1"
+      ],
+      "quantity": 1,
+      "notes": "",
+      "heDiameter": 1
+    },
+    "profile": {
+      "heDiameter": 1
+    }
+  },
+  {
+    "slug": "heavy-at-gun",
+    "name": "Heavy anti-tank gun",
+    "type": "weapon",
+    "system": {
+      "slug": "heavy-at-gun",
+      "range": 72,
+      "shots": 1,
+      "penetration": 6,
+      "traits": [
+        "team",
+        "fixed",
+        "he-2"
+      ],
+      "quantity": 1,
+      "notes": "",
+      "heDiameter": 2
+    },
+    "profile": {
+      "heDiameter": 2
+    }
+  },
+  {
+    "slug": "super-heavy-at-gun",
+    "name": "Super-heavy anti-tank gun",
+    "type": "weapon",
+    "system": {
+      "slug": "super-heavy-at-gun",
+      "range": 84,
+      "shots": 1,
+      "penetration": 7,
+      "traits": [
+        "team",
+        "fixed",
+        "he-3"
+      ],
+      "quantity": 1,
+      "notes": "",
+      "heDiameter": 3
+    },
+    "profile": {
+      "heDiameter": 3
+    }
+  },
+  {
+    "slug": "infantry-flamethrower",
+    "name": "Infantry flamethrower",
+    "type": "weapon",
+    "system": {
+      "slug": "infantry-flamethrower",
+      "range": 6,
+      "shots": 1,
+      "penetration": 3,
+      "traits": [
+        "team",
+        "flamethrower"
+      ],
+      "quantity": 1,
+      "notes": "Enter rolled shot count manually; resolve flame effects manually.",
+      "shotsFormula": "1d6"
+    },
+    "profile": {
+      "shotsFormula": "1d6"
+    }
+  },
+  {
+    "slug": "vehicle-flamethrower",
+    "name": "Vehicle flamethrower",
+    "type": "weapon",
+    "system": {
+      "slug": "vehicle-flamethrower",
+      "range": 12,
+      "shots": 1,
+      "penetration": 3,
+      "traits": [
+        "flamethrower"
+      ],
+      "quantity": 1,
+      "notes": "Enter rolled shot count manually; resolve flame effects manually.",
+      "shotsFormula": "1d6+1"
+    },
+    "profile": {
+      "shotsFormula": "1d6+1"
+    }
+  },
+  {
+    "slug": "light-mortar",
+    "name": "Light mortar",
+    "type": "weapon",
+    "system": {
+      "slug": "light-mortar",
+      "range": 24,
+      "shots": 1,
+      "penetration": 0,
+      "traits": [
+        "team",
+        "indirect-fire",
+        "he-1"
+      ],
+      "quantity": 1,
+      "notes": "Use indirect-fire and HE procedures manually; zero penetration is a placeholder, not the HE value.",
+      "minRange": 12,
+      "penetrationMode": "HE",
+      "heDiameter": 1
+    },
+    "profile": {
+      "minRange": 12,
+      "penetrationMode": "HE",
+      "heDiameter": 1
+    }
+  },
+  {
+    "slug": "medium-mortar",
+    "name": "Medium mortar",
+    "type": "weapon",
+    "system": {
+      "slug": "medium-mortar",
+      "range": 60,
+      "shots": 1,
+      "penetration": 0,
+      "traits": [
+        "team",
+        "fixed",
+        "indirect-fire",
+        "he-2"
+      ],
+      "quantity": 1,
+      "notes": "Use indirect-fire and HE procedures manually; zero penetration is a placeholder, not the HE value.",
+      "minRange": 12,
+      "penetrationMode": "HE",
+      "heDiameter": 2
+    },
+    "profile": {
+      "minRange": 12,
+      "penetrationMode": "HE",
+      "heDiameter": 2
+    }
+  },
+  {
+    "slug": "heavy-mortar",
+    "name": "Heavy mortar",
+    "type": "weapon",
+    "system": {
+      "slug": "heavy-mortar",
+      "range": 72,
+      "shots": 1,
+      "penetration": 0,
+      "traits": [
+        "team",
+        "fixed",
+        "indirect-fire",
+        "he-3"
+      ],
+      "quantity": 1,
+      "notes": "Use indirect-fire and HE procedures manually; zero penetration is a placeholder, not the HE value.",
+      "minRange": 12,
+      "penetrationMode": "HE",
+      "heDiameter": 3
+    },
+    "profile": {
+      "minRange": 12,
+      "penetrationMode": "HE",
+      "heDiameter": 3
+    }
+  },
+  {
+    "slug": "light-howitzer",
+    "name": "Light howitzer",
+    "type": "weapon",
+    "system": {
+      "slug": "light-howitzer",
+      "range": 48,
+      "shots": 1,
+      "penetration": 0,
+      "traits": [
+        "team",
+        "fixed",
+        "howitzer",
+        "he-2"
+      ],
+      "quantity": 1,
+      "notes": "Resolve direct/indirect HE manually; zero penetration is a placeholder, not the HE value.",
+      "indirectRange": 60,
+      "penetrationMode": "HE",
+      "heDiameter": 2,
+      "indirectMinRange": 24
+    },
+    "profile": {
+      "indirectRange": 60,
+      "penetrationMode": "HE",
+      "heDiameter": 2,
+      "indirectMinRange": 24
+    }
+  },
+  {
+    "slug": "medium-howitzer",
+    "name": "Medium howitzer",
+    "type": "weapon",
+    "system": {
+      "slug": "medium-howitzer",
+      "range": 60,
+      "shots": 1,
+      "penetration": 0,
+      "traits": [
+        "team",
+        "fixed",
+        "howitzer",
+        "he-3"
+      ],
+      "quantity": 1,
+      "notes": "Resolve direct/indirect HE manually; zero penetration is a placeholder, not the HE value.",
+      "indirectRange": 72,
+      "penetrationMode": "HE",
+      "heDiameter": 3,
+      "indirectMinRange": 30
+    },
+    "profile": {
+      "indirectRange": 72,
+      "penetrationMode": "HE",
+      "heDiameter": 3,
+      "indirectMinRange": 30
+    }
+  },
+  {
+    "slug": "heavy-howitzer",
+    "name": "Heavy howitzer",
+    "type": "weapon",
+    "system": {
+      "slug": "heavy-howitzer",
+      "range": 72,
+      "shots": 1,
+      "penetration": 0,
+      "traits": [
+        "team",
+        "fixed",
+        "howitzer",
+        "he-4"
+      ],
+      "quantity": 1,
+      "notes": "Resolve direct/indirect HE manually; zero penetration is a placeholder, not the HE value.",
+      "indirectRange": 84,
+      "penetrationMode": "HE",
+      "heDiameter": 4,
+      "indirectMinRange": 36
+    },
+    "profile": {
+      "indirectRange": 84,
+      "penetrationMode": "HE",
+      "heDiameter": 4,
+      "indirectMinRange": 36
+    }
+  }
+]

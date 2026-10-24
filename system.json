@@ -1,0 +1,21 @@
+{
+  "id": "boltaction",
+  "title": "Bolt Action 2e (Unofficial)",
+  "description": "Unofficial, assisted top-down tabletop wargaming for Bolt Action Second Edition.",
+  "version": "0.1.0-alpha.1",
+  "compatibility": {"minimum": "14", "maximum": "14"},
+  "authors": [{"name": "BoltActionVTT contributors"}],
+  "url": "https://github.com/Fuhrizen/BoltActionVTT",
+  "manifest": "https://github.com/Fuhrizen/BoltActionVTT/releases/latest/download/system.json",
+  "download": "https://github.com/Fuhrizen/BoltActionVTT/releases/download/v0.1.0-alpha.1/boltaction.zip",
+  "esmodules": ["scripts/main.mjs"],
+  "styles": ["styles/boltaction.css"],
+  "languages": [{"lang": "en", "name": "English", "path": "lang/en.json"}],
+  "documentTypes": {
+    "Actor": {"army": {}, "unit": {}, "model": {}},
+    "Item": {"weapon": {}, "trait": {}, "faction": {}, "selector": {}}
+  },
+  "primaryTokenAttribute": "pins",
+  "grid": {"type": 0, "distance": 1, "units": "in"},
+  "socket": false
+}

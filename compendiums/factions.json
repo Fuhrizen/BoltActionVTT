@@ -1,0 +1,72 @@
+[
+  {
+    "slug": "germany",
+    "name": "Germany",
+    "type": "faction",
+    "traitSlugs": [
+      "initiative-training",
+      "machine-gun-training"
+    ],
+    "system": {
+      "slug": "germany",
+      "traitUuids": [],
+      "notes": "Faction reference shell. Verify era, force selection and options before play."
+    }
+  },
+  {
+    "slug": "united-states",
+    "name": "United States",
+    "type": "faction",
+    "traitSlugs": [
+      "fire-and-manoeuvre",
+      "air-support"
+    ],
+    "system": {
+      "slug": "united-states",
+      "traitUuids": [],
+      "notes": "Faction reference shell. Verify era, force selection and options before play."
+    }
+  },
+  {
+    "slug": "great-britain",
+    "name": "Great Britain",
+    "type": "faction",
+    "traitSlugs": [
+      "artillery-support",
+      "bombardment"
+    ],
+    "system": {
+      "slug": "great-britain",
+      "traitUuids": [],
+      "notes": "Faction reference shell. Verify era, force selection and options before play."
+    }
+  },
+  {
+    "slug": "soviet-union",
+    "name": "Soviet Union",
+    "type": "faction",
+    "traitSlugs": [
+      "morale-reroll",
+      "extra-infantry"
+    ],
+    "system": {
+      "slug": "soviet-union",
+      "traitUuids": [],
+      "notes": "Faction reference shell. Verify era, force selection and options before play."
+    }
+  },
+  {
+    "slug": "imperial-japan",
+    "name": "Imperial Japan",
+    "type": "faction",
+    "traitSlugs": [
+      "fanatics",
+      "banzai-charge"
+    ],
+    "system": {
+      "slug": "imperial-japan",
+      "traitUuids": [],
+      "notes": "Faction reference shell. Verify era, force selection and options before play."
+    }
+  }
+]
