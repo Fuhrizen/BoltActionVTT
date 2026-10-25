@@ -1,7 +1,8 @@
+import {chooseUpgrade} from './roster-upgrade.mjs';
 import {ask, attack, safely} from './dialogs.mjs';
 const {HandlebarsApplicationMixin} = foundry.applications.api;
 export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
-  static DEFAULT_OPTIONS = {classes:['boltaction','actor-sheet'],position:{width:820,height:760},form:{submitOnChange:true},actions:{callObserver:this.callObserver,resolveObserver:this.resolveObserver,resolveObserverTarget:this.resolveObserverTarget,reserve:this.reserve,outflank:this.outflank,shareRoster:this.shareRoster,checkRoster:this.checkRoster,openProfile:this.openProfile,openMember:this.openMember,removeMember:this.removeMember,linkMember:this.linkMember,addModels:this.addModels,spawn:this.spawn,order:this.order,pin:this.pin,casualty:this.casualty,shoot:this.shoot,assault:this.assault,morale:this.morale,openItem:this.openItem,addWeapon:this.addWeapon,activate:this.activate,retain:this.retain,transport:this.transport,unload:this.unload,editTraits:this.editTraits}};
+  static DEFAULT_OPTIONS = {classes:['boltaction','actor-sheet'],position:{width:820,height:760},form:{submitOnChange:true},actions:{tankRun:this.tankRun,upgrade:this.upgrade,callObserver:this.callObserver,resolveObserver:this.resolveObserver,resolveObserverTarget:this.resolveObserverTarget,reserve:this.reserve,outflank:this.outflank,shareRoster:this.shareRoster,checkRoster:this.checkRoster,openProfile:this.openProfile,openMember:this.openMember,removeMember:this.removeMember,linkMember:this.linkMember,addModels:this.addModels,spawn:this.spawn,order:this.order,pin:this.pin,casualty:this.casualty,shoot:this.shoot,assault:this.assault,morale:this.morale,openItem:this.openItem,addWeapon:this.addWeapon,activate:this.activate,retain:this.retain,transport:this.transport,unload:this.unload,editTraits:this.editTraits}};
   static PARTS = {main:{template:'systems/boltaction/templates/actor-sheet.hbs'}};
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
@@ -39,6 +40,8 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
   }
   static async reserve(){return safely(()=>game.boltaction.setReserve(this.actor,{outflank:false}));}
   static async outflank(){return safely(()=>game.boltaction.setReserve(this.actor,{outflank:true}));}
+  static async tankRun(){return safely(()=>game.boltaction.order(this.actor,'run',{forceTest:true,modifier:-3}));}
+  static async upgrade(){return safely(()=>chooseUpgrade(this.actor));}
   static async callObserver(){return safely(async()=>{const d=await ask('Call off-table support',[{name:'kind',label:'Mission',options:['artillery','smoke','air']},{name:'targetUuid',label:'Target unit UUID (required for air)'},{name:'x',label:'Aim point scene X (pixels)',type:'number',value:0},{name:'y',label:'Aim point scene Y (pixels)',type:'number',value:0},{name:'visible',label:'Observer can see aim point / target',type:'checkbox'}]);if(d)await game.boltaction.callObserver(this.actor,d);});}
   static async resolveObserver(){return safely(()=>game.boltaction.resolveObserver(this.actor));}
   static async resolveObserverTarget(){return safely(async()=>{const d=await ask('Resolve support on a unit',[{name:'targetUuid',label:'Affected unit UUID'},{name:'modelsHit',label:'Unique models under template',type:'number',value:0},{name:'placementConfirmed',label:'Effect area and template placement confirmed',type:'checkbox'},{name:'flakResolved',label:'Air preliminary pins and flak resolved',type:'checkbox'},{name:'building',label:'Target in building',type:'checkbox'},{name:'apply',label:'Apply eligible infantry pins',type:'checkbox'}]);if(d)await game.boltaction.resolveObserverTarget(this.actor,d);});}
@@ -55,7 +58,7 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
   static async casualty(_e,t) {return safely(async()=>{const model=t.dataset.uuid?await fromUuid(t.dataset.uuid):this.actor;await game.boltaction.casualty(model,!model.system.dead);});}
   static async shoot() {return safely(()=>attack(this.actor));}
   static async assault() {return safely(()=>attack(this.actor,true));}
-  static async morale() {return safely(async()=>{const d=await ask('Morale test',[{name:'modifier',label:'Situational modifier',type:'number',value:0}]);if(d)await game.boltaction.morale(this.actor,d);});}
+  static async morale() {return safely(async()=>{const d=await ask('Morale test',[{name:'modifier',label:'Situational modifier',type:'number',value:0},{name:'wouldBeDestroyed',label:'Failure would destroy this unit (for faction re-roll)',type:'checkbox'}]);if(d)await game.boltaction.morale(this.actor,d);});}
   static async openItem(_e,t) {this.actor.items.get(t.dataset.id)?.sheet.render({force:true});}
   static async addWeapon() {return safely(()=>this.actor.createEmbeddedDocuments('Item',[{name:'New weapon',type:'weapon'}]));}
   static async activate() {return safely(()=>game.boltaction.activateUnit(this.actor));}

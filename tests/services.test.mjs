@@ -401,3 +401,19 @@ test('actual actor getters require reciprocal membership and exclude dead soldie
   army.system.unitUuids = [];
   assert.equal(unit.army, null);
 });
+
+test('standard shooting applies German MG shots and US moving-fire trait modifiers',async()=>{
+ setup();
+ const u=actor('trait-shooter','unit',{order:'advance'}),t=actor('trait-target');t.damageValue=4;
+ const w={uuid:'Actor.trait-shooter.Item.gun',id:'gun',name:'MMG',system:{slug:'mmg',range:36,minRange:0,shots:5,quantity:1,penetration:0,traits:[]}};u.weapons=[w];
+ u.flags.boltaction={factionSlug:'germany'};
+ let result=await api.shoot(u,{targetUuid:t.uuid,weaponId:w.uuid,range:12});assert.equal(result.hits.results.length,6);assert.equal(result.hits.target,4);
+ u.system.firedWeaponUuids=[];w.system.slug='rifle';w.system.shots=1;w.system.range=24;u.flags.boltaction.factionSlug='united-states';
+ result=await api.shoot(u,{targetUuid:t.uuid,weaponId:w.uuid,range:12});assert.equal(result.hits.target,3);
+});
+test('Shirkers test unpinned Down orders and stubborn morale ignores pins',async()=>{
+ setup();const u=actor('shirker');u.items=[{type:'trait',system:{slug:'shirkers'}}];rolls.push(5,6);
+ const result=await api.order(u,'down');assert.equal(result.automatic,false);assert.equal(result.passed,false);
+ u.items=[{type:'trait',system:{slug:'stubborn'}}];u.system.pins=4;rolls.push(4,4);
+ const morale=await api.morale(u);assert.equal(morale.target,9);assert.equal(morale.passed,true);
+});

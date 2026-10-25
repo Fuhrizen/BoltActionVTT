@@ -27,6 +27,14 @@ export async function attack(unit, assault = false) {
   else fields.push({name:'attackerDice',label:'Attacker attacks (manual)',type:'number',value:unit.livingMembers.length || 1},{name:'defenderDice',label:'Defender attacks (manual)',type:'number',value:1},{name:'range',label:'Measured charge range (inches)',type:'number',value:12},{name:'defensivePosition',label:'Defender in a defensive position (simultaneous attacks)',type:'checkbox'},{name:'reactionsResolved',label:'Charge, terrain and reaction fire have been resolved',type:'checkbox'});
   const data = await ask(assault ? 'Resolve close quarters' : 'Resolve shooting',fields,'Measure and confirm all situational inputs. Special rules, HE, indirect fire, buildings, assault reactions and tied exchanges require manual adjudication. Allocate casualties manually on the soldier roster after reviewing the result.');
   if (!data) return;
+  if(assault){
+    const target=await fromUuid(data.targetUuid);
+    if(unit.system.kind==='vehicle'||target?.system.kind==='vehicle'){
+      const extra=await ask('Vehicle assault situation',[{name:'geometryConfirmed',label:'Legal approach, path and facing confirmed',type:'checkbox'},{name:'reactionsResolved',label:'All reactions resolved',type:'checkbox'},{name:'orderTestConfirmed',label:'Required tank-fear Run order test passed (-3)',type:'checkbox'},{name:'tankHunters',label:'Infantry have tank hunters',type:'checkbox'},{name:'hasAntiTank',label:'Infantry carry anti-tank grenades',type:'checkbox'},{name:'continueOverrun',label:'Continuing the same legal straight overrun path',type:'checkbox'}],'Use the Tank-fear Run button before an assault requiring that test. Confirm movement and special restrictions against the rules. Damage and model removal remain player choices.');
+      if(extra)return game.boltaction.vehicleAssault(unit,{...data,...extra,attacks:data.attackerDice});
+      return;
+    }
+  }
   const selected = unit.weapons.find(w=>w.uuid===data.weaponId);
   if (selected?.system?.traits?.includes('indirect-fire')) data.mode='indirect';
   const special = !assault && (data.mode!=='direct' || selected?.system?.shotsFormula || selected?.system?.traits?.some(t=>['shaped-charge','flamethrower','one-shot','indirect-fire','howitzer','indirect'].includes(t)));

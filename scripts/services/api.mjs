@@ -1,3 +1,4 @@
+import {resolveTraitModifiers} from '../rules/traits.mjs';
 import * as rules from '../rules/index.mjs';
 import {importStarter as importCatalogue, resolveWeapon} from './catalogue.mjs';
 
@@ -80,9 +81,13 @@ export async function profiles(actor) {
   const faction = factionUuid ? await fromUuid(factionUuid) : null;
   const uuids = [...new Set([...(faction?.system.traitUuids ?? []), ...(unit?.system.traitUuids ?? [])])];
   const inherited = await Promise.all(uuids.map(uuid => fromUuid(uuid)));
-  const embedded = [actor, ...(unit && unit !== actor ? [unit] : [])].flatMap(a => a.items.filter(i => i.type === 'trait'));
+  const embedded = [actor, ...(unit && unit !== actor ? [unit] : [])].flatMap(a => (a.items ?? []).filter(i => i.type === 'trait'));
   return {faction: faction?.visible === false ? null : faction,
     traits: [...inherited, ...embedded].filter(item => item?.type === 'trait' && item.visible !== false)};
+}
+export async function traitModifiers(unit, options = {}) {
+  const inherited = await profiles(unit);
+  return resolveTraitModifiers({traits:inherited.traits,factionSlug:inherited.faction?.system.slug || unit.getFlag?.('boltaction','factionSlug') || '',kind:unit.system.kind,pins:unit.system.pins,livingSize:unit.livingMembers.length,...options});
 }
 export async function validateArmy(army) {
   requireOwner(army);
@@ -173,6 +178,7 @@ export async function addModels(actor, {count = 1, weaponSlug = 'rifle', addNco 
   if (unit.members.length + count > 100) throw new Error('A unit can contain at most 100 models.');
   const weapon = weaponSlug ? await resolveWeapon(weaponSlug) : null;
   if (weaponSlug && !weapon) throw new Error(`Unknown weapon slug: ${weaponSlug}`);
+  const previousModels=[...unit.system.modelUuids];
   const created = await actorClass().createDocuments(Array.from({length: count}, (_, i) => ({
     name: `${unit.name} · ${addNco && i === 0 ? 'NCO' : role} ${unit.members.length + i + 1}`, type: 'model',
     img: 'systems/boltaction/assets/soldier.svg', ownership: clone(unit.ownership),
@@ -180,8 +186,10 @@ export async function addModels(actor, {count = 1, weaponSlug = 'rifle', addNco 
     items: weapon ? [clone(weapon)] : [],
     prototypeToken: {actorLink: true, texture: {src: 'systems/boltaction/assets/model-token.svg'}}
   })));
-  try { await unit.update({'system.modelUuids': [...unit.system.modelUuids, ...created.map(a => a.uuid)]}); }
-  catch (error) { await actorClass().deleteDocuments(created.map(a => a.id)); throw error; }
+  try {
+    await unit.update({'system.modelUuids': [...previousModels, ...created.map(a => a.uuid)]});
+    if(unit.getFlag?.('boltaction','profile')){const {calculateRosterCost}=await import('./upgrades.mjs');await unit.update({'system.points':calculateRosterCost(unit).total});}
+  } catch (error) { await unit.update({'system.modelUuids':previousModels});await actorClass().deleteDocuments(created.map(a => a.id));throw error; }
   return created;
 }
 export async function casualty(model, dead = true) {
@@ -221,9 +229,15 @@ export async function order(actor, requestedOrder, {forceTest = false, modifier 
         forceTest = true; modifier -= 1;
       }
     }
-    const options = {...moraleContext(unit), order: requestedOrder, forceTest, modifier, livingSize: unit.livingMembers.length};
-    const automatic = requestedOrder === 'down' || (!unit.system.pins && !forceTest);
-    const first = automatic ? {values: [], roll: null} : await dice(2);
+    const traits = await traitModifiers(unit,{testType:'order',order:requestedOrder});
+    forceTest ||= traits.forceOrderTest;
+    if(requestedOrder!=='rally')modifier -= traits.effectivePins-unit.system.pins;
+    let banzai=false;
+    if(!unit.system.reserve && requestedOrder==='run' && traits.manual.includes('banzai-direction-confirmation')) banzai=await confirm('Banzai direction','Confirm this Run is as close as possible toward the closest visible enemy. Apply the automatic Banzai order?');
+    if(banzai)forceTest=true;
+    const options = {...moraleContext(unit), order: requestedOrder, forceTest, forceDownTest:traits.forceOrderTest, modifier, livingSize: unit.livingMembers.length};
+    const automatic = (requestedOrder === 'down' && !traits.forceOrderTest) || (!unit.system.pins && !forceTest);
+    const first = banzai ? {values:[1,1],roll:null} : automatic ? {values: [], roll: null} : await dice(2);
     options.dice = first.values;
     let result = rules.orderTest(options);
     const rolls = [first.roll];
@@ -253,10 +267,14 @@ export async function order(actor, requestedOrder, {forceTest = false, modifier 
     return result;
   });
 }
-export async function morale(actor, {modifier = 0} = {}) {
+export async function morale(actor, {modifier = 0, wouldBeDestroyed = false} = {}) {
   const unit = asUnit(actor), rolled = await dice(2);
-  const result = rules.moraleTest({...moraleContext(unit), modifier: number(modifier, 0, -20, 20, true), dice: rolled.values});
-  await report(unit, 'Morale test', [`${result.total} vs ${result.target}: ${result.passed ? 'passed' : 'failed — resolve the applicable destruction or vehicle-fire result.'}`], [rolled.roll]);
+  const traits = await traitModifiers(unit,{testType:'morale',wouldBeDestroyed});
+  const context={...moraleContext(unit),pins:traits.effectivePins,ignorePins:traits.ignoreMoralePins,modifier:number(modifier,0,-20,20,true)};
+  let result = rules.moraleTest({...context,dice:rolled.values});
+  const rolls=[rolled.roll];
+  if(!result.passed && traits.moraleRerollEligible && await confirm('Faction morale re-roll','Re-roll this failed destruction morale test?')){const reroll=await dice(2);rolls.push(reroll.roll);result={...rules.moraleTest({...context,dice:reroll.values}),rerolled:true};}
+  await report(unit, 'Morale test', [`${result.total} vs ${result.target}: ${result.passed ? 'passed' : 'failed — resolve the applicable destruction or vehicle-fire result.'}`], rolls);
   if (!result.passed && setting('applyMorale') && await confirm('Apply failed morale', `Mark ${unit.name} destroyed? Confirm the test requires destruction and all special rules have been applied.`)) await unit.update({'system.destroyed': true});
   return result;
 }
@@ -377,9 +395,10 @@ async function resolveShooting(unit, options) {
   }
   const range = number(options.range, 12, 0, 1000);
   if (range < profile.minRange || range > profile.range) throw new Error('The target is outside this weapon’s firing range.');
-  const count = number(options.shots, group.reduce((n, w) => n + w.system.shots * w.system.quantity, 0), 1, 500, true);
-  const input = {quality: unit.system.quality, pins: unit.system.pins, range, weaponRange: profile.range,
-    moved: options.moved || unit.system.order === 'advance', assault: profile.traits.includes('assault'),
+  const traits = await traitModifiers(unit,{weaponSlug:profile.slug,weaponTraits:profile.traits,moved:options.moved || unit.system.order==='advance'});
+  const count = number(options.shots, group.reduce((n, w) => n + (w.system.shots + traits.extraShots) * w.system.quantity, 0), 1, 500, true);
+  const input = {quality: unit.system.quality, pins: traits.effectivePins, range, weaponRange: profile.range,
+    moved: !traits.ignoreMovedPenalty && (options.moved || unit.system.order === 'advance'), assault: profile.traits.includes('assault'),
     targetDown: Boolean(options.targetDown || (target.system.order === 'down' && target.system.kind !== 'vehicle')),
     smallTeam: Boolean(options.smallTeam || (target.system.kind === 'infantry' && target.livingMembers.length > 0 && target.livingMembers.length <= 2)),
     cover: options.cover || 'none', extraModifier: number(options.extraModifier, 0, -30, 30)};

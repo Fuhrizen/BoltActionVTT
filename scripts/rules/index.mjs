@@ -22,7 +22,7 @@ export function fullStrengthEligible({kind = 'infantry', fullStrength = false, s
 export function orderTest(options = {}) {
   const {order = 'fire', pins = 0, forceTest = false, bonusDie, rerollDice} = options;
   if (!ORDERS.includes(order)) throw new RangeError('Unknown order');
-  if (order === 'down' || (!pins && !forceTest)) return {passed: true, automatic: true, order, pinsRemoved: 0, remainingPins: pins, fubar: false, courage: false, rerolled: false};
+  if ((order === 'down' && !options.forceDownTest) || (!pins && !forceTest)) return {passed: true, automatic: true, order, pinsRemoved: 0, remainingPins: pins, fubar: false, courage: false, rerolled: false};
   let result = moraleTest({...options, ignorePins: order === 'rally'}), rerolled = false;
   const canReroll = !result.passed && fullStrengthEligible(options);
   if (canReroll && rerollDice) { result = moraleTest({...options, dice: rerollDice, ignorePins: order === 'rally'}); rerolled = true; }

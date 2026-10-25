@@ -1,3 +1,5 @@
+import {vehicleAssault} from './services/vehicle-assault.mjs';
+import * as upgrades from './services/upgrades.mjs';
 import {ArmyData, UnitData, ModelData, WeaponData, TraitData, FactionData, SelectorData} from './data/models.mjs';
 import {BoltActor} from './documents/actor.mjs';
 import {BoltCombat} from './documents/combat.mjs';
@@ -30,7 +32,7 @@ Hooks.once('init', () => {
   ]) game.settings.register(SID, key, {name, hint, scope: 'world', config: true, type: Boolean, default: initial});
   game.settings.register(SID, 'openBoard', {name: 'Open Battle Board on launch', scope: 'client', config: true, type: Boolean, default: true});
   game.keybindings.register(SID, 'board', {name: 'Open Battle Board', editable: [{key: 'KeyB', modifiers: ['Shift']}], onDown: () => {openBoard(); return true;}});
-  game.boltaction = {...api, ...scenarios, ...observers, specialistAttack, openBoard, formationReport};
+  game.boltaction = {...api, ...upgrades, ...scenarios, ...observers, vehicleAssault, specialistAttack, openBoard, formationReport};
   registerCanvasAssistants();
 });
 
