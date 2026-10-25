@@ -3,18 +3,21 @@ import {BoltActor} from './documents/actor.mjs';
 import {BoltActorSheet} from './applications/actor-sheet.mjs';
 import {BoltItemSheet} from './applications/item-sheet.mjs';
 import * as groups from './services/groups.mjs';
+import * as modelChoices from './services/model-choices.mjs';
+import {registerActorDirectoryHierarchy} from './applications/actor-directory.mjs';
 import {prepareCatalogue} from './services/catalogue.mjs';
 import {profiles} from './services/group-profiles.mjs';
 const SID='boltaction';
 const modelTypes=['model','modelStatic','modelVehicle'];
 function activeGM(){return game.user.isGM&&(!game.users?.activeGM||game.users.activeGM.id===game.user.id);}
 Hooks.once('init',()=>{
+ registerActorDirectoryHierarchy();
  CONFIG.Actor.documentClass=BoltActor;
  Object.assign(CONFIG.Actor.dataModels,{army:ArmyData,unit:UnitData,model:ModelData,modelStatic:StaticModelData,modelVehicle:VehicleModelData});
  Object.assign(CONFIG.Item.dataModels,{weapon:WeaponData,trait:TraitData,faction:FactionData,selector:SelectorData});
  foundry.documents.collections.Actors.registerSheet(SID,BoltActorSheet,{types:['army','unit',...modelTypes],makeDefault:true,label:'Team, squad and model sheets'});
  foundry.documents.collections.Items.registerSheet(SID,BoltItemSheet,{types:['weapon','trait','faction','selector'],makeDefault:true,label:'Bolt Action profile'});
- game.boltaction={...groups,profiles,prepareCatalogue,importStarter:prepareCatalogue};
+ game.boltaction={...groups,...modelChoices,profiles,prepareCatalogue,importStarter:prepareCatalogue};
 });
 Hooks.once('ready',async()=>{
  if(activeGM()&&!game.packs?.find(p=>p.metadata?.name==='boltaction-models')){

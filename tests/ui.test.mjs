@@ -7,10 +7,11 @@ const {BoltActorSheet}=await import('../scripts/applications/actor-sheet.mjs');
 const {ask}=await import('../scripts/applications/dialogs.mjs');
 function actor(type='unit',extra={}){return {uuid:'Actor.one',name:'Section',type,img:'unit.svg',isOwner:true,system:{quality:'regular',basePoints:10,pointsAdjustment:2},members:[],items:[],points:12,...extra};}
 function setup(){globalThis.game={user:{isGM:false},users:[],items:[],packs:[],boltaction:{profiles:async()=>({traits:[]})}};}
-test('team and squad contexts express folder membership and aggregate points without battle controls',async()=>{
- setup();const child=actor('model',{uuid:'Actor.model',name:'Rifleman'}),sheet=new BoltActorSheet();sheet.actor=actor('unit',{members:[child]});let c=await sheet._prepareContext({});assert.equal(c.core,true);assert.equal(c.isSquad,true);assert.equal(c.isModel,false);assert.equal(c.points,12);assert.equal(c.members[0].type,'Infantry model');assert.equal(c.members[0].points,12);
+test('team and squad contexts express membership without point tracking or battle controls',async()=>{
+ setup();const child=actor('model',{uuid:'Actor.model',name:'Rifleman'}),sheet=new BoltActorSheet();sheet.actor=actor('unit',{members:[child]});let c=await sheet._prepareContext({});assert.equal(c.core,true);assert.equal(c.isSquad,true);assert.equal(c.isModel,false);assert.equal(c.points,undefined);assert.equal(c.members[0].type,'Infantry model');assert.equal(c.members[0].points,undefined);
  sheet.actor=actor('army',{ownership:{player:3},members:[actor()]});game.users=[{id:'player',name:'Alex',isGM:false}];c=await sheet._prepareContext({});assert.equal(c.isTeam,true);assert.equal(c.assignedPlayers,'Alex');assert.equal(c.squadCount,1);
- const template=await readFile(new URL('../templates/actor-sheet.hbs',import.meta.url),'utf8');for(const action of ['spawn','nextRound','draw','configureScene','checkRoster','activate'])assert.ok(!template.includes(`data-action="${action}"`));
+ assert.equal(BoltActorSheet.DEFAULT_OPTIONS.actions.importModel,undefined);
+ const template=await readFile(new URL('../templates/actor-sheet.hbs',import.meta.url),'utf8');assert.doesNotMatch(template,/system\.(?:basePoints|pointsAdjustment|score)|\{\{points\}\}/);assert.ok(template.includes('data-drop-target="model"'));for(const action of ['importModel','spawn','nextRound','draw','configureScene','checkRoster','activate'])assert.ok(!template.includes(`data-action="${action}"`));
 });
 test('all three individual model types use model customisation while hidden membership stays private',async()=>{
  setup();for(const type of ['model','modelStatic','modelVehicle']){const sheet=new BoltActorSheet();sheet.actor=actor(type,{isOwner:false,unit:{name:'Hidden squad',visible:false},members:[actor('model',{visible:false})]});const c=await sheet._prepareContext({});assert.equal(c.isModel,true);assert.equal(c.editable,false);assert.equal(c.parent,null);assert.deepEqual(c.members,[]);assert.equal(c.isStatic,type==='modelStatic');assert.equal(c.isVehicle,type==='modelVehicle');}
@@ -25,4 +26,9 @@ test('equipment drop clones permitted items without document IDs and rejects ina
 });
 test('dialog escapes untrusted labels and preserves blank optional numeric inputs',async()=>{
  const config=await ask('Test',[{name:'cost',label:'<img onerror=x>',type:'number',optional:true}]);assert.ok(!config.content.includes('<img'));assert.ok(config.content.includes('&lt;img'));const value=config.buttons[0].callback(null,null,{element:{querySelector:()=>({value:''})}});assert.equal(value.cost,undefined);assert.equal(config.buttons[1].callback(),false);
+});
+
+test('model context groups source weapon choices by mount and exposes optional equipment',async()=>{
+ setup();game.boltaction.getModelChoices=async()=>({experiences:[{value:'veteran',label:'Veteran',selected:true}],equipment:[{id:'rifle',label:'Rifle',kind:'primary',slot:'primary',selected:true},{id:'smg',label:'SMG',kind:'primary',slot:'primary',selected:false},{id:'hull',label:'Hull gun',kind:'primary',slot:'mount:hull'},{id:'grenades',label:'Grenades',kind:'trait',selected:true}],manualOptions:[]});
+ const sheet=new BoltActorSheet();sheet.actor=actor('model');const c=await sheet._prepareContext({});assert.equal(c.primarySlots.length,2);assert.deepEqual(c.primarySlots[0].choices.map(x=>x.id),['rifle','smg']);assert.equal(c.primarySlots[1].label,'hull');assert.equal(c.optionalChoices[0].id,'grenades');assert.equal(c.qualities[0].value,'veteran');
 });

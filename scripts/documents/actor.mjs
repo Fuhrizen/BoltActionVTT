@@ -23,11 +23,6 @@ export class BoltActor extends foundry.documents.Actor {
     return army?.documentName === "Actor" && army.type === "army" && army.system.unitUuids.includes(this.unit.uuid) ? army : null;
   }
   get effectiveSide() { return this.army?.system.side || this.unit?.system.side || this.system.side || "unassigned"; }
-  get points() {
-    if(['army','unit'].includes(this.type))return this.members.reduce((total,a)=>total+a.points,0);
-    const equipment=this.items.filter(i=>i.type==='weapon').reduce((total,i)=>total+(Number(i.system.cost)||0)*(Number(i.system.quantity)||1),0);
-    return Math.max(0,(Number(this.system.basePoints)||0)+(Number(this.system.pointsAdjustment)||0)+equipment);
-  }
   get morale() {
     const unit = this.unit;
     if (!unit) return 0;

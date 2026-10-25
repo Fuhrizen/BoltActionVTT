@@ -1,5 +1,6 @@
-const SID = 'boltaction';
 const MODELS = new Set(['model', 'modelStatic', 'modelVehicle']);
+const SQUAD_KINDS = new Set(['infantry', 'vehicleStatic']);
+const modelKind = actor => actor.type === 'model' ? 'infantry' : 'vehicleStatic';
 const clone = value => structuredClone(value);
 const actorClass = () => CONFIG.Actor.documentClass;
 const ownerLevel = () => globalThis.CONST?.DOCUMENT_OWNERSHIP_LEVELS?.OWNER ?? 3;
@@ -31,6 +32,29 @@ function childActors(parent) {
   return [...new Set(parent.system[field] ?? [])].map(worldActor).filter(actor => actor && actor.system[childField] === parent.uuid && (parent.type === 'army' ? actor.type === 'unit' : MODELS.has(actor.type)));
 }
 function descendants(parent) {return childActors(parent).flatMap(child => [child, ...descendants(child)]);}
+function validateSquadKind(kind) {
+  if (!SQUAD_KINDS.has(kind)) throw new Error('Choose an infantry or vehicle/static squad.');
+  return kind;
+}
+export function getSquadKind(parent) {
+  if (SQUAD_KINDS.has(parent.system.squadKind)) return parent.system.squadKind;
+  const kinds = new Set(childActors(parent).map(modelKind));
+  return kinds.size === 1 ? [...kinds][0] : 'infantry';
+}
+function validateSquadMembers(parent, child) {
+  const kind = getSquadKind(parent);
+  const members = childActors(parent);
+  if (members.some(member => modelKind(member) !== kind)) throw new Error('This squad has incompatible models. Unlink them and sort the squad before adding models.');
+  if (child && modelKind(child) !== kind) throw new Error('Infantry squads contain infantry models; vehicle/static squads contain vehicle or static models.');
+}
+export async function setSquadKind(parent, kind) {
+  squad(parent); validateSquadKind(kind);
+  return serial('group-membership', async () => {
+    if (childActors(parent).some(member => modelKind(member) !== kind)) throw new Error('Unlink incompatible models before changing the squad type.');
+    await parent.update({'system.squadKind': kind});
+    return parent;
+  });
+}
 function ownershipUpdate(actor, ownership) {
   return {...Object.fromEntries(Object.keys(actor.ownership ?? {}).map(id => [id, 0])), ...clone(ownership)};
 }
@@ -61,6 +85,7 @@ export async function linkGroupMember(parent, child) {
   owned(parent); owned(child);
   const fields = relationship(parent, child);
   return serial('group-membership', async () => {
+    if (parent.type === 'unit') validateSquadMembers(parent, child);
     const previousParent = child.system[fields.parent] ?? '';
     if (previousParent && previousParent !== parent.uuid) throw new Error('This actor already belongs to another group. Unlink it there first.');
     const snapshots = [], previousList = [...(parent.system[fields.list] ?? [])];
@@ -136,17 +161,18 @@ export async function createTeam({name = 'Player Team', userIds = [], factionUui
   try {await setTeamFaction(actor, factionUuid); await assignTeam(actor, userIds); return actor;}
   catch (error) {await actor.delete(); throw error;}
 }
-export async function createGroup(parent, {name = 'Squad'} = {}) {
-  team(parent); canCreate();
+export async function createGroup(parent, {name = 'Squad', squadKind = 'infantry'} = {}) {
+  team(parent); canCreate(); validateSquadKind(squadKind);
   const actor = await actorClass().create({name: String(name).trim().slice(0, 150) || 'Squad', type: 'unit',
     img: 'systems/boltaction/assets/unit.svg', ownership: clone(parent.ownership ?? {}),
-    system: {armyUuid: '', modelUuids: [], points: 0}});
+    system: {armyUuid: '', modelUuids: [], squadKind}});
   try {await linkGroupMember(parent, actor); return actor;} catch (error) {await actor.delete(); throw error;}
 }
 export async function importModel(parent, documentOrUuid) {
   squad(parent); canCreate();
   const source = typeof documentOrUuid === 'string' ? await fromUuid(documentOrUuid) : documentOrUuid;
   if (!source || source.documentName !== 'Actor' || !MODELS.has(source.type) || source.visible === false) throw new Error('Import an individual infantry, static or vehicle Model from the compendium.');
+  validateSquadMembers(parent, source);
   const data = clone(source.toObject());
   delete data._id; delete data.folder; delete data._stats;
   data.system ??= {}; data.system.unitUuid = '';
@@ -157,16 +183,9 @@ export async function importModel(parent, documentOrUuid) {
   const actor = await actorClass().create(data);
   try {await linkGroupMember(parent, actor); return actor;} catch (error) {await actor.delete(); throw error;}
 }
-function modelPoints(actor) {
-  if (Number.isFinite(actor.points)) return actor.points;
-  const base = Number(actor.system.basePoints ?? 0), adjustment = Number(actor.system.pointsAdjustment ?? 0);
-  const equipment = (actor.items ?? []).filter(item => item.type === 'weapon').reduce((sum, item) => sum + Number(item.system.cost ?? 0) * Number(item.system.quantity ?? 1), 0);
-  return base + adjustment + equipment;
-}
 export function groupSummary(parent) {
   const members = childActors(parent).filter(actor => actor.visible !== false);
   const squads = parent.type === 'army' ? members : [];
   const models = parent.type === 'unit' ? members : squads.flatMap(childActors).filter(actor => actor.visible !== false);
-  return {members, points: models.reduce((sum, model) => sum + modelPoints(model), 0), modelCount: models.length,
-    squadCount: squads.length, models: models.length, squads: squads.length, score: Number(parent.system.score ?? 0)};
+  return {members, modelCount: models.length, squadCount: squads.length, models: models.length, squads: squads.length};
 }

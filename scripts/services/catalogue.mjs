@@ -79,7 +79,7 @@ export async function modelTemplate(row, packed = new Map()) {
     unitUuid: '', quality, role: personal?.role ?? (type === 'model' ? 'rifleman' : type === 'modelStatic' ? 'weapon' : 'vehicle'),
     dead: false, basePoints, pointsAdjustment: 0, sourceFactionUuid,
     traitUuids: (row.traitSlugs ?? []).map(slug => packed.get(slug)?.uuid).filter(Boolean),
-    notes: type === 'modelStatic' ? `Includes the source profile's ${row.count ?? profile.baseModels ?? 1} crew and base equipment. Edit the model's points and crew as needed.` : '',
+    notes: type === 'modelStatic' ? `Includes the source profile's ${row.count ?? profile.baseModels ?? 1} crew and base equipment. Edit the crew as needed.` : '',
     crew: type === 'modelStatic' ? row.count ?? profile.baseModels ?? 1 : 0,
     damageValue: row.system.damageValue ?? (quality === 'veteran' ? 5 : quality === 'inexperienced' ? 3 : 4),
     capacity: row.system.capacity ?? 0, moveAdvance: row.system.moveAdvance ?? 6, moveRun: row.system.moveRun ?? 12,

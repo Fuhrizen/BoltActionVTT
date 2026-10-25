@@ -1,21 +1,51 @@
-<div class="sheet-content">
-<header class="folder-header"><img src="{{actor.img}}" alt="" width="56" height="56"><div class="folder-title"><span class="eyebrow">{{kindLabel}}</span><input name="name" class="name-input" value="{{actor.name}}" aria-label="Name" {{#unless editable}}disabled{{/unless}}>{{#if parent}}<small>In {{parent.name}}</small>{{/if}}</div><div class="points-total"><b>{{points}}</b><span>POINTS</span></div></header>
-{{#if isTeam}}
-<label class="team-score">Team score<input name="system.score" type="number" value="{{system.score}}" {{#unless editable}}disabled{{/unless}}></label><div class="team-details"><div><span class="eyebrow">Faction</span><strong>{{factionName}}</strong>{{#if editable}}<button type="button" data-action="chooseFaction">Choose faction</button>{{/if}}</div><div><span class="eyebrow">Players</span><strong>{{#if assignedPlayers}}{{assignedPlayers}}{{else}}Unassigned{{/if}}</strong>{{#if isGM}}<button type="button" data-action="assignPlayers">Assign players</button>{{/if}}</div></div>
-<section class="folder-panel"><div class="folder-bar"><h2>Squads <span>{{squadCount}}</span></h2>{{#if editable}}<button type="button" data-action="createSquad">+ Squad</button>{{/if}}</div><div class="folder-contents">{{#each members}}<div class="member-row"><span class="folder-mark" aria-hidden="true">▰</span><button type="button" data-action="openMember" data-uuid="{{uuid}}" class="text-button">{{name}}<small>{{count}} models</small></button><span class="row-points">{{points}} pts</span>{{#if ../editable}}<button type="button" data-action="removeMember" data-uuid="{{uuid}}" class="icon-button" aria-label="Remove {{name}} from team">×</button>{{/if}}</div>{{else}}<div class="drop-zone">Create a squad or drag an existing squad here.</div>{{/each}}</div></section>
-{{#if isGM}}<button type="button" class="quiet-button" data-action="prepareCatalogue">Prepare model compendiums</button>{{/if}}
-{{/if}}
-{{#if isSquad}}
-<div class="group-caption"><span>{{modelCount}} models</span><span>Permissions and faction inherited from the Player Team</span></div>
-<section class="folder-panel"><div class="folder-bar"><h2>Models <span>{{modelCount}}</span></h2>{{#if editable}}<button type="button" data-action="importModel">+ Import model</button>{{/if}}</div><div class="folder-contents">{{#each members}}<div class="member-row {{#if dead}}casualty{{/if}}"><img src="{{img}}" alt="" width="36" height="36"><button type="button" data-action="openMember" data-uuid="{{uuid}}" class="text-button">{{name}}<small>{{type}}{{#if dead}} · casualty{{/if}}</small></button><span class="row-points">{{points}} pts</span>{{#if ../editable}}<button type="button" data-action="removeMember" data-uuid="{{uuid}}" class="icon-button" aria-label="Remove {{name}} from squad">×</button>{{/if}}</div>{{else}}<div class="drop-zone">Drag models from the compendium into this squad, or choose Import model.</div>{{/each}}</div></section>
-{{/if}}
-{{#if isModel}}
-<div class="field-grid"><label>Experience<select name="system.quality" {{#unless editable}}disabled{{/unless}}>{{#each qualities}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{value}}</option>{{/each}}</select></label><label>Role<input name="system.role" value="{{system.role}}" {{#unless editable}}disabled{{/unless}}></label><label>Base points<input type="number" name="system.basePoints" value="{{system.basePoints}}" min="0" {{#unless editable}}disabled{{/unless}}></label><label>Points adjustment<input type="number" name="system.pointsAdjustment" value="{{system.pointsAdjustment}}" {{#unless editable}}disabled{{/unless}}></label><label class="checkbox-label"><input type="checkbox" name="system.dead" {{checked system.dead}} {{#unless editable}}disabled{{/unless}}> Casualty / destroyed</label></div>
-{{#if isStatic}}<details open><summary>Static model</summary><div class="field-grid"><label>Crew<input type="number" name="system.crew" value="{{system.crew}}" min="1" {{#unless editable}}disabled{{/unless}}></label><label>Advance distance<input type="number" name="system.moveAdvance" value="{{system.moveAdvance}}" min="0" {{#unless editable}}disabled{{/unless}}></label></div></details>{{/if}}
-{{#if isVehicle}}<details open><summary>Vehicle</summary><div class="field-grid"><label>Damage value<input type="number" name="system.damageValue" value="{{system.damageValue}}" {{#unless editable}}disabled{{/unless}}></label><label>Transport capacity<input type="number" name="system.capacity" value="{{system.capacity}}" min="0" {{#unless editable}}disabled{{/unless}}></label><label>Advance distance<input type="number" name="system.moveAdvance" value="{{system.moveAdvance}}" min="0" {{#unless editable}}disabled{{/unless}}></label><label>Run distance<input type="number" name="system.moveRun" value="{{system.moveRun}}" min="0" {{#unless editable}}disabled{{/unless}}></label></div></details>{{/if}}
-<section class="folder-panel"><div class="folder-bar"><h2>Equipment</h2>{{#if editable}}<button type="button" data-action="addWeapon">+ Weapon</button>{{/if}}</div><div class="folder-contents">{{#each weapons}}<div class="member-row"><button type="button" class="text-button" data-action="openItem" data-id="{{id}}">{{name}}<small>{{range}}″ · {{shots}} shots · quantity {{quantity}}</small></button><span>{{cost}} pts each</span>{{#if ../editable}}<button type="button" class="icon-button" data-action="removeItem" data-id="{{id}}" aria-label="Remove {{name}}">×</button>{{/if}}</div>{{else}}<div class="drop-zone">Drop weapon items here to equip this model.</div>{{/each}}</div></section>
-<p class="cost-note">Points = base points + adjustment + equipment costs. Group legality is not enforced.</p>
-{{/if}}
-{{#if ruleProfiles}}<details class="inherited-rules"><summary>Inherited faction & model traits</summary>{{#each ruleProfiles}}<article><h3>{{name}}</h3><p>{{effect}}</p><p>{{notes}}</p></article>{{/each}}</details>{{/if}}
-<label class="notes-label">Notes<textarea name="system.notes" rows="3" {{#unless editable}}disabled{{/unless}}>{{system.notes}}</textarea></label>
+<div class="boltaction ba-sheet standard-form">
+  <header class="ba-sheet-header">
+    <img src="{{actor.img}}" alt="" width="56" height="56">
+    <div class="ba-title"><small>{{kindLabel}}</small><input name="name" value="{{actor.name}}" aria-label="Name" {{#unless editable}}disabled{{/unless}}>{{#if parent}}<small>In {{parent.name}}</small>{{/if}}</div>
+  </header>
+  {{#if isTeam}}
+  <div class="ba-grid">
+    <div class="ba-detail"><label>Faction</label><strong>{{factionName}}</strong>{{#if editable}}<button type="button" data-action="chooseFaction">Choose faction</button>{{/if}}</div>
+    <div class="ba-detail"><label>Players</label><strong>{{#if assignedPlayers}}{{assignedPlayers}}{{else}}Unassigned{{/if}}</strong>{{#if isGM}}<button type="button" data-action="assignPlayers">Assign players</button>{{/if}}</div>
+  </div>
+  <section>
+    <div class="ba-section-heading"><h2>Squads ({{squadCount}})</h2>{{#if editable}}<button type="button" data-action="createSquad">Create squad</button>{{/if}}</div>
+    <div class="ba-member-list">
+      {{#each members}}<div class="ba-member-row"><i class="fa-solid fa-folder" aria-hidden="true"></i><button type="button" data-action="openMember" data-uuid="{{uuid}}" class="ba-member-name">{{name}}<small>{{count}} models</small></button>{{#if ../editable}}<button type="button" data-action="removeMember" data-uuid="{{uuid}}" class="ba-remove" aria-label="Unlink {{name}}">×</button>{{/if}}</div>{{else}}<p>No squads assigned.</p>{{/each}}
+    </div>
+    {{#if editable}}<div class="ba-drop-zone" data-drop-target="squad"><i class="fa-solid fa-folder-plus" aria-hidden="true"></i><p>Drag an existing squad here to assign it to this team.</p></div>{{/if}}
+  </section>
+  {{#if isGM}}<button type="button" data-action="prepareCatalogue">Prepare model compendiums</button>{{/if}}
+  {{/if}}
+  {{#if isSquad}}
+  <label>Squad type<select data-squad-kind {{#unless editable}}disabled{{/unless}}>{{#each squadKinds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+  {{#if incompatible}}<p class="notification warning">This squad contains incompatible model types. Unlink the incompatible models before adding more or changing its type.</p>{{/if}}
+  <p>Permissions and faction are inherited from the Player Team.</p>
+  <section>
+    <div class="ba-section-heading"><h2>Models ({{modelCount}})</h2></div>
+    <div class="ba-member-list">
+      {{#each members}}<div class="ba-member-row {{#if dead}}ba-casualty{{/if}}"><img src="{{img}}" alt="" width="36" height="36"><button type="button" data-action="openMember" data-uuid="{{uuid}}" class="ba-member-name">{{name}}<small>{{type}}{{#if dead}} · casualty{{/if}}</small></button>{{#if ../editable}}<button type="button" data-action="removeMember" data-uuid="{{uuid}}" class="ba-remove" aria-label="Unlink {{name}}">×</button>{{/if}}</div>{{else}}<p>No models assigned.</p>{{/each}}
+    </div>
+    {{#if editable}}<div class="ba-drop-zone" data-drop-target="model"><i class="fa-solid fa-download" aria-hidden="true"></i><strong>Drop models here</strong><p>Drag a model from the model compendium to import an individual copy, or drag an existing model to link it.</p></div>{{/if}}
+  </section>
+  {{/if}}
+  {{#if isModel}}
+  <div class="ba-grid">
+    <label>Experience<select data-experience {{#unless editable}}disabled{{/unless}}>{{#each qualities}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    <label>Role<input name="system.role" value="{{system.role}}" {{#unless editable}}disabled{{/unless}}></label>
+    <label class="ba-checkbox"><input type="checkbox" name="system.dead" {{checked system.dead}} {{#unless editable}}disabled{{/unless}}> Casualty / destroyed</label>
+  </div>
+  {{#if primarySlots}}<section><h2>Weapon choices</h2><div class="ba-grid">{{#each primarySlots}}<label>{{label}}<select data-primary-choice {{#unless ../editable}}disabled{{/unless}}>{{#each choices}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>{{/each}}</div></section>{{/if}}
+  {{#if optionalChoices}}<section><h2>Optional equipment</h2><div class="ba-grid">{{#each optionalChoices}}<label class="ba-checkbox"><input type="checkbox" data-model-choice data-choice-id="{{id}}" {{checked selected}} {{#unless ../editable}}disabled{{/unless}}> {{label}}</label>{{/each}}</div></section>{{/if}}
+  {{#if choices.manualOptions}}<details><summary>Other profile options</summary><ul>{{#each choices.manualOptions}}<li>{{label}}{{#if reason}} — {{reason}}{{/if}}</li>{{/each}}</ul></details>{{/if}}
+  {{#if isStatic}}<section><h2>Static model</h2><div class="ba-grid"><label>Crew<input type="number" name="system.crew" value="{{system.crew}}" min="1" {{#unless editable}}disabled{{/unless}}></label><label>Advance distance<input type="number" name="system.moveAdvance" value="{{system.moveAdvance}}" min="0" {{#unless editable}}disabled{{/unless}}></label></div></section>{{/if}}
+  {{#if isVehicle}}<section><h2>Vehicle</h2><div class="ba-grid"><label>Damage value<input type="number" name="system.damageValue" value="{{system.damageValue}}" {{#unless editable}}disabled{{/unless}}></label><label>Transport capacity<input type="number" name="system.capacity" value="{{system.capacity}}" min="0" {{#unless editable}}disabled{{/unless}}></label><label>Advance distance<input type="number" name="system.moveAdvance" value="{{system.moveAdvance}}" min="0" {{#unless editable}}disabled{{/unless}}></label><label>Run distance<input type="number" name="system.moveRun" value="{{system.moveRun}}" min="0" {{#unless editable}}disabled{{/unless}}></label></div></section>{{/if}}
+  <section>
+    <div class="ba-section-heading"><h2>Equipment</h2>{{#if editable}}<button type="button" data-action="addWeapon">Add custom weapon</button>{{/if}}</div>
+    {{#each weapons}}<div class="ba-member-row"><button type="button" class="ba-member-name" data-action="openItem" data-id="{{id}}">{{name}}<small>{{range}}″ · {{shots}} shots · quantity {{quantity}}</small></button>{{#if ../editable}}<button type="button" class="ba-remove" data-action="removeItem" data-id="{{id}}" aria-label="Remove {{name}}">×</button>{{/if}}</div>{{else}}<p>No weapons equipped.</p>{{/each}}
+    {{#if editable}}<div class="ba-drop-zone" data-drop-target="item">Drop weapon or trait items here for additional custom equipment.</div>{{/if}}
+  </section>
+  {{/if}}
+  {{#if ruleProfiles}}<details><summary>Inherited faction and model traits</summary>{{#each ruleProfiles}}<article><h3>{{name}}</h3><p>{{effect}}</p><p>{{notes}}</p></article>{{/each}}</details>{{/if}}
+  <label>Notes<textarea name="system.notes" rows="3" {{#unless editable}}disabled{{/unless}}>{{system.notes}}</textarea></label>
 </div>

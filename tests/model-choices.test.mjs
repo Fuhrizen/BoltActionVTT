@@ -1,0 +1,88 @@
+import test from 'node:test';
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import {getModelChoices,applyModelChoice} from '../scripts/services/model-choices.mjs';
+import {loadCatalogue,modelTemplate} from '../scripts/services/catalogue.mjs';
+
+globalThis.fetch = async path => ({ok:true,json:async()=>JSON.parse(await readFile(new URL(`../${path.replace('systems/boltaction/','')}`,import.meta.url),'utf8'))});
+let counter = 0;
+function item(source) {
+  const data = structuredClone(source); data._id ??= `item${++counter}`;
+  return {...data,id:data._id,toObject(){const {id,toObject,...source}=this;return structuredClone(source);}};
+}
+async function model(slug = 'great-britain-regular-infantry') {
+  const row = (await loadCatalogue()).units.find(row=>row.slug===slug);
+  const source = await modelTemplate(row);
+  return {...source,uuid:'Actor.model',isOwner:true,items:source.items.map(item),
+    async update(data){if(data['system.quality'])this.system.quality=data['system.quality'];return this;},
+    async createEmbeddedDocuments(type,rows){const created=rows.map(item);this.items.push(...created);return created;},
+    async deleteEmbeddedDocuments(type,ids){if(this.failDelete){this.failDelete=false;throw new Error('Injected delete failure');}this.items=this.items.filter(item=>!ids.includes(item.id));}
+  };
+}
+async function choose(model,slug,enabled=true) {
+  const choice=(await getModelChoices(model)).equipment.find(choice=>(choice.weaponSlug??choice.traitSlug)===slug);
+  assert.ok(choice,`Expected choice ${slug}`);
+  await applyModelChoice(model,{choiceId:choice.id,enabled});
+}
+
+test('actual British infantry has experience and equipment choices without point fields',async()=>{
+  const actor=await model();const choices=await getModelChoices(actor);
+  assert.deepEqual(choices.experiences.map(row=>row.value),['inexperienced','regular','veteran']);
+  for(const slug of ['rifle','smg','lmg','anti-tank-grenades'])assert.ok(choices.equipment.some(row=>(row.weaponSlug??row.traitSlug)===slug));
+  assert.doesNotMatch(JSON.stringify(choices),/cost|points|max|nco/i);
+  await applyModelChoice(actor,{experience:'inexperienced'});assert.equal(actor.system.quality,'inexperienced');
+  assert.ok((await getModelChoices(actor)).equipment.some(row=>row.weaponSlug==='lmg'));
+});
+test('primary switches preserve custom gear and repeated switches do not duplicate weapons',async()=>{
+  const actor=await model();actor.items.push(item({name:'Custom sidearm',type:'weapon',system:{quantity:1}}));
+  const custom=actor.items.at(-1).id;
+  await choose(actor,'smg');await choose(actor,'smg');assert.equal(actor.items.length,2);
+  await choose(actor,'lmg');assert.equal(actor.items.length,2);
+  await choose(actor,'rifle');assert.equal(actor.items.length,2);assert.ok(actor.items.some(item=>item.id===custom));
+  assert.equal(actor.items.find(item=>item.flags?.boltaction?.modelChoiceSlot==='primary').name,'Rifle');
+  assert.equal(actor.items.find(item=>item.flags?.boltaction?.modelChoiceSlot==='primary').system.cost,undefined);
+});
+test('optional trait toggles are idempotent and leave actor data unchanged',async()=>{
+  const actor=await model();const before=structuredClone(actor.system);
+  await choose(actor,'anti-tank-grenades');await choose(actor,'anti-tank-grenades');
+  assert.equal(actor.items.filter(item=>item.type==='trait').length,1);
+  const trait=actor.items.find(item=>item.type==='trait');assert.equal(trait.system.slug,'anti-tank-grenades');assert.equal(trait.system.category,undefined);assert.ok(trait.system.effect);
+  await choose(actor,'anti-tank-grenades',false);await choose(actor,'anti-tank-grenades',false);
+  assert.equal(actor.items.filter(item=>item.type==='trait').length,0);assert.deepEqual(actor.system,before);
+});
+test('a single-quality source profile stays restricted and displays an existing custom quality',async()=>{
+  const actor=await model('imperial-japan-militia');
+  assert.deepEqual((await getModelChoices(actor)).experiences.map(row=>row.value),['inexperienced']);
+  await assert.rejects(applyModelChoice(actor,{experience:'veteran'}),/Unknown experience/);
+  actor.system.quality='regular';
+  const choices=(await getModelChoices(actor)).experiences;
+  assert.deepEqual(choices.map(row=>row.value),['inexperienced','regular']);assert.equal(choices.find(row=>row.value==='regular').selected,true);
+});
+test('existing optional traits are recognized without creating duplicate items',async()=>{
+  const actor=await model();actor.items.push(item({name:'Anti-tank grenades',type:'trait',system:{slug:'anti-tank-grenades',effect:'Existing effect',notes:''}}));
+  assert.equal((await getModelChoices(actor)).equipment.find(row=>row.traitSlug==='anti-tank-grenades').selected,true);
+  await choose(actor,'anti-tank-grenades');assert.equal(actor.items.filter(item=>item.type==='trait').length,1);
+  await choose(actor,'anti-tank-grenades',false);assert.equal(actor.items.filter(item=>item.type==='trait').length,0);
+});
+test('failed weapon switch rolls back original identity and experience',async()=>{
+  const actor=await model();const before=actor.items.map(item=>item.toObject());
+  const choice=(await getModelChoices(actor)).equipment.find(choice=>choice.weaponSlug==='smg');
+  actor.failDelete=true;
+  await assert.rejects(applyModelChoice(actor,{choiceId:choice.id,experience:'veteran'}),/Injected delete/);
+  assert.equal(actor.system.quality,'regular');assert.deepEqual(actor.items.map(item=>item.toObject()),before);
+});
+test('unowned, compendium, and unknown selections reject before mutation',async()=>{
+  const actor=await model();const original=actor.items.map(item=>item.toObject());
+  actor.isOwner=false;await assert.rejects(applyModelChoice(actor,{experience:'veteran'}),/own/);
+  actor.isOwner=true;actor.pack='world.models';await assert.rejects(applyModelChoice(actor,{experience:'veteran'}),/world/);
+  delete actor.pack;await assert.rejects(applyModelChoice(actor,{choiceId:'arbitrary-code'}),/Unknown/);
+  assert.equal(actor.system.quality,'regular');assert.deepEqual(actor.items.map(item=>item.toObject()),original);
+});
+test('Sherman gun conversion keeps other mounted weapons and restores its original gun',async()=>{
+  const actor=await model('great-britain-sherman-75');
+  const others=actor.items.filter(item=>item.name!=='Medium anti-tank gun').map(item=>item.id);
+  await choose(actor,'medium-howitzer');assert.equal(actor.items.length,3);
+  const gun=actor.items.find(item=>item.flags?.boltaction?.catalogueSlug==='medium-howitzer');assert.equal(gun.flags.boltaction.mount,'turret');
+  await choose(actor,'medium-at-gun');assert.equal(actor.items.length,3);
+  for(const id of others)assert.ok(actor.items.some(item=>item.id===id));
+});
