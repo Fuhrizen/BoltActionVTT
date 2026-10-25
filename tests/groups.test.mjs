@@ -75,7 +75,7 @@ test('team owners can import and customize faction without permitting cross-owne
   const unowned=actor({ownership:{default:0,p2:3}});await assert.rejects(groups.linkGroupMember(squad,unowned),/must own/);
   const source=actor({pack:'world.models',type:'model',ownership:{default:0}});
   const imported=await groups.importModel(squad,source);assert.equal(imported.ownership.p1,3);
-  await assert.rejects(groups.linkGroupMember(team,imported),/Player Teams contain/);
+  await assert.rejects(groups.linkGroupMember(team,imported),/Armies contain/);
 });
 test('summary filters hidden children and returns counts without point tracking',async()=>{
   setup();const team=await groups.createTeam();const squad=await groups.createGroup(team);

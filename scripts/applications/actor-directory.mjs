@@ -116,12 +116,12 @@ export function renderActorDirectoryHierarchy(app, html) {
     wrapper.className = 'ba-actor-group';
     // Core sidebar list rules vary between docked and pop-out directories. Keep
     // structural layout on our own elements; native Actor rows retain all hooks.
-    wrapper.setAttribute('style', 'display:block;list-style:none;margin:0;padding:0;min-width:0;');
+    wrapper.setAttribute('style', 'display:block;flex:0 0 auto;align-self:stretch;box-sizing:border-box;width:100%;max-width:100%;list-style:none;margin:0;padding:0;min-width:0;');
     wrapper.dataset.groupUuid = uuidOf(actor);
     wrapper.setAttribute('role', 'treeitem');
     const heading = document.createElement('div');
     heading.className = 'ba-group-heading';
-    heading.setAttribute('style', 'display:flex;flex-flow:row nowrap;align-items:center;gap:0;min-width:0;width:100%;');
+    heading.setAttribute('style', 'display:flex;flex-flow:row nowrap;align-items:center;gap:0;box-sizing:border-box;min-width:0;width:100%;min-height:2rem;');
     const toggle = document.createElement('button');
     toggle.type = 'button';
     toggle.className = 'ba-group-toggle';
@@ -129,7 +129,7 @@ export function renderActorDirectoryHierarchy(app, html) {
     toggle.setAttribute('aria-label', `Expand or collapse ${actor.name}`);
     const nativeList = document.createElement('ol');
     nativeList.className = 'ba-group-document';
-    nativeList.setAttribute('style', 'display:flex;flex:1 1 0;min-width:0;list-style:none;margin:0;padding:0;');
+    nativeList.setAttribute('style', 'display:flex;flex:1 1 0;align-self:stretch;box-sizing:border-box;min-width:0;list-style:none;margin:0;padding:0;');
     const childList = document.createElement('ol');
     childList.className = 'directory-list ba-group-children';
     childList.setAttribute('role', 'group');
@@ -140,7 +140,7 @@ export function renderActorDirectoryHierarchy(app, html) {
     function applyExpansion() {
       const open = searching() || expanded.has(uuidOf(actor));
       childList.hidden = !open;
-      childList.setAttribute('style', `display:${open ? 'block' : 'none'};list-style:none;margin:0;padding:0 0 0 1rem;`);
+      childList.setAttribute('style', `display:${open ? 'block' : 'none'};list-style:none;margin:0;padding:0 0 0 1rem;box-sizing:border-box;width:100%;min-width:0;`);
       toggle.textContent = open ? '▾' : '▸';
       toggle.setAttribute('aria-expanded', String(open));
       wrapper.setAttribute('aria-expanded', String(open));

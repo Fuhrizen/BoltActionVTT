@@ -1,3 +1,4 @@
+import {factionAppearance,isDefaultModelArt} from './faction-appearance.mjs';
 const MODELS = new Set(['model', 'modelStatic', 'modelVehicle']);
 const SQUAD_KINDS = new Set(['infantry', 'vehicleStatic']);
 const modelKind = actor => actor.type === 'model' ? 'infantry' : 'vehicleStatic';
@@ -14,14 +15,14 @@ function owned(actor) {
   if (!actor || actor.documentName !== 'Actor' || !actor.isOwner || actor.pack) throw new Error('You must own this world actor.');
   return actor;
 }
-function gm() {if (!game.user.isGM) throw new Error('The GM assigns player teams and their owners.');}
+function gm() {if (!game.user.isGM) throw new Error('The GM assigns armies and their owners.');}
 function canCreate() {if (!game.user.isGM && !game.user.can?.('ACTOR_CREATE')) throw new Error('You need permission to create actors.');}
-function team(actor) {owned(actor); if (actor.type !== 'army') throw new Error('Choose a Player Team.'); return actor;}
+function team(actor) {owned(actor); if (actor.type !== 'army') throw new Error('Choose a Army.'); return actor;}
 function squad(actor) {owned(actor); if (actor.type !== 'unit') throw new Error('Choose a Squad.'); return actor;}
 function relationship(parent, child) {
   if (parent.type === 'army' && child.type === 'unit') return {list: 'unitUuids', parent: 'armyUuid'};
   if (parent.type === 'unit' && MODELS.has(child.type)) return {list: 'modelUuids', parent: 'unitUuid'};
-  throw new Error('Player Teams contain Squads; Squads contain individual Models.');
+  throw new Error('Armies contain Squads; Squads contain individual Models.');
 }
 function collectionValues(collection) {return collection?.contents ?? Array.from(collection ?? []);}
 function worldActor(uuid) {return collectionValues(game.actors).find(actor => actor.uuid === uuid);}
@@ -74,7 +75,7 @@ async function setOwnership(actors, ownership, snapshots) {
 }
 export async function syncGroupOwnership(parent) {
   owned(parent);
-  if (!['army', 'unit'].includes(parent.type)) throw new Error('Choose a Player Team or Squad.');
+  if (!['army', 'unit'].includes(parent.type)) throw new Error('Choose a Army or Squad.');
   return serial('group-membership', async () => {
     const children = descendants(parent), snapshots = [];
     try {await setOwnership(children, parent.ownership ?? {}, snapshots);} catch (error) {await restore(snapshots); throw error;}
@@ -127,11 +128,18 @@ export async function setTeamFaction(actor, factionUuid = '') {
     if (!faction || faction.documentName !== 'Item' || faction.type !== 'faction' || faction.visible === false) throw new Error('Choose an available faction profile.');
   }
   await parent.update({'system.factionUuid': factionUuid});
+  const faction=factionUuid?await fromUuid(factionUuid):null;
+  for(const model of descendants(parent).filter(a=>MODELS.has(a.type))) {
+    const art=factionAppearance(faction?.system?.slug || faction?.getFlag?.('boltaction','catalogueSlug'),model.type),changes={};
+    if(isDefaultModelArt(model.img))changes.img=art.img;
+    if(isDefaultModelArt(model.prototypeToken?.texture?.src))changes['prototypeToken.texture.src']=art.tokenSrc;
+    if(Object.keys(changes).length)await model.update(changes);
+  }
   return parent;
 }
 export async function assignTeam(actor, userIds = []) {
   gm(); const parent = team(actor);
-  if (!Array.isArray(userIds)) throw new Error('Choose the users assigned to this Player Team.');
+  if (!Array.isArray(userIds)) throw new Error('Choose the users assigned to this Army.');
   const ids = [...new Set(userIds)], users = collectionValues(game.users);
   if (ids.some(id => !users.some(user => user.id === id))) throw new Error('An assigned user could not be found.');
   return serial('group-membership', async () => {
@@ -154,9 +162,9 @@ export async function assignTeam(actor, userIds = []) {
     }
   });
 }
-export async function createTeam({name = 'Player Team', userIds = [], factionUuid = ''} = {}) {
+export async function createTeam({name = 'Army', userIds = [], factionUuid = ''} = {}) {
   gm(); canCreate();
-  const actor = await actorClass().create({name: String(name).trim().slice(0, 150) || 'Player Team', type: 'army',
+  const actor = await actorClass().create({name: String(name).trim().slice(0, 150) || 'Army', type: 'army',
     img: 'systems/boltaction/assets/army.svg', system: {unitUuids: [], factionUuid: ''}, ownership: {default: 0}});
   try {await setTeamFaction(actor, factionUuid); await assignTeam(actor, userIds); return actor;}
   catch (error) {await actor.delete(); throw error;}
@@ -178,7 +186,11 @@ export async function importModel(parent, documentOrUuid) {
   data.system ??= {}; data.system.unitUuid = '';
   delete data.system.armyUuid; delete data.system.modelUuids; delete data.system.unitUuids;
   data.ownership = clone(parent.ownership ?? {});
-  data.prototypeToken = {...data.prototypeToken, actorLink: true};
+  const army=worldActor(parent.system.armyUuid),faction=army?.system.factionUuid?await fromUuid(army.system.factionUuid):null;
+  const art=factionAppearance(faction?.system?.slug || faction?.getFlag?.('boltaction','catalogueSlug') || source.flags?.boltaction?.factionSlug,source.type);
+  if(isDefaultModelArt(data.img))data.img=art.img;
+  data.prototypeToken = {...data.prototypeToken, actorLink: true,name:data.name};
+  if(isDefaultModelArt(data.prototypeToken.texture?.src))data.prototypeToken.texture={...data.prototypeToken.texture,src:art.tokenSrc};
   for (const item of data.items ?? []) {delete item._id; delete item._stats;}
   const actor = await actorClass().create(data);
   try {await linkGroupMember(parent, actor); return actor;} catch (error) {await actor.delete(); throw error;}

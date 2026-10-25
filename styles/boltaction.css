@@ -25,12 +25,14 @@
 .boltaction .trait-list {display:flex; flex-wrap:wrap; gap:.5rem;}
 .boltaction .weapon-row {display:flex; gap:1rem; align-items:center;}
 .boltaction .notes-label {display:flex; flex-direction:column; gap:.4rem;}
-.ba-actor-group {display:block; list-style:none; margin:0; padding:0; min-width:0;}
-.ba-actor-group>.ba-group-heading {display:flex; flex-flow:row nowrap; align-items:center; gap:0; min-width:0; width:100%;}
-.ba-group-heading>.ba-group-document {display:flex; flex:1 1 0; min-width:0; list-style:none; margin:0; padding:0;}
-.ba-group-document>.directory-item {flex:1 1 auto; min-width:0; width:100%; list-style:none; margin:0;}
+.ba-actor-group {display:block; flex:0 0 auto; align-self:stretch; box-sizing:border-box; width:100%; max-width:100%; list-style:none; margin:0; padding:0; min-width:0;}
+.ba-actor-group>.ba-group-heading {display:flex; flex-flow:row nowrap; align-items:center; gap:0; box-sizing:border-box; min-width:0; width:100%; min-height:2rem;}
+.ba-group-heading>.ba-group-document {display:flex; flex:1 1 0; align-self:stretch; box-sizing:border-box; min-width:0; list-style:none; margin:0; padding:0;}
+.ba-group-document>.directory-item {flex:1 1 0; box-sizing:border-box; min-width:0; width:100%; height:2rem; min-height:2rem; list-style:none; margin:0; padding-block:0; align-items:center;}
+.ba-group-document>.directory-item img {flex:0 0 1.75rem; width:1.75rem; height:1.75rem; object-fit:cover;}
+.ba-group-document :is(.document-name,.entry-name,h3,h4) {min-width:0; margin-block:0; line-height:1.2;}
 .ba-group-heading>.ba-group-toggle {flex:0 0 1.5rem; width:1.5rem; min-width:1.5rem; margin:0; padding:0; height:2rem;}
-.ba-actor-group>.ba-group-children {display:block; list-style:none; margin:0; padding:0 0 0 1rem;}
+.ba-actor-group>.ba-group-children {display:block; box-sizing:border-box; width:100%; min-width:0; list-style:none; margin:0; padding:0 0 0 1rem;}
 .ba-actor-group>.ba-group-children[hidden] {display:none;}
 .ba-actor-group::marker,.ba-group-document>li::marker,.ba-group-children>li::marker {content:"";}
 @media(max-width:600px) {.boltaction .ba-grid,.boltaction .field-grid {grid-template-columns:1fr;}}
@@ -39,3 +41,14 @@
 .boltaction.actor-sheet h2 {font-size:1.2rem; margin:.5rem 0;}
 .boltaction.actor-sheet h3 {font-size:1.05rem;}
 .boltaction.actor-sheet .ba-sheet-header {display:flex;align-items:center;gap:1rem;}
+
+/* Sheet cards retain core theme colours and native input rendering. */
+.boltaction .ba-card {border:1px solid var(--color-border-light-primary, #7776);border-radius:6px;padding:.8rem;gap:.65rem;}
+.boltaction .ba-sheet-header {padding-bottom:.5rem;}
+.boltaction .ba-grid>label {display:flex;flex-direction:column;gap:.35rem;}
+.boltaction .ba-grid>.ba-checkbox {flex-direction:row;align-items:center;min-height:2rem;}
+.boltaction .ba-member-list {display:flex;flex-direction:column;gap:.4rem;}
+.boltaction .ba-member-name small {display:block;font-size:.8em;font-weight:normal;}
+.boltaction .ba-drop-zone {padding:.75rem;min-height:4rem;}
+.boltaction .ba-detail {padding:.65rem;border:1px solid var(--color-border-light-primary, #7776);border-radius:6px;}
+.boltaction .ba-card h2 {font-size:1.1rem;line-height:1.3;margin:0;}

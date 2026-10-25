@@ -1,3 +1,5 @@
+import {factionAppearance,isDefaultModelArt} from './faction-appearance.mjs';
+
 export const CATALOGUE_FILES = ['weapons','traits','factions','units'];
 let cached;
 export async function loadCatalogue() {
@@ -42,6 +44,7 @@ export async function resolveWeapon(slug) {
 const identity = slug => ({boltaction:{catalogueSlug:slug}});
 const findSlug = (collection, slug) => collection.find(document => document.getFlag?.('boltaction','catalogueSlug') === slug || document.flags?.boltaction?.catalogueSlug === slug);
 const itemData = row => ({name:row.name,type:row.type,system:structuredClone(row.system),flags:{boltaction:{catalogueSlug:row.slug,...(row.profile ? {profile:structuredClone(row.profile)} : {})}}});
+const defaultModelName = type => type === 'modelVehicle' ? 'Unnamed Vehicle' : type === 'modelStatic' ? 'Unnamed Crew' : 'Unnamed Soldier';
 /** Convert a source roster profile to one reusable individual model. */
 export async function modelTemplate(row, packed = new Map()) {
   const personal = row.composition?.find(entry => ['officer', 'observer', 'medic'].includes(entry.role));
@@ -74,9 +77,9 @@ export async function modelTemplate(row, packed = new Map()) {
   flags.boltaction.factionSlug = row.factionSlug ?? '';
   flags.boltaction.includedEquipment = true;
   flags.boltaction.modelTemplate = true;
-  const name = type === 'model' && !personal ? row.name.replace(/squad|section/gi, 'model') : row.name;
+  const name = defaultModelName(type);
   const system = {
-    unitUuid: '', quality, role: personal?.role ?? (type === 'model' ? 'rifleman' : type === 'modelStatic' ? 'weapon' : 'vehicle'),
+    profileName:row.name, unitUuid: '', quality, role: personal?.role ?? (type === 'model' ? 'rifleman' : type === 'modelStatic' ? 'weapon' : 'vehicle'),
     dead: false, basePoints, pointsAdjustment: 0, sourceFactionUuid,
     traitUuids: (row.traitSlugs ?? []).map(slug => packed.get(slug)?.uuid).filter(Boolean),
     notes: type === 'modelStatic' ? `Includes the source profile's ${row.count ?? profile.baseModels ?? 1} crew and base equipment. Edit the crew as needed.` : '',
@@ -85,7 +88,8 @@ export async function modelTemplate(row, packed = new Map()) {
     capacity: row.system.capacity ?? 0, moveAdvance: row.system.moveAdvance ?? 6, moveRun: row.system.moveRun ?? 12,
     immobilised: false, openTopped: Boolean(row.system.openTopped || row.traitSlugs?.includes('open-topped')), vehicleDamage: ''
   };
-  return {name, type, system, items, flags};
+  const appearance = factionAppearance(row.factionSlug,type);
+  return {name,type,img:appearance.img,prototypeToken:{actorLink:true,texture:{src:appearance.tokenSrc}},system,items,flags};
 }
 
 let importing;
@@ -98,25 +102,49 @@ export function prepareCatalogue() {
 export const importStarter = prepareCatalogue;
 const folderId = folder => typeof folder === 'string' ? folder : folder?.id ?? folder?._id ?? null;
 const modelFolderLabels = {model:'Infantry',modelStatic:'Static',modelVehicle:'Vehicle'};
+function battlefieldRole(row, type) {
+  const personal = row.composition?.find(entry => ['officer','observer','medic'].includes(entry.role))?.role;
+  if (type === 'model') return {officer:'Officers',observer:'Observers',medic:'Medics'}[personal] ?? 'Infantry sections';
+  if (type === 'modelVehicle') {
+    if (row.system.capacity > 0) return 'Transports';
+    if (row.traitSlugs?.includes('flak') || /\bAA\b|anti-aircraft/i.test(row.name)) return 'Anti-aircraft';
+    if (/howitzer|mortar/.test(row.weaponSlug ?? '')) return 'Fire support';
+    return 'Armoured vehicles';
+  }
+  if (row.system.kind === 'artillery') return 'Artillery';
+  if (row.traitSlugs?.includes('sniper')) return 'Snipers';
+  if (/mortar/.test(row.weaponSlug ?? '')) return 'Mortar teams';
+  if (/^(lmg|mmg|hmg)$/.test(row.weaponSlug ?? '')) return 'Machine-gun teams';
+  if (/at-|anti-tank|bazooka|piat|panzerschreck/.test(row.weaponSlug ?? '')) return 'Anti-tank teams';
+  return 'Weapon teams';
+}
 async function modelFolder(pack, folders, data, row, type) {
   const Folder = CONFIG.Folder?.documentClass ?? foundry.documents.Folder;
+  const {color} = factionAppearance(row.factionSlug,type);
   const ensure = async (name, key, parent = null) => {
     let folder = folders.find(folder => folder.type === 'Actor' && (folder.getFlag?.('boltaction','catalogueFolder') === key || folder.flags?.boltaction?.catalogueFolder === key));
     folder ??= folders.find(folder => folder.type === 'Actor' && folder.name === name && folderId(folder.folder) === parent);
     if (!folder) {
       if (pack.locked) throw new Error('Unlock the Models compendium to organize its catalogue folders.');
-      folder = await Folder.create({name,type:'Actor',folder:parent,sorting:'a',flags:{boltaction:{catalogueFolder:key}}},{pack:pack.collection});
+      folder = await Folder.create({name,type:'Actor',folder:parent,color,sorting:'a',flags:{boltaction:{catalogueFolder:key}}},{pack:pack.collection});
       folders.push(folder);
-    } else if (folderId(folder.folder) !== parent) {
-      if (pack.locked) throw new Error('Unlock the Models compendium to organize its catalogue folders.');
-      await folder.update({folder:parent});
+    } else {
+      const changes = {};
+      if (folderId(folder.folder) !== parent) changes.folder = parent;
+      if (folder.color !== color) changes.color = color;
+      if (Object.keys(changes).length) {
+        if (pack.locked) throw new Error('Unlock the Models compendium to organize its catalogue folders.');
+        await folder.update(changes);
+      }
     }
     return folderId(folder);
   };
   const faction = data.factions.find(faction => faction.slug === row.factionSlug);
   const factionKey = row.factionSlug || 'unaffiliated';
   const parent = await ensure(faction?.name ?? 'Unaffiliated',`faction:${factionKey}`);
-  return ensure(modelFolderLabels[type],`type:${factionKey}:${type}`,parent);
+  const typeFolder = await ensure(modelFolderLabels[type],`type:${factionKey}:${type}`,parent);
+  const role = battlefieldRole(row,type);
+  return ensure(role,`role:${factionKey}:${type}:${role}`,typeFolder);
 }
 async function performImport() {
   const data = await loadCatalogue();
@@ -155,9 +183,18 @@ async function performImport() {
     if (!document) {
       document = await Actor.create({...source,folder}, {pack:modelPack.collection});
       existing.push(document);
-    } else if (folderId(document.folder) !== folder) {
-      if (modelPack.locked) throw new Error('Unlock the Models compendium to organize its catalogue entries.');
-      await document.update({folder});
+    } else {
+      const updates = {};
+      if (folderId(document.folder) !== folder) updates.folder = folder;
+      if (document.name !== defaultModelName(document.type)) updates.name = defaultModelName(document.type);
+      if (document.system.profileName !== row.name) updates['system.profileName'] = row.name;
+      const appearance = factionAppearance(row.factionSlug,document.type);
+      if (isDefaultModelArt(document.img) && document.img !== appearance.img) updates.img = appearance.img;
+      if (isDefaultModelArt(document.prototypeToken?.texture?.src) && document.prototypeToken?.texture?.src !== appearance.tokenSrc) updates['prototypeToken.texture.src'] = appearance.tokenSrc;
+      if (Object.keys(updates).length) {
+        if (modelPack.locked) throw new Error('Unlock the Models compendium to organize and refresh its catalogue entries.');
+        await document.update(updates);
+      }
     }
   }
   packs.models = modelPack;

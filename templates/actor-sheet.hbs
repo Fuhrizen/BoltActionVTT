@@ -1,49 +1,49 @@
-<div class="boltaction ba-sheet standard-form">
-  <header class="ba-sheet-header">
+<div class="boltaction ba-sheet standard-form" style="display:flex;flex-direction:column;gap:12px;padding:16px;overflow-y:auto;min-height:0;">
+  <header class="ba-sheet-header" style="display:flex;align-items:center;gap:12px;">
     <img src="{{actor.img}}" alt="" width="56" height="56">
-    <div class="ba-title"><small>{{kindLabel}}</small><input name="name" value="{{actor.name}}" aria-label="Name" {{#unless editable}}disabled{{/unless}}>{{#if parent}}<small>In {{parent.name}}</small>{{/if}}</div>
+    <div class="ba-title" style="flex:1;min-width:0;display:flex;flex-direction:column;gap:4px;"><small>{{kindLabel}}{{#if isModel}} · {{profileName}}{{/if}}</small><label>{{#if isModel}}Identity{{else}}Name{{/if}}<input name="name" value="{{actor.name}}" placeholder="Unnamed Soldier" aria-label="{{#if isModel}}Identity{{else}}Name{{/if}}" {{#unless editable}}disabled{{/unless}}></label>{{#if parent}}<small>In {{parent.name}}</small>{{/if}}</div>
   </header>
   {{#if isTeam}}
-  <div class="ba-grid">
+  <div class="ba-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">
     <div class="ba-detail"><label>Faction</label><strong>{{factionName}}</strong>{{#if editable}}<button type="button" data-action="chooseFaction">Choose faction</button>{{/if}}</div>
     <div class="ba-detail"><label>Players</label><strong>{{#if assignedPlayers}}{{assignedPlayers}}{{else}}Unassigned{{/if}}</strong>{{#if isGM}}<button type="button" data-action="assignPlayers">Assign players</button>{{/if}}</div>
   </div>
-  <section>
-    <div class="ba-section-heading"><h2>Squads ({{squadCount}})</h2>{{#if editable}}<button type="button" data-action="createSquad">Create squad</button>{{/if}}</div>
+  <section class="ba-card" style="display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid var(--color-border-light-primary, #7776);border-radius:6px;">
+    <div class="ba-section-heading" style="display:flex;align-items:center;justify-content:space-between;gap:12px;"><h2 style="font-size:1.1rem;line-height:1.3;margin:0;">Squads ({{squadCount}})</h2>{{#if editable}}<button type="button" data-action="createSquad">Create squad</button>{{/if}}</div>
     <div class="ba-member-list">
-      {{#each members}}<div class="ba-member-row"><i class="fa-solid fa-folder" aria-hidden="true"></i><button type="button" data-action="openMember" data-uuid="{{uuid}}" class="ba-member-name">{{name}}<small>{{count}} models</small></button>{{#if ../editable}}<button type="button" data-action="removeMember" data-uuid="{{uuid}}" class="ba-remove" aria-label="Unlink {{name}}">×</button>{{/if}}</div>{{else}}<p>No squads assigned.</p>{{/each}}
+      {{#each members}}<div class="ba-member-row" style="display:flex;align-items:center;gap:10px;min-width:0;"><i class="fa-solid fa-folder" aria-hidden="true"></i><button type="button" data-action="openMember" data-uuid="{{uuid}}" class="ba-member-name" style="flex:1;min-width:0;height:auto;white-space:normal;text-align:left;">{{name}}<small>{{count}} models</small></button>{{#if ../editable}}<button type="button" data-action="removeMember" data-uuid="{{uuid}}" class="ba-remove" style="flex:none;width:30px;" aria-label="Unlink {{name}}">×</button>{{/if}}</div>{{else}}<p>No squads assigned.</p>{{/each}}
     </div>
-    {{#if editable}}<div class="ba-drop-zone" data-drop-target="squad"><i class="fa-solid fa-folder-plus" aria-hidden="true"></i><p>Drag an existing squad here to assign it to this team.</p></div>{{/if}}
+    {{#if editable}}<div class="ba-drop-zone" data-drop-target="squad"><i class="fa-solid fa-folder-plus" aria-hidden="true"></i><p>Drag an existing squad here to assign it to this army.</p></div>{{/if}}
   </section>
   {{#if isGM}}<button type="button" data-action="prepareCatalogue">Prepare model compendiums</button>{{/if}}
   {{/if}}
   {{#if isSquad}}
   <label>Squad type<select data-squad-kind {{#unless editable}}disabled{{/unless}}>{{#each squadKinds}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
   {{#if incompatible}}<p class="notification warning">This squad contains incompatible model types. Unlink the incompatible models before adding more or changing its type.</p>{{/if}}
-  <p>Permissions and faction are inherited from the Player Team.</p>
-  <section>
-    <div class="ba-section-heading"><h2>Models ({{modelCount}})</h2></div>
+  <p>Permissions and faction are inherited from the Army.</p>
+  <section class="ba-card" style="display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid var(--color-border-light-primary, #7776);border-radius:6px;">
+    <div class="ba-section-heading" style="display:flex;align-items:center;justify-content:space-between;gap:12px;"><h2 style="font-size:1.1rem;line-height:1.3;margin:0;">Models ({{modelCount}})</h2></div>
     <div class="ba-member-list">
-      {{#each members}}<div class="ba-member-row {{#if dead}}ba-casualty{{/if}}"><img src="{{img}}" alt="" width="36" height="36"><button type="button" data-action="openMember" data-uuid="{{uuid}}" class="ba-member-name">{{name}}<small>{{type}}{{#if dead}} · casualty{{/if}}</small></button>{{#if ../editable}}<button type="button" data-action="removeMember" data-uuid="{{uuid}}" class="ba-remove" aria-label="Unlink {{name}}">×</button>{{/if}}</div>{{else}}<p>No models assigned.</p>{{/each}}
+      {{#each members}}<div class="ba-member-row {{#if dead}}ba-casualty{{/if}}" style="display:flex;align-items:center;gap:10px;min-width:0;"><img src="{{img}}" alt="" width="36" height="36"><button type="button" data-action="openMember" data-uuid="{{uuid}}" class="ba-member-name" style="flex:1;min-width:0;height:auto;white-space:normal;text-align:left;">{{name}}<small>{{type}}{{#if dead}} · casualty{{/if}}</small></button>{{#if ../editable}}<button type="button" data-action="removeMember" data-uuid="{{uuid}}" class="ba-remove" style="flex:none;width:30px;" aria-label="Unlink {{name}}">×</button>{{/if}}</div>{{else}}<p>No models assigned.</p>{{/each}}
     </div>
     {{#if editable}}<div class="ba-drop-zone" data-drop-target="model"><i class="fa-solid fa-download" aria-hidden="true"></i><strong>Drop models here</strong><p>Drag a model from the model compendium to import an individual copy, or drag an existing model to link it.</p></div>{{/if}}
   </section>
   {{/if}}
   {{#if isModel}}
-  <div class="ba-grid">
+  <div class="ba-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">
     <label>Experience<select data-experience {{#unless editable}}disabled{{/unless}}>{{#each qualities}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
     <label>Role<input name="system.role" value="{{system.role}}" {{#unless editable}}disabled{{/unless}}></label>
-    <label class="ba-checkbox"><input type="checkbox" name="system.dead" {{checked system.dead}} {{#unless editable}}disabled{{/unless}}> Casualty / destroyed</label>
+    <label class="ba-checkbox" style="display:flex;flex-direction:row;align-items:center;gap:8px;min-height:32px;"><input type="checkbox" name="system.dead" {{checked system.dead}} {{#unless editable}}disabled{{/unless}}> Casualty / destroyed</label>
   </div>
-  {{#if primarySlots}}<section><h2>Weapon choices</h2><div class="ba-grid">{{#each primarySlots}}<label>{{label}}<select data-primary-choice {{#unless ../editable}}disabled{{/unless}}>{{#each choices}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>{{/each}}</div></section>{{/if}}
-  {{#if optionalChoices}}<section><h2>Optional equipment</h2><div class="ba-grid">{{#each optionalChoices}}<label class="ba-checkbox"><input type="checkbox" data-model-choice data-choice-id="{{id}}" {{checked selected}} {{#unless ../editable}}disabled{{/unless}}> {{label}}</label>{{/each}}</div></section>{{/if}}
+  {{#if primarySlots}}<section class="ba-card" style="display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid var(--color-border-light-primary, #7776);border-radius:6px;"><h2 style="font-size:1.1rem;line-height:1.3;margin:0;">Weapon choices</h2><div class="ba-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">{{#each primarySlots}}<label>{{label}}<select data-primary-choice {{#unless ../editable}}disabled{{/unless}}>{{#each choices}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>{{/each}}</div></section>{{/if}}
+  {{#if optionalChoices}}<section class="ba-card" style="display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid var(--color-border-light-primary, #7776);border-radius:6px;"><h2 style="font-size:1.1rem;line-height:1.3;margin:0;">Optional equipment</h2><div class="ba-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">{{#each optionalChoices}}<label class="ba-checkbox" style="display:flex;flex-direction:row;align-items:center;gap:8px;min-height:32px;"><input type="checkbox" data-model-choice data-choice-id="{{id}}" {{checked selected}} {{#unless ../editable}}disabled{{/unless}}> {{label}}</label>{{/each}}</div></section>{{/if}}
   {{#if choices.manualOptions}}<details><summary>Other profile options</summary><ul>{{#each choices.manualOptions}}<li>{{label}}{{#if reason}} — {{reason}}{{/if}}</li>{{/each}}</ul></details>{{/if}}
-  {{#if isStatic}}<section><h2>Static model</h2><div class="ba-grid"><label>Crew<input type="number" name="system.crew" value="{{system.crew}}" min="1" {{#unless editable}}disabled{{/unless}}></label><label>Advance distance<input type="number" name="system.moveAdvance" value="{{system.moveAdvance}}" min="0" {{#unless editable}}disabled{{/unless}}></label></div></section>{{/if}}
-  {{#if isVehicle}}<section><h2>Vehicle</h2><div class="ba-grid"><label>Damage value<input type="number" name="system.damageValue" value="{{system.damageValue}}" {{#unless editable}}disabled{{/unless}}></label><label>Transport capacity<input type="number" name="system.capacity" value="{{system.capacity}}" min="0" {{#unless editable}}disabled{{/unless}}></label><label>Advance distance<input type="number" name="system.moveAdvance" value="{{system.moveAdvance}}" min="0" {{#unless editable}}disabled{{/unless}}></label><label>Run distance<input type="number" name="system.moveRun" value="{{system.moveRun}}" min="0" {{#unless editable}}disabled{{/unless}}></label></div></section>{{/if}}
-  <section>
-    <div class="ba-section-heading"><h2>Equipment</h2></div>
-    {{#each weapons}}<div class="ba-member-row"><button type="button" class="ba-member-name" data-action="openItem" data-id="{{id}}">{{name}}<small>{{range}}″ · {{shots}} shots · quantity {{quantity}}</small></button>{{#if ../editable}}<button type="button" class="ba-remove" data-action="removeItem" data-id="{{id}}" aria-label="Remove {{name}}">×</button>{{/if}}</div>{{else}}<p>No weapons equipped.</p>{{/each}}
-    
+  {{#if isStatic}}<section class="ba-card" style="display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid var(--color-border-light-primary, #7776);border-radius:6px;"><h2 style="font-size:1.1rem;line-height:1.3;margin:0;">Static model</h2><div class="ba-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;"><label>Crew<input type="number" name="system.crew" value="{{system.crew}}" min="1" {{#unless editable}}disabled{{/unless}}></label><label>Advance distance<input type="number" name="system.moveAdvance" value="{{system.moveAdvance}}" min="0" {{#unless editable}}disabled{{/unless}}></label></div></section>{{/if}}
+  {{#if isVehicle}}<section class="ba-card" style="display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid var(--color-border-light-primary, #7776);border-radius:6px;"><h2 style="font-size:1.1rem;line-height:1.3;margin:0;">Vehicle</h2><div class="ba-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;"><label>Damage value<input type="number" name="system.damageValue" value="{{system.damageValue}}" {{#unless editable}}disabled{{/unless}}></label><label>Transport capacity<input type="number" name="system.capacity" value="{{system.capacity}}" min="0" {{#unless editable}}disabled{{/unless}}></label><label>Advance distance<input type="number" name="system.moveAdvance" value="{{system.moveAdvance}}" min="0" {{#unless editable}}disabled{{/unless}}></label><label>Run distance<input type="number" name="system.moveRun" value="{{system.moveRun}}" min="0" {{#unless editable}}disabled{{/unless}}></label></div></section>{{/if}}
+  <section class="ba-card" style="display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid var(--color-border-light-primary, #7776);border-radius:6px;">
+    <div class="ba-section-heading" style="display:flex;align-items:center;justify-content:space-between;gap:12px;"><h2 style="font-size:1.1rem;line-height:1.3;margin:0;">Equipment</h2></div>
+    {{#each weapons}}<div class="ba-member-row" style="display:flex;align-items:center;gap:10px;min-width:0;"><button type="button" class="ba-member-name" style="flex:1;min-width:0;height:auto;white-space:normal;text-align:left;" data-action="openItem" data-id="{{id}}">{{name}}<small>{{range}}″ · {{shots}} shots · quantity {{quantity}}</small></button>{{#if ../editable}}<button type="button" class="ba-remove" style="flex:none;width:30px;" data-action="removeItem" data-id="{{id}}" aria-label="Remove {{name}}">×</button>{{/if}}</div>{{else}}<p>No weapons equipped.</p>{{/each}}
+
   </section>
   {{/if}}
   {{#if ruleProfiles}}<details><summary>Inherited faction and model traits</summary>{{#each ruleProfiles}}<article><h3>{{name}}</h3><p>{{effect}}</p><p>{{notes}}</p></article>{{/each}}</details>{{/if}}

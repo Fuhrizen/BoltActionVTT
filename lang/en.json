@@ -1,7 +1,7 @@
 {
   "TYPES": {
     "Actor": {
-      "army": "Player Team",
+      "army": "Army",
       "unit": "Squad",
       "model": "Model (Infantry)",
       "modelStatic": "Model (Static)",
