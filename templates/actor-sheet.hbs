@@ -41,9 +41,9 @@
   {{#if isStatic}}<section><h2>Static model</h2><div class="ba-grid"><label>Crew<input type="number" name="system.crew" value="{{system.crew}}" min="1" {{#unless editable}}disabled{{/unless}}></label><label>Advance distance<input type="number" name="system.moveAdvance" value="{{system.moveAdvance}}" min="0" {{#unless editable}}disabled{{/unless}}></label></div></section>{{/if}}
   {{#if isVehicle}}<section><h2>Vehicle</h2><div class="ba-grid"><label>Damage value<input type="number" name="system.damageValue" value="{{system.damageValue}}" {{#unless editable}}disabled{{/unless}}></label><label>Transport capacity<input type="number" name="system.capacity" value="{{system.capacity}}" min="0" {{#unless editable}}disabled{{/unless}}></label><label>Advance distance<input type="number" name="system.moveAdvance" value="{{system.moveAdvance}}" min="0" {{#unless editable}}disabled{{/unless}}></label><label>Run distance<input type="number" name="system.moveRun" value="{{system.moveRun}}" min="0" {{#unless editable}}disabled{{/unless}}></label></div></section>{{/if}}
   <section>
-    <div class="ba-section-heading"><h2>Equipment</h2>{{#if editable}}<button type="button" data-action="addWeapon">Add custom weapon</button>{{/if}}</div>
+    <div class="ba-section-heading"><h2>Equipment</h2></div>
     {{#each weapons}}<div class="ba-member-row"><button type="button" class="ba-member-name" data-action="openItem" data-id="{{id}}">{{name}}<small>{{range}}″ · {{shots}} shots · quantity {{quantity}}</small></button>{{#if ../editable}}<button type="button" class="ba-remove" data-action="removeItem" data-id="{{id}}" aria-label="Remove {{name}}">×</button>{{/if}}</div>{{else}}<p>No weapons equipped.</p>{{/each}}
-    {{#if editable}}<div class="ba-drop-zone" data-drop-target="item">Drop weapon or trait items here for additional custom equipment.</div>{{/if}}
+    
   </section>
   {{/if}}
   {{#if ruleProfiles}}<details><summary>Inherited faction and model traits</summary>{{#each ruleProfiles}}<article><h3>{{name}}</h3><p>{{effect}}</p><p>{{notes}}</p></article>{{/each}}</details>{{/if}}

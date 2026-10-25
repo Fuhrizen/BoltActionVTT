@@ -50,7 +50,7 @@ check(manifest.download?.includes(`/v${manifest.version}/`), 'Download URL must 
 const tag = process.env.RELEASE_TAG;
 if (tag) check(tag === `v${manifest.version}`, `Release tag ${tag} does not match v${manifest.version}`);
 const release = await releaseFiles();
-for (const name of [...(manifest.esmodules ?? []), ...(manifest.styles ?? []), ...(manifest.languages ?? []).map(language => language.path)]) check(release.includes(name), `Missing manifest asset ${name}`);
+for (const name of [...(manifest.esmodules ?? []), ...(manifest.styles ?? []).map(style => typeof style === 'string' ? style : style.src), ...(manifest.languages ?? []).map(language => language.path)]) check(release.includes(name), `Missing manifest asset ${name}`);
 for (const name of release.filter(name => name.endsWith('.hbs'))) {
   const source = await readFile(path.join(root, name), 'utf8');
   check(!source.includes('{{{'), `${name}: unescaped triple braces forbidden`);

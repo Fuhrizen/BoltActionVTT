@@ -114,16 +114,22 @@ export function renderActorDirectoryHierarchy(app, html) {
     if (!isGroup(actor)) return row;
     const wrapper = document.createElement('li');
     wrapper.className = 'ba-actor-group';
+    // Core sidebar list rules vary between docked and pop-out directories. Keep
+    // structural layout on our own elements; native Actor rows retain all hooks.
+    wrapper.setAttribute('style', 'display:block;list-style:none;margin:0;padding:0;min-width:0;');
     wrapper.dataset.groupUuid = uuidOf(actor);
     wrapper.setAttribute('role', 'treeitem');
     const heading = document.createElement('div');
     heading.className = 'ba-group-heading';
+    heading.setAttribute('style', 'display:flex;flex-flow:row nowrap;align-items:center;gap:0;min-width:0;width:100%;');
     const toggle = document.createElement('button');
     toggle.type = 'button';
     toggle.className = 'ba-group-toggle';
+    toggle.setAttribute('style', 'flex:0 0 1.5rem;width:1.5rem;min-width:1.5rem;height:2rem;margin:0;padding:0;');
     toggle.setAttribute('aria-label', `Expand or collapse ${actor.name}`);
     const nativeList = document.createElement('ol');
     nativeList.className = 'ba-group-document';
+    nativeList.setAttribute('style', 'display:flex;flex:1 1 0;min-width:0;list-style:none;margin:0;padding:0;');
     const childList = document.createElement('ol');
     childList.className = 'directory-list ba-group-children';
     childList.setAttribute('role', 'group');
@@ -134,6 +140,7 @@ export function renderActorDirectoryHierarchy(app, html) {
     function applyExpansion() {
       const open = searching() || expanded.has(uuidOf(actor));
       childList.hidden = !open;
+      childList.setAttribute('style', `display:${open ? 'block' : 'none'};list-style:none;margin:0;padding:0 0 0 1rem;`);
       toggle.textContent = open ? '▾' : '▸';
       toggle.setAttribute('aria-expanded', String(open));
       wrapper.setAttribute('aria-expanded', String(open));

@@ -96,6 +96,28 @@ export function prepareCatalogue() {
 }
 // Older macros prepare reusable content without creating sample forces.
 export const importStarter = prepareCatalogue;
+const folderId = folder => typeof folder === 'string' ? folder : folder?.id ?? folder?._id ?? null;
+const modelFolderLabels = {model:'Infantry',modelStatic:'Static',modelVehicle:'Vehicle'};
+async function modelFolder(pack, folders, data, row, type) {
+  const Folder = CONFIG.Folder?.documentClass ?? foundry.documents.Folder;
+  const ensure = async (name, key, parent = null) => {
+    let folder = folders.find(folder => folder.type === 'Actor' && (folder.getFlag?.('boltaction','catalogueFolder') === key || folder.flags?.boltaction?.catalogueFolder === key));
+    folder ??= folders.find(folder => folder.type === 'Actor' && folder.name === name && folderId(folder.folder) === parent);
+    if (!folder) {
+      if (pack.locked) throw new Error('Unlock the Models compendium to organize its catalogue folders.');
+      folder = await Folder.create({name,type:'Actor',folder:parent,sorting:'a',flags:{boltaction:{catalogueFolder:key}}},{pack:pack.collection});
+      folders.push(folder);
+    } else if (folderId(folder.folder) !== parent) {
+      if (pack.locked) throw new Error('Unlock the Models compendium to organize its catalogue folders.');
+      await folder.update({folder:parent});
+    }
+    return folderId(folder);
+  };
+  const faction = data.factions.find(faction => faction.slug === row.factionSlug);
+  const factionKey = row.factionSlug || 'unaffiliated';
+  const parent = await ensure(faction?.name ?? 'Unaffiliated',`faction:${factionKey}`);
+  return ensure(modelFolderLabels[type],`type:${factionKey}:${type}`,parent);
+}
 async function performImport() {
   const data = await loadCatalogue();
   const Item = CONFIG.Item.documentClass;
@@ -124,10 +146,19 @@ async function performImport() {
   let modelPack = game.packs.find(pack => pack.metadata?.name === 'boltaction-models' && pack.metadata?.packageType === 'world');
   if (!modelPack) modelPack = await foundry.documents.collections.CompendiumCollection.createCompendium({name:'boltaction-models',label:'Bolt Action: Models',type:'Actor',package:'world'});
   const existing = await modelPack.getDocuments();
-  for (const row of data.units) if (!findSlug(existing,row.slug)) {
-    if (modelPack.locked) throw new Error('Unlock the Models compendium to add missing catalogue entries.');
-    const document = await Actor.create(await modelTemplate(row, packed), {pack:modelPack.collection});
-    existing.push(document);
+  const folders = Array.from(modelPack.folders ?? []);
+  for (const row of data.units) {
+    let document = findSlug(existing,row.slug);
+    if (!document && modelPack.locked) throw new Error('Unlock the Models compendium to add missing catalogue entries.');
+    const source = document ? null : await modelTemplate(row, packed);
+    const folder = await modelFolder(modelPack,folders,data,row,document?.type ?? source.type);
+    if (!document) {
+      document = await Actor.create({...source,folder}, {pack:modelPack.collection});
+      existing.push(document);
+    } else if (folderId(document.folder) !== folder) {
+      if (modelPack.locked) throw new Error('Unlock the Models compendium to organize its catalogue entries.');
+      await document.update({folder});
+    }
   }
   packs.models = modelPack;
   return {packs,catalogue:data};

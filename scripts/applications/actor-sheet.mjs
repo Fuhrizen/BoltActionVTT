@@ -12,7 +12,7 @@ async function factions() {
   return [...new Map(entries.map(i => [i.uuid, i])).values()];
 }
 export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
-  static DEFAULT_OPTIONS = {classes:['boltaction','actor-sheet','group-sheet'],position:{width:760,height:700},form:{submitOnChange:true},actions:{openMember:this.openMember,removeMember:this.removeMember,createSquad:this.createSquad,assignPlayers:this.assignPlayers,chooseFaction:this.chooseFaction,prepareCatalogue:this.prepareCatalogue,openItem:this.openItem,addWeapon:this.addWeapon,removeItem:this.removeItem}};
+  static DEFAULT_OPTIONS = {classes:['boltaction','ba-sheet','actor-sheet','group-sheet'],position:{width:760,height:700},form:{submitOnChange:true},actions:{openMember:this.openMember,removeMember:this.removeMember,createSquad:this.createSquad,assignPlayers:this.assignPlayers,chooseFaction:this.chooseFaction,prepareCatalogue:this.prepareCatalogue,openItem:this.openItem,removeItem:this.removeItem}};
   static PARTS = {main:{template:'systems/boltaction/templates/actor-sheet.hbs'}};
   async _prepareContext(options) {
     const context = await super._prepareContext(options), actor = this.actor;
@@ -24,6 +24,7 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
     const choices = isModel ? await globalThis.game?.boltaction?.getModelChoices?.(actor) : null;
     const primary = (choices?.equipment ?? []).filter(c=>c.kind==='primary');
     const primarySlots = [...new Set(primary.map(c=>c.slot || 'primary'))].map(slot=>({label:slot==='primary'?'Weapon':slot.replace('mount:','').replaceAll('-',' '),choices:primary.filter(c=>(c.slot || 'primary')===slot)}));
+    for (const slot of primarySlots) if (!slot.choices.some(choice=>choice.selected)) slot.choices=[{id:'',label:'Choose a weapon',selected:true},...slot.choices];
     const squadKind = isSquad ? (game.boltaction.getSquadKind?.(actor) ?? actor.system.squadKind ?? 'infantry') : '';
     const incompatible = isSquad && (summary?.members ?? actor.members ?? []).some(m=>squadKind==='infantry'?m.type!=='model':!['modelStatic','modelVehicle'].includes(m.type));
     return {...context,actor,system:actor.system,editable:actor.isOwner,isGM:globalThis.game?.user?.isGM ?? false,isTeam,isSquad,isModel,isStatic:actor.type==='modelStatic',isVehicle:actor.type==='modelVehicle',kindLabel:labels[actor.type] ?? actor.type,parent:parent?.visible===false?null:parent,members,
@@ -58,13 +59,9 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
       if(this.actor.type==='army') {const child=await fromUuid(data.uuid);return game.boltaction.linkGroupMember(this.actor,child);}
       throw new Error('Drop models into a squad, or squads into a Player Team.');
     }
-    if(data.type==='Item'&&data.uuid&&modelTypes.includes(this.actor.type)) {
-      const item=await fromUuid(data.uuid);if(!item)throw new Error('This equipment profile is missing.');
-      if(item.type!=='weapon'&&item.type!=='trait')throw new Error('A model can carry weapon and trait items.');
-      const source=item.toObject();delete source._id;
-      return this.actor.createEmbeddedDocuments('Item',[source]);
-    }
+    if(data.type==='Item') throw new Error('Choose equipment from this model’s profile options.');
   }
+
   static async openMember(_event,target){return safely(async()=>{const actor=await fromUuid(target.dataset.uuid);if(actor?.visible!==false)await actor?.sheet.render({force:true});});}
   static async removeMember(_event,target){return safely(()=>game.boltaction.unlinkGroupMember(this.actor,target.dataset.uuid));}
   static async createSquad(){return safely(async()=>{const values=await ask('Create a squad',[{name:'name',label:'Squad name',value:'New squad'},{name:'squadKind',label:'Squad type',options:[{value:'infantry',label:'Infantry squad'},{value:'vehicleStatic',label:'Vehicle / static squad'}]}]);if(values){const squad=await game.boltaction.createGroup(this.actor,values);squad.sheet.render({force:true});}});}
@@ -79,6 +76,5 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
   });}
   static async prepareCatalogue(){return safely(()=>game.boltaction.prepareCatalogue());}
   static async openItem(_event,target){this.actor.items.get(target.dataset.id)?.sheet.render({force:true});}
-  static async addWeapon(){return safely(()=>this.actor.createEmbeddedDocuments('Item',[{name:'New weapon',type:'weapon'}]));}
   static async removeItem(_event,target){return safely(async()=>{if(!this.actor.isOwner)throw new Error('You do not own this model.');await this.actor.deleteEmbeddedDocuments('Item',[target.dataset.id]);});}
 }

@@ -21,9 +21,7 @@ test('dropping a compendium model imports a copy; world actors link through grou
  const drop=uuid=>({dataTransfer:{getData:()=>JSON.stringify({type:'Actor',uuid})}});
  await sheet._handleDrop(drop('Compendium.world.models.Actor.profile'));await sheet._handleDrop(drop('Actor.model'));assert.equal(calls[0][0],'import');assert.equal(calls[1][0],'link');sheet.actor.isOwner=false;await assert.rejects(sheet._handleDrop(drop('Actor.model')),/own this group/);
 });
-test('equipment drop clones permitted items without document IDs and rejects inappropriate profiles',async()=>{
- setup();const sheet=new BoltActorSheet();sheet.actor=actor('model');let created;sheet.actor.createEmbeddedDocuments=async(type,data)=>{created={type,data};};globalThis.fromUuid=async()=>({type:'weapon',toObject:()=>({_id:'old',name:'Rifle',type:'weapon'})});const event={dataTransfer:{getData:()=>JSON.stringify({type:'Item',uuid:'Item.rifle'})}};await sheet._handleDrop(event);assert.deepEqual(created,{type:'Item',data:[{name:'Rifle',type:'weapon'}]});globalThis.fromUuid=async()=>({type:'faction'});await assert.rejects(sheet._handleDrop(event),/weapon and trait/);
-});
+test('arbitrary equipment drops are rejected in favour of profile choices',async()=>{setup();const sheet=new BoltActorSheet();sheet.actor=actor('model');await assert.rejects(sheet._handleDrop({dataTransfer:{getData:()=>JSON.stringify({type:'Item',uuid:'Item.rifle'})}}),/profile options/);assert.equal(BoltActorSheet.DEFAULT_OPTIONS.actions.addWeapon,undefined);});
 test('dialog escapes untrusted labels and preserves blank optional numeric inputs',async()=>{
  const config=await ask('Test',[{name:'cost',label:'<img onerror=x>',type:'number',optional:true}]);assert.ok(!config.content.includes('<img'));assert.ok(config.content.includes('&lt;img'));const value=config.buttons[0].callback(null,null,{element:{querySelector:()=>({value:''})}});assert.equal(value.cost,undefined);assert.equal(config.buttons[1].callback(),false);
 });

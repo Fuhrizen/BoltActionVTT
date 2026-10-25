@@ -12,6 +12,7 @@ const modelTypes=['model','modelStatic','modelVehicle'];
 function activeGM(){return game.user.isGM&&(!game.users?.activeGM||game.users.activeGM.id===game.user.id);}
 Hooks.once('init',()=>{
  registerActorDirectoryHierarchy();
+ game.settings.register(SID,'catalogueFolderVersion',{scope:'world',config:false,type:String,default:''});
  CONFIG.Actor.documentClass=BoltActor;
  Object.assign(CONFIG.Actor.dataModels,{army:ArmyData,unit:UnitData,model:ModelData,modelStatic:StaticModelData,modelVehicle:VehicleModelData});
  Object.assign(CONFIG.Item.dataModels,{weapon:WeaponData,trait:TraitData,faction:FactionData,selector:SelectorData});
@@ -20,8 +21,8 @@ Hooks.once('init',()=>{
  game.boltaction={...groups,...modelChoices,profiles,prepareCatalogue,importStarter:prepareCatalogue};
 });
 Hooks.once('ready',async()=>{
- if(activeGM()&&!game.packs?.find(p=>p.metadata?.name==='boltaction-models')){
-  try{await prepareCatalogue();}catch(error){console.error('Bolt Action compendium preparation',error);ui.notifications.error(`Could not prepare model compendiums: ${error.message}`);}
+ if(activeGM()&&game.settings.get(SID,'catalogueFolderVersion')!=='alpha7'){
+  try{await prepareCatalogue();await game.settings.set(SID,'catalogueFolderVersion','alpha7');}catch(error){console.error('Bolt Action compendium preparation',error);ui.notifications.error(`Could not prepare model compendiums: ${error.message}`);}
  }
  if(!game.user.isGM&&game.user.character?.type==='army')game.user.character.sheet.render({force:true});
 });

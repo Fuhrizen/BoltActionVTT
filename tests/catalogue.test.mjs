@@ -24,11 +24,16 @@ test('GM preparation creates independent model templates, never sample world act
   globalThis.game={user:{isGM:true},actors,packs};
   const create=async(source,options={})=>{
     const pack=options.pack && packs.find(p=>p.collection===options.pack);
-    const doc={...structuredClone(source),uuid:`${pack?'Compendium.'+pack.collection:'Actor'}.${++sequence}`,getFlag(ns,key){return this.flags?.[ns]?.[key]}};
+    const doc={...structuredClone(source),uuid:`${pack?'Compendium.'+pack.collection:'Actor'}.${++sequence}`,getFlag(ns,key){return this.flags?.[ns]?.[key]},async update(data){assert.equal(pack.locked,false);Object.assign(this,structuredClone(data));return this;}};
     (pack?pack.documents:actors).push(doc);return doc;
   };
-  globalThis.CONFIG={Item:{documentClass:{create}},Actor:{documentClass:{create}}};
-  globalThis.foundry={documents:{collections:{CompendiumCollection:{async createCompendium(metadata){const pack={metadata:{...metadata,packageType:'world'},collection:`world.${metadata.name}`,locked:false,documents:[],async getDocuments(){return [...this.documents]}};packs.push(pack);return pack}}}}};
+  const createFolder=async(source,options)=>{
+    const pack=packs.find(pack=>pack.collection===options.pack);assert.ok(pack,'folders must be created inside the Models pack');assert.equal(pack.locked,false);assert.equal(source.type,'Actor');
+    const folder={...structuredClone(source),id:`folder${++sequence}`,async update(data){assert.equal(pack.locked,false);Object.assign(this,structuredClone(data));return this;}};
+    pack.folders.push(folder);return folder;
+  };
+  globalThis.CONFIG={Item:{documentClass:{create}},Actor:{documentClass:{create}},Folder:{documentClass:{create:createFolder}}};
+  globalThis.foundry={documents:{collections:{CompendiumCollection:{async createCompendium(metadata){const pack={metadata:{...metadata,packageType:'world'},collection:`world.${metadata.name}`,locked:false,documents:[],folders:[],async getDocuments(){return [...this.documents]}};packs.push(pack);return pack}}}}};
   const pending=prepareCatalogue();assert.equal(importStarter(),pending);const result=await pending;
   assert.equal(packs.length,4);assert.equal(actors.length,0);assert.equal(result.armies,undefined);assert.equal(result.units,undefined);
   const templates=result.packs.models.documents;
@@ -49,12 +54,29 @@ test('GM preparation creates independent model templates, never sample world act
     assert.equal(template.system.sourceFactionUuid,faction.uuid,template.name);assert.equal(template.system.factionUuid,undefined,'team supplies effective faction');
     for(const uuid of template.system.traitUuids)assert.ok(packs[0].documents.some(d=>d.uuid===uuid),template.name);
   }
+  const modelPack=result.packs.models;
+  for(const template of templates){
+    const typeFolder=modelPack.folders.find(folder=>folder.id===template.folder);assert.ok(typeFolder,template.name);
+    assert.equal(typeFolder.name,{model:'Infantry',modelStatic:'Static',modelVehicle:'Vehicle'}[template.type]);
+    const factionFolder=modelPack.folders.find(folder=>folder.id===typeFolder.folder);assert.ok(factionFolder);
+    assert.equal(factionFolder.folder,null);
+    assert.equal(factionFolder.name,data.factions.find(f=>f.slug===template.flags.boltaction.factionSlug)?.name??'Unaffiliated');
+  }
+  assert.equal(modelPack.folders.length,24,'six faction roots each contain three type folders');
+  const originalFolder=infantry.folder;infantry.folder=null;infantry.name='Custom model';
+  const originalSystem=structuredClone(infantry.system),originalItems=structuredClone(infantry.items);
+  const custom=await create({name:'My custom model',type:'model',system:{}},{pack:modelPack.collection});
+  const foldersBefore=modelPack.folders.length;
+  await prepareCatalogue();assert.equal(infantry.folder,originalFolder);assert.equal(custom.folder,undefined);
+  assert.equal(modelPack.folders.length,foldersBefore);assert.equal(infantry.name,'Custom model');assert.deepEqual(infantry.system,originalSystem);assert.deepEqual(infantry.items,originalItems);
   const counts=packs.map(p=>p.documents.length);infantry.name='Custom model';
   packs.forEach(pack=>pack.locked=true);
   await prepareCatalogue();assert.equal(actors.length,0);assert.deepEqual(packs.map(p=>p.documents.length),counts);assert.equal(infantry.name,'Custom model');
+  infantry.folder=null;await assert.rejects(prepareCatalogue(),/Unlock the Models/);assert.equal(infantry.folder,null);
+  infantry.folder=originalFolder;
   const legacy={metadata:{name:'boltaction-units',packageType:'world'},documents:[{name:'My old squad'}]};packs.push(legacy);
   await prepareCatalogue();assert.equal(legacy.documents[0].name,'My old squad');assert.equal(legacy.documents.length,1);
-  templates.pop();await assert.rejects(prepareCatalogue(),/Unlock the Models/);
+  templates.splice(templates.indexOf(chiha),1);await assert.rejects(prepareCatalogue(),/Unlock the Models/);
   game.user.isGM=false;await assert.rejects(prepareCatalogue(),/Only the GM/);
 });
 
