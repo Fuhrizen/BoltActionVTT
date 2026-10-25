@@ -1,7 +1,26 @@
 {
   "TYPES": {
-    "Actor": {"army": "Army roster", "unit": "Squad, team or vehicle", "model": "Individual soldier"},
-    "Item": {"weapon": "Weapon", "trait": "Special rule", "faction": "Faction", "selector": "Force selector"}
+    "Actor": {
+      "army": "Player Team",
+      "unit": "Squad",
+      "model": "Model (Infantry)",
+      "modelStatic": "Model (Static)",
+      "modelVehicle": "Model (Vehicle)"
+    },
+    "Item": {
+      "weapon": "Weapon",
+      "trait": "Special rule",
+      "faction": "Faction",
+      "selector": "Force selector"
+    }
   },
-  "BA": {"Board": "Battle Board", "Fire": "Fire", "Advance": "Advance", "Run": "Run", "Ambush": "Ambush", "Rally": "Rally", "Down": "Down"}
+  "BA": {
+    "Board": "Battle Board",
+    "Fire": "Fire",
+    "Advance": "Advance",
+    "Run": "Run",
+    "Ambush": "Ambush",
+    "Rally": "Rally",
+    "Down": "Down"
+  }
 }

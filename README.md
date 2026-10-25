@@ -1,7 +1,7 @@
 # BoltActionVTT
 
-An unofficial, experimental implementation of Bolt Action Second Edition for Foundry Virtual Tabletop V14. Top-down play connects army rosters, squad command actors, and individual soldier actors and tokens. Shared orders and pins stay with the squad; weapons and casualties stay with each soldier.
+An unofficial Bolt Action Second Edition system for Foundry VTT V14. Assign players to a Player Team, choose its faction, and organise models into squads. Team and squad sheets show their members and total points; individual infantry, static and vehicle models have editable profiles and equipment.
 
-The Battle Board offers starter compendium import, formation deployment, a random order-dice bag, order and morale tests, and assisted combat rolls. Automation settings are optional; terrain, reactions, special rules, and casualty choices require player adjudication. This alpha targets V14 and has automated and standalone UI checks; live Foundry validation is still required.
+Model compendiums are prepared by the GM without creating sample armies. Drag a compendium model onto a squad to import an independent copy. Team ownership is inherited by its squads and models. Costs are editable; army-list legality is not enforced. Scene management and turn sequencing use Foundry's normal tools and are outside this iteration.
 
-Unofficial fan project; not affiliated with Warlord Games, Osprey Publishing, or Foundry Gaming. Requires a copy of the Bolt Action Second Edition rules. No rulebook text or artwork is distributed.
+Not affiliated with Warlord Games, Osprey Publishing or Foundry Gaming. Requires the original rules; no rulebook text or artwork is distributed. Live V14 validation remains pending.

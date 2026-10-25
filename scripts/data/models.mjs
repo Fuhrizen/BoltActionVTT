@@ -1,5 +1,5 @@
 const f = foundry.data.fields;
-const text = (initial = "", options = {}) => new f.StringField({required: true, initial, ...options});
+const text = (initial = "", options = {}) => new f.StringField({required: true, blank: true, initial, ...options});
 const num = (initial = 0, options = {}) => new f.NumberField({required: true, initial, min: 0, ...options});
 const int = (initial = 0, options = {}) => num(initial, {integer: true, ...options});
 const bool = (initial = false) => new f.BooleanField({required: true, initial});
@@ -8,7 +8,7 @@ const quality = () => text("regular", {choices: ["inexperienced", "regular", "ve
 
 export class ArmyData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
-    return {side: text("allies"), factionUuid: text(), selectorUuid: text(), unitUuids: list(), pointsLimit: int(1000), notes: text()};
+    return {side: text("allies"), factionUuid: text(), selectorUuid: text(), unitUuids: list(), score: int(), pointsLimit: int(1000), notes: text()};
   }
 }
 export class UnitData extends foundry.abstract.TypeDataModel {
@@ -31,13 +31,19 @@ export class UnitData extends foundry.abstract.TypeDataModel {
 }
 export class ModelData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
-    return {unitUuid: text(), dead: bool(), role: text("rifleman"), quality: quality(), notes: text()};
+    return {unitUuid: text(), dead: bool(), role: text("rifleman"), quality: quality(), sourceFactionUuid: text(), traitUuids: list(), basePoints: num(), pointsAdjustment: num(0,{min:-100000}), notes: text()};
   }
+}
+export class StaticModelData extends ModelData {
+  static defineSchema(){return {...super.defineSchema(),kind:text('artillery'),crew:int(2,{min:1,max:100}),moveAdvance:num(),moveRun:num(6),damageValue:int(4,{min:3,max:11})};}
+}
+export class VehicleModelData extends ModelData {
+  static defineSchema(){return {...super.defineSchema(),kind:text('vehicle'),damageValue:int(7,{min:6,max:11}),capacity:int(),moveAdvance:num(9),moveRun:num(18),openTopped:bool(),immobilised:bool()};}
 }
 export class WeaponData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     return {
-      slug: text(), range: num(24), minRange: num(), shots: int(1, {min: 1, max: 200}),
+      slug: text(), cost: num(), range: num(24), minRange: num(), shots: int(1, {min: 1, max: 200}),
       ammoUsed: bool(), exhausted: bool(), indirectTargetUuid: text(), indirectZeroed: bool(), indirectRound: int(), indirectThreshold: int(6, {min: 2, max: 6}),
       shotsFormula: text(), indirectRange: num(), indirectMinRange: num(), heDiameter: num(),
       penetration: int(0, {max: 20}), traits: list(), quantity: int(1, {min: 1, max: 100}), notes: text()

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readCatalogue} from '../tools/catalogue.mjs';
-import {validateCatalogue,importStarter} from '../scripts/services/catalogue.mjs';
+import {validateCatalogue,prepareCatalogue,importStarter} from '../scripts/services/catalogue.mjs';
 test('catalogue preserves the complete weapon chart and reference integrity',async () => {
   const data = await readCatalogue();
   assert.equal(data.weapons.length,27);
@@ -17,38 +17,45 @@ test('catalogue preserves the complete weapon chart and reference integrity',asy
   const invalid=structuredClone(data); invalid.factions[0].traitSlugs.push('missing');
   assert.throws(()=>validateCatalogue(invalid),/Unknown faction trait/);
 });
-test('GM importer creates real packs, reciprocal squads and remains idempotent',async()=>{
+test('GM preparation creates independent model templates, never sample world actors, and preserves existing content',async()=>{
   const data=await readCatalogue(); let sequence=0;
   globalThis.fetch=async url=>({ok:true,json:async()=>structuredClone(data[url.split('/').at(-1).replace('.json','')])});
   const actors=[]; const packs=[];
   globalThis.game={user:{isGM:true},actors,packs};
   const create=async(source,options={})=>{
     const pack=options.pack && packs.find(p=>p.collection===options.pack);
-    const doc={...structuredClone(source),uuid:`${pack?'Compendium.'+pack.collection:'Actor'}.${++sequence}`,getFlag(ns,key){return this.flags?.[ns]?.[key]},async update(changes){for(const [key,value] of Object.entries(changes))this.system[key.replace('system.','')]=value;return this}};
+    const doc={...structuredClone(source),uuid:`${pack?'Compendium.'+pack.collection:'Actor'}.${++sequence}`,getFlag(ns,key){return this.flags?.[ns]?.[key]}};
     (pack?pack.documents:actors).push(doc);return doc;
   };
   globalThis.CONFIG={Item:{documentClass:{create}},Actor:{documentClass:{create}}};
   globalThis.foundry={documents:{collections:{CompendiumCollection:{async createCompendium(metadata){const pack={metadata:{...metadata,packageType:'world'},collection:`world.${metadata.name}`,locked:false,documents:[],async getDocuments(){return [...this.documents]}};packs.push(pack);return pack}}}}};
-  const pending=importStarter();assert.equal(importStarter(),pending);const result=await pending;
-  assert.equal(packs.length,4);assert.equal(actors.length,14);
-  for(const army of result.armies)for(const uuid of army.system.unitUuids){const unit=actors.find(a=>a.uuid===uuid);assert.equal(unit.system.armyUuid,army.uuid);assert.equal(unit.system.modelUuids.length,5);for(const modelUuid of unit.system.modelUuids)assert.equal(actors.find(a=>a.uuid===modelUuid).system.unitUuid,unit.uuid)}
-  assert.ok(result.units.every(unit=>unit.system.points===50 && unit.system.factionUuid));
-  const templates=packs.find(p=>p.metadata.name==='boltaction-units').documents;
-  const named=templates.find(d=>d.flags.boltaction.catalogueSlug==='imperial-japan-regular-infantry');assert.equal(named.system.points,70);assert.equal(named.system.maxSize,15);assert.ok(named.system.factionUuid);
-  const chiha=templates.find(d=>d.flags.boltaction.catalogueSlug==='imperial-japan-chi-ha');assert.equal(chiha.items.length,3);assert.equal(chiha.system.damageValue,8);
+  const pending=prepareCatalogue();assert.equal(importStarter(),pending);const result=await pending;
+  assert.equal(packs.length,4);assert.equal(actors.length,0);assert.equal(result.armies,undefined);assert.equal(result.units,undefined);
+  const templates=result.packs.models.documents;
+  assert.equal(templates.length,142);
+  assert.ok(templates.every(t=>['model','modelStatic','modelVehicle'].includes(t.type)));
+  assert.ok(templates.every(t=>t.system.unitUuid==='' && !t.system.armyUuid && !t.system.modelUuids));
+  const infantry=templates.find(d=>d.flags.boltaction.catalogueSlug==='germany-wehrmacht');
+  assert.equal(infantry.type,'model');assert.equal(infantry.system.basePoints,10);assert.equal(infantry.items.length,1);assert.equal(infantry.items[0].system.slug,'rifle');
+  const officer=templates.find(d=>d.flags.boltaction.catalogueSlug==='germany-second-lieutenant');
+  assert.equal(officer.type,'model');assert.equal(officer.system.role,'officer');assert.equal(officer.system.basePoints,50);assert.equal(officer.items[0].system.slug,'pistol');
+  const crew=templates.find(d=>d.flags.boltaction.catalogueSlug==='germany-mmg');
+  assert.equal(crew.type,'modelStatic');assert.equal(crew.system.crew,3);assert.equal(crew.system.basePoints,50);assert.equal(crew.items.length,1);
+  const chiha=templates.find(d=>d.flags.boltaction.catalogueSlug==='imperial-japan-chi-ha');
+  assert.equal(chiha.type,'modelVehicle');assert.equal(chiha.items.length,3);assert.equal(chiha.system.damageValue,8);
+  assert.ok(templates.every(t=>t.items.every(i=>i.system.cost===0)),'included equipment must not double-count profile prices');
   for(const template of templates.filter(t=>t.flags.boltaction.factionSlug)){
-    const faction=packs.find(p=>p.metadata.name==='boltaction-factions').documents.find(f=>f.flags.boltaction.catalogueSlug===template.flags.boltaction.factionSlug);assert.equal(template.system.factionUuid,faction.uuid,template.name);
+    const faction=packs.find(p=>p.metadata.name==='boltaction-factions').documents.find(f=>f.flags.boltaction.catalogueSlug===template.flags.boltaction.factionSlug);
+    assert.equal(template.system.sourceFactionUuid,faction.uuid,template.name);assert.equal(template.system.factionUuid,undefined,'team supplies effective faction');
     for(const uuid of template.system.traitUuids)assert.ok(packs[0].documents.some(d=>d.uuid===uuid),template.name);
   }
-  const rifles=templates.find(d=>d.flags.boltaction.catalogueSlug==='regular-rifle-squad');
-  assert.equal(rifles.items.length,0);assert.equal(rifles.flags.boltaction.composition.reduce((sum,row)=>sum+row.count,0),5);
-  const crew=templates.find(d=>d.flags.boltaction.catalogueSlug==='mmg-team');assert.equal(crew.items.length,1);assert.equal(crew.flags.boltaction.composition[0].weaponSlug,'');
-  assert.equal(templates.find(d=>d.type==='unit'&&d.system.kind==='vehicle').flags.boltaction.composition,undefined);
-  const counts=packs.map(p=>p.documents.length); result.units[0].name='My renamed squad';
-  await importStarter();assert.equal(actors.length,14);assert.deepEqual(packs.map(p=>p.documents.length),counts);assert.equal(result.units[0].name,'My renamed squad');
-  for(const faction of packs.find(p=>p.metadata.name==='boltaction-factions').documents)assert.ok(faction.system.traitUuids.every(uuid=>packs[0].documents.some(d=>d.uuid===uuid)));
-  packs[0].locked=true;await assert.rejects(importStarter(),/Unlock/);packs[0].locked=false;
-  game.user.isGM=false;await assert.rejects(importStarter(),/Only the GM/);
+  const counts=packs.map(p=>p.documents.length);infantry.name='Custom model';
+  packs.forEach(pack=>pack.locked=true);
+  await prepareCatalogue();assert.equal(actors.length,0);assert.deepEqual(packs.map(p=>p.documents.length),counts);assert.equal(infantry.name,'Custom model');
+  const legacy={metadata:{name:'boltaction-units',packageType:'world'},documents:[{name:'My old squad'}]};packs.push(legacy);
+  await prepareCatalogue();assert.equal(legacy.documents[0].name,'My old squad');assert.equal(legacy.documents.length,1);
+  templates.pop();await assert.rejects(prepareCatalogue(),/Unlock the Models/);
+  game.user.isGM=false;await assert.rejects(prepareCatalogue(),/Only the GM/);
 });
 
 // Audit index: printed army-list base entries, grouped by their printed page.

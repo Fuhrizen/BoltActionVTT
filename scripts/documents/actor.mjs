@@ -6,15 +6,15 @@ const resolve = uuid => {
 export class BoltActor extends foundry.documents.Actor {
   get members() {
     const field = this.type === "army" ? "unitUuids" : "modelUuids";
-    const type = this.type === "army" ? "unit" : "model";
+    const types = this.type === "army" ? ["unit"] : ["model","modelStatic","modelVehicle"];
     return [...new Set(this.system[field] ?? [])].map(resolve)
-      .filter(a => a?.documentName === "Actor" && a.type === type
+      .filter(a => a?.documentName === "Actor" && types.includes(a.type)
         && a.system[this.type === "army" ? "armyUuid" : "unitUuid"] === this.uuid);
   }
-  get livingMembers() { return this.members.filter(a => a.type === "model" ? !a.system.dead : !a.isDestroyed); }
+  get livingMembers() { return this.members.filter(a => ["model","modelStatic","modelVehicle"].includes(a.type) ? !a.system.dead : !a.isDestroyed); }
   get unit() {
     if (this.type === "unit") return this;
-    const unit = this.type === "model" && resolve(this.system.unitUuid);
+    const unit = ["model","modelStatic","modelVehicle"].includes(this.type) && resolve(this.system.unitUuid);
     return unit?.documentName === "Actor" && unit.type === "unit" && unit.system.modelUuids.includes(this.uuid) ? unit : null;
   }
   get army() {
@@ -23,6 +23,11 @@ export class BoltActor extends foundry.documents.Actor {
     return army?.documentName === "Actor" && army.type === "army" && army.system.unitUuids.includes(this.unit.uuid) ? army : null;
   }
   get effectiveSide() { return this.army?.system.side || this.unit?.system.side || this.system.side || "unassigned"; }
+  get points() {
+    if(['army','unit'].includes(this.type))return this.members.reduce((total,a)=>total+a.points,0);
+    const equipment=this.items.filter(i=>i.type==='weapon').reduce((total,i)=>total+(Number(i.system.cost)||0)*(Number(i.system.quantity)||1),0);
+    return Math.max(0,(Number(this.system.basePoints)||0)+(Number(this.system.pointsAdjustment)||0)+equipment);
+  }
   get morale() {
     const unit = this.unit;
     if (!unit) return 0;
@@ -40,7 +45,7 @@ export class BoltActor extends foundry.documents.Actor {
     return actors.filter(a => a.system.role !== 'loader' || !((this.getFlag?.('boltaction','upgrades') ?? []).some(u => u.loaderUuids?.includes(a.uuid) && u.modelUuids?.some(uuid => this.livingMembers.some(m=>m.uuid===uuid))))).flatMap(a => a.items.filter(i => i.type === "weapon"));
   }
   get isDestroyed() {
-    if (this.type === "model") return this.system.dead;
+    if (["model","modelStatic","modelVehicle"].includes(this.type)) return this.system.dead;
     if (this.type !== "unit") return false;
     const base = {inexperienced: 8, regular: 9, veteran: 10}[this.system.quality] ?? 9;
     return this.system.destroyed || this.system.pins >= base

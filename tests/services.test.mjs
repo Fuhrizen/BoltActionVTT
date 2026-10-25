@@ -356,17 +356,21 @@ test('complete main module boots with V14 namespaces and registers schemas, shee
   await import('../scripts/main.mjs');
   assert.equal(typeof hooks.get('init'), 'function');
   await hooks.get('init')();
-  assert.deepEqual(Object.keys(CONFIG.Actor.dataModels).sort(), ['army', 'model', 'unit']);
+  assert.deepEqual(Object.keys(CONFIG.Actor.dataModels).sort(), ['army', 'model', 'modelStatic', 'modelVehicle', 'unit']);
   assert.deepEqual(Object.keys(CONFIG.Item.dataModels).sort(), ['faction', 'selector', 'trait', 'weapon']);
   for (const Model of [...Object.values(CONFIG.Actor.dataModels), ...Object.values(CONFIG.Item.dataModels)]) {
     const schema = Model.defineSchema();
     assert.ok(Object.keys(schema).length > 0);
     assert.ok(Object.values(schema).every(field => field instanceof Field));
   }
+  assert.equal(CONFIG.Actor.dataModels.unit.defineSchema().order.args[0].blank,true);
+  assert.equal(CONFIG.Actor.dataModels.unit.defineSchema().observerKind.args[0].blank,true);
   assert.equal(sheets.length, 2);
-  for (const name of ['createSquad', 'linkMember', 'order', 'shoot', 'drawDie', 'nextRound', 'openBoard', 'formationReport']) assert.equal(typeof game.boltaction[name], 'function', name);
-  assert.ok(registered.some(entry => entry.name === 'preUpdateToken'));
-  assert.ok(registered.some(entry => entry.key === 'applyPins'));
+  for (const name of ['createTeam','createGroup','linkGroupMember','importModel','assignTeam','setTeamFaction','groupSummary','prepareCatalogue']) assert.equal(typeof game.boltaction[name], 'function', name);
+  assert.ok(!registered.some(entry => entry.name === 'preUpdateToken'));
+  assert.equal(game.boltaction.openBoard,undefined);
+  assert.ok(!registered.some(entry => entry.key === 'applyPins'));
+  game.packs=[{metadata:{name:'boltaction-models'}}];
   await hooks.get('ready')();
 });
 
