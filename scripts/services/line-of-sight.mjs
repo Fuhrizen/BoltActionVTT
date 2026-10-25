@@ -22,7 +22,7 @@ export function squadLineOfSight(squad, targetToken, {canvas = globalThis.canvas
   const models = values(game.actors).filter(model => references.has(uuid(model)) && TYPES.has(model.type)
     && model.system?.unitUuid === uuid(squad) && !model.system.dead && model.visible !== false && model.isOwner);
   if (!models.length) throw new Error('This squad has no living available models.');
-  if (models.some(model=>uuid(model)===uuid(target.actor))) throw new Error('Choose a target outside the firing squad.');
+  if (references.has(uuid(target.actor)) && target.actor?.system?.unitUuid === uuid(squad)) throw new Error('Choose a target outside the firing squad.');
   return models.map(model => {
     const token = tokens.find(token => !token.destroyed && token.visible !== false && !(token.document?.hidden && !game.user.isGM) && uuid(token.actor) === uuid(model));
     const row = {model,modelUuid:uuid(model),token:token ?? null,tokenUuid:token?.document?.uuid ?? null,visible:false,eligible:false,blocked:false,reason:''};

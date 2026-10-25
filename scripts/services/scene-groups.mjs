@@ -22,7 +22,7 @@ export function collectGroupModels(parent, actors = globalThis.game?.actors) {
 /** Managed default artwork always fills its token bounds; custom artwork is untouched. */
 export function centeredDefaultTokenTexture(texture = {}, preserveTransform = false) {
   if (!isDefaultModelArt(texture.src) || preserveTransform) return {...texture};
-  return {...texture,...(texture.src?{src:texture.src.split('?')[0]+'?v=13'}:{}),anchorX:.5,anchorY:.5,scaleX:1,scaleY:1,fit:'contain'};
+  return {...texture,...(texture.src?{src:texture.src.split('?')[0]+'?v=13'}:{}),anchorX:.5,anchorY:.5,scaleX:1,scaleY:-1,fit:'contain'};
 }
 
 function hasManagedTokenArt(source) {
@@ -84,29 +84,40 @@ const overlays = new Map();
 let hovered = null, registered = false;
 export function clearSquadHighlight() {
   for (const graphic of overlays.values()) {graphic.parent?.removeChild(graphic);if (!graphic.destroyed) graphic.destroy();}
-  overlays.clear();
+  overlays.clear();highlightSizes.clear();
 }
+const highlightSizes = new Map();
 function redrawHighlight() {
-  clearSquadHighlight();
-  if (!hovered || hovered.destroyed) return;
-  for (const token of fellowSquadTokens(hovered, globalThis.canvas?.tokens?.placeables)) {
-    const graphic = new PIXI.Graphics();
-    graphic.eventMode = 'none';graphic.interactive = false;
+  const fellows = hovered && !hovered.destroyed ? fellowSquadTokens(hovered, globalThis.canvas?.tokens?.placeables) : [];
+  const desired = new Set(fellows);
+  for (const [token,graphic] of overlays) if (!desired.has(token)) {
+    graphic.parent?.removeChild(graphic);if (!graphic.destroyed)graphic.destroy();overlays.delete(token);highlightSizes.delete(token);
+  }
+  for (const token of fellows) {
     const width = token.w ?? token.width, height = token.h ?? token.height;
-    if (graphic.roundRect && graphic.stroke) graphic.roundRect(1, 1, width - 2, height - 2, Math.min(width,height)*.2).stroke({color:0xdde7b9,width:3,alpha:.22});
+    const signature = `${width}:${height}`;
+    if (overlays.has(token) && highlightSizes.get(token)===signature)continue;
+    const old=overlays.get(token);if(old){old.parent?.removeChild(old);if(!old.destroyed)old.destroy();}
+    const graphic = new PIXI.Graphics();graphic.eventMode='none';graphic.interactive=false;
+    if (graphic.roundRect && graphic.stroke)graphic.roundRect(1,1,width-2,height-2,Math.min(width,height)*.2).stroke({color:0xdde7b9,width:3,alpha:.22});
     else graphic.lineStyle(3,0xdde7b9,.22).drawRoundedRect(1,1,width-2,height-2,Math.min(width,height)*.2);
-    token.addChild(graphic);overlays.set(token,graphic);
+    token.addChild(graphic);overlays.set(token,graphic);highlightSizes.set(token,signature);
   }
 }
-const ncoBadges = new Map();
+
+const ncoBadges = new Map(), roleSignatures = new Map(), statusSignatures = new Map();
 function removeNcoBadge(token) {
   const graphic = ncoBadges.get(token);
   if (!graphic) return;
   graphic.parent?.removeChild(graphic);if (!graphic.destroyed) graphic.destroy();ncoBadges.delete(token);
 }
-export function clearNcoBadges() {for (const token of [...ncoBadges.keys()]) removeNcoBadge(token);for (const token of [...specialRoleBadges.keys()]) removeNodes(specialRoleBadges,token);}
+export function clearNcoBadges() {roleSignatures.clear();for (const token of [...ncoBadges.keys()]) removeNcoBadge(token);for (const token of [...specialRoleBadges.keys()]) removeNodes(specialRoleBadges,token);}
 /** A separate scene overlay marks the NCO without replacing any portrait, texture or core filters. */
 export function refreshNcoBadge(token) {
+  const system=token?.actor?.system ?? {};
+  const signature=JSON.stringify([usableToken(token),usableToken(token)&&hoveringSquad(token),token?.w,token?.h,system.role,system.isNco,system.isMedic,system.isObserver,system.isLoader]);
+  if (roleSignatures.get(token)===signature)return;
+  roleSignatures.set(token,signature);
   removeNcoBadge(token);
   refreshSpecialRoleBadges(token);
   if (!token || token.destroyed || token.visible === false || !MODEL_TYPES.has(token.actor?.type)
@@ -157,11 +168,10 @@ function refreshSpecialRoleBadges(token) {
 export function tokenStateLabels(actor) {
   const squad=actor?.type==='unit'?actor:actor?.unit;
   const pins=Math.max(0,Math.trunc(Number(squad?.system?.pins ?? 0)));
-  const labels=[];if(pins)labels.push({text:`P:${pins}`,color:0xffcc78,kind:'pins'});
+  const labels=[];if(actor?.system?.dead)labels.push({text:'☠',color:0xffffff,kind:'dead'});if(pins)labels.push({text:`P:${pins}`,color:0xffcc78,kind:'pins'});
   if(actor?.type!=='modelVehicle')return labels;
   const system=actor.system ?? {},states=new Set(system.vehicleStates ?? []);
   for(const key of ['immobilised','onFire','turretJammed','stunned','engineDamage','knockedOut'])if(system[key])states.add(key);
-  if(system.dead)states.add('knockedOut');
   const names={immobilised:'IMM',onFire:'FIRE',turretJammed:'JAM',stunned:'STUN',engineDamage:'ENG',knockedOut:'KO'};
   for(const [key,text]of Object.entries(names))if(states.has(key))labels.push({text,color:0xffb29e,kind:'vehicle'});
   if(system.vehicleDamage && !Object.hasOwn(names,system.vehicleDamage))labels.push({text:'DMG',color:0xffb29e,kind:'vehicle'});
@@ -169,13 +179,15 @@ export function tokenStateLabels(actor) {
   return labels;
 }
 export function refreshTokenStateBadges(token) {
-  removeNodes(statusBadges,token);
-  if(!usableToken(token)||!PIXI.Text)return;
-  const labels=tokenStateLabels(token.actor);if(!labels.length)return;
-  const size=Math.max(10,Math.min(token.w,token.h)*.14);
+  const labels=usableToken(token)?tokenStateLabels(token.actor):[];
+  const signature=JSON.stringify([token?.w,token?.h,labels]);
+  if(statusSignatures.get(token)===signature)return;
+  statusSignatures.set(token,signature);removeNodes(statusBadges,token);
+  if(!usableToken(token)||!PIXI.Text||!labels.length)return;
+  const size=Math.min(Math.max(10,Math.min(token.w,token.h)*.14),token.h*.65/(labels.length+1),(token.w-8)/(Math.max(...labels.map(x=>x.text.length))*.65));
   statusBadges.set(token,labels.map((label,index)=>textLabel(token,label.text,{x:4,y:token.h-(labels.length-index)*(size+2)-3,size,color:label.color})));
 }
-export function clearTokenStateBadges(){for(const token of [...statusBadges.keys()])removeNodes(statusBadges,token);}
+export function clearTokenStateBadges(){statusSignatures.clear();for(const token of [...statusBadges.keys()])removeNodes(statusBadges,token);}
 function refreshAllStateBadges(){for(const token of globalThis.canvas?.tokens?.placeables??[])refreshTokenStateBadges(token);}
 function refreshNcoBadges() {for (const token of globalThis.canvas?.tokens?.placeables ?? []) refreshNcoBadge(token);}
 /** Repair earlier managed token defaults in the active scene, without touching custom artwork. */

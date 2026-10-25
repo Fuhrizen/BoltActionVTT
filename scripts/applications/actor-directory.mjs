@@ -11,6 +11,19 @@ let folderSync = Promise.resolve();
 const values = collection => collection?.contents ?? Array.from(collection ?? []);
 const uuidOf = actor => actor.uuid ?? `Actor.${actor.id}`;
 const isGroup = actor => actor?.type === 'army' || actor?.type === 'unit';
+const DIRECTORY_FIELDS = ['name', 'img', 'folder', 'sort', 'type', 'ownership', 'permission',
+  'system.armyUuid', 'system.unitUuid', 'system.unitUuids', 'system.modelUuids', 'system.role', 'system.isNco',
+  'system.factionUuid', 'flags.boltaction.factionSlug'];
+
+/** Battlefield state and equipment do not affect the Actors sidebar hierarchy. */
+export function actorDirectoryNeedsRefresh(changes = {}, prefix = '') {
+  for (const [key, value] of Object.entries(changes ?? {})) {
+    const path = (prefix ? `${prefix}.${key}` : key).replace(/(^|\.)-=/g, '$1');
+    if (DIRECTORY_FIELDS.some(field => path === field || path.startsWith(`${field}.`))) return true;
+    if (value && typeof value === 'object' && !Array.isArray(value) && actorDirectoryNeedsRefresh(value, path)) return true;
+  }
+  return false;
+}
 
 function groupColor(actor, actors) {
   const army = actor.type === 'army' ? actor : actors.find(parent => parent.type === 'army' && uuidOf(parent) === actor.system?.armyUuid);
@@ -73,6 +86,7 @@ function restore(root) {
   if (!previous) return;
   previous.controller.abort();
   for (const badge of previous.badges) badge.remove();
+  for (const portrait of previous.portraits) portrait.remove();
   for (const {row, marker, tabIndex} of previous.entries) {
     // A partial core render can replace a row. Never resurrect its old document entry.
     if (root.contains(row) && marker.parentNode) marker.parentNode.insertBefore(row, marker);
@@ -165,7 +179,7 @@ export function renderActorDirectoryHierarchy(app, html) {
   const actors = values(game.actors);
   const rows = entryRows(root, actors);
   const renderedActors = actors.filter(actor => rows.has(actor.id));
-  const state = {entries: [], badges: [], controller: new AbortController()};
+  const state = {entries: [], badges: [], portraits: [], controller: new AbortController()};
   const document = root.ownerDocument;
   for (const row of rows.values()) {
     const marker = document.createComment('boltaction-actor-position');
@@ -195,6 +209,17 @@ export function renderActorDirectoryHierarchy(app, html) {
   function mount(node) {
     const actor = node.actor, row = rows.get(actor.id);
     if (!isGroup(actor)) return row;
+    // Core normally supplies the Actor portrait. Retain that native image and
+    // provide a view-only fallback for alternate directory row templates.
+    if (actor.img && !row.querySelector('img')) {
+      const portrait = document.createElement('img');
+      portrait.className = 'ba-group-portrait';
+      portrait.setAttribute('src', actor.img);
+      portrait.setAttribute('alt', '');
+      portrait.setAttribute('loading', 'lazy');
+      row.insertBefore(portrait, row.childNodes[0] ?? null);
+      state.portraits.push(portrait);
+    }
     const wrapper = document.createElement('li');
     wrapper.className = 'ba-actor-group';
     // Core sidebar list rules vary between docked and pop-out directories. Keep
@@ -301,9 +326,14 @@ export function registerActorDirectoryHierarchy() {
       if (directory?.popout?.rendered) directory.popout.render({force:true});
     }, 40);
   }
-  for (const hook of ['createActor', 'deleteActor', 'updateUser']) Hooks.on(hook, refresh);
+  for (const hook of ['createActor', 'deleteActor']) Hooks.on(hook, actor => {
+    if (!actor?.pack && !actor?.isToken) refresh();
+  });
+  Hooks.on('updateUser', refresh);
   Hooks.on('updateActor', (actor, changes, options) => {
-    refresh();
+    if (actor?.pack || actor?.isToken) return;
+    if (actorDirectoryNeedsRefresh(changes)) refresh();
+    if (!Object.hasOwn(changes ?? {}, 'folder')) return;
     void syncActorGroupFolder(actor, changes, options).catch(error => {
       console.error('Bolt Action: group folder synchronization', error);
       globalThis.ui?.notifications?.warn('Could not move all group members into the new folder.');

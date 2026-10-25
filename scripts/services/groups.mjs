@@ -53,7 +53,7 @@ export async function setSquadKind(parent, kind) {
   squad(parent); validateSquadKind(kind);
   return serial('group-membership', async () => {
     if (childActors(parent).some(member => modelKind(member) !== kind)) throw new Error('Unlink incompatible models before changing the squad type.');
-    await parent.update({'system.squadKind': kind});
+    await parent.update({'system.squadKind': kind},{render:false});
     return parent;
   });
 }
@@ -63,7 +63,7 @@ function ownershipUpdate(actor, ownership) {
 async function restore(snapshots) {
   const errors = [];
   for (const {actor, data} of snapshots.reverse()) {
-    try {await actor.update(data.ownership ? {...data, ownership: ownershipUpdate(actor, data.ownership)} : data, {boltactionOwnership: true, recursive: false});} catch (error) {errors.push(error.message);}
+    try {await actor.update(data.ownership ? {...data, ownership: ownershipUpdate(actor, data.ownership)} : data, {boltactionOwnership: true, recursive: false,render:false});} catch (error) {errors.push(error.message);}
   }
   if (errors.length) console.error('Bolt Action: group rollback requires GM review', errors);
 }
@@ -71,7 +71,7 @@ async function setOwnership(actors, ownership, snapshots) {
   for (const actor of actors) {
     owned(actor);
     snapshots.push({actor, data: {ownership: clone(actor.ownership ?? {})}});
-    await actor.update({ownership: ownershipUpdate(actor, ownership)}, {boltactionOwnership: true, recursive: false});
+    await actor.update({ownership: ownershipUpdate(actor, ownership)}, {boltactionOwnership: true, recursive: false,render:false});
   }
 }
 export async function syncGroupOwnership(parent) {
@@ -95,7 +95,7 @@ export async function linkGroupMember(parent, child) {
       snapshots.push({actor: child, data: {folder:child.folder?.id??child.folder??null,[`system.${fields.parent}`]: previousParent,...(parent.type==='unit'?{'system.quality':child.system.quality}:{})}});
       await child.update({folder:parent.folder?.id??parent.folder??null,[`system.${fields.parent}`]: parent.uuid,...(parent.type==='unit'?{'system.quality':parent.system.quality||'regular'}:{})});
       snapshots.push({actor: parent, data: {[`system.${fields.list}`]: previousList}});
-      await parent.update({[`system.${fields.list}`]: [...new Set([...previousList, child.uuid])]});
+      await parent.update({[`system.${fields.list}`]: [...new Set([...previousList, child.uuid])]},{render:false});
       await setOwnership([child, ...descendants(child)], parent.ownership ?? {}, snapshots);
       const army=parent.type==='army'?parent:worldActor(parent.system.armyUuid);
       if(army?.system.factionUuid){const faction=await fromUuid(army.system.factionUuid);for(const member of [child,...descendants(child)]){const art=factionAppearance(faction?.system?.slug||faction?.getFlag?.('boltaction','catalogueSlug'),member.type),changes={};if(isDefaultModelArt(member.img))changes.img=art.img;if(isDefaultModelArt(member.prototypeToken?.texture?.src))changes['prototypeToken.texture.src']=art.tokenSrc;if(Object.keys(changes).length)await member.update(changes);}}
@@ -119,7 +119,7 @@ export async function unlinkGroupMember(parent, uuid) {
         }
       }
       snapshots.push({actor: parent, data: {[`system.${listField}`]: previousList}});
-      await parent.update({[`system.${listField}`]: previousList.filter(id => id !== uuid)});
+      await parent.update({[`system.${listField}`]: previousList.filter(id => id !== uuid)},{render:false});
       return child;
     } catch (error) {await restore(snapshots); throw error;}
   });
@@ -130,7 +130,7 @@ export async function setTeamFaction(actor, factionUuid = '') {
     const faction = await fromUuid(factionUuid);
     if (!faction || faction.documentName !== 'Item' || faction.type !== 'faction' || faction.visible === false) throw new Error('Choose an available faction profile.');
   }
-  await parent.update({'system.factionUuid': factionUuid});
+  await parent.update({'system.factionUuid': factionUuid},{render:false});
   const faction=factionUuid?await fromUuid(factionUuid):null;
   for(const model of [parent,...descendants(parent)]) {
     const art=factionAppearance(faction?.system?.slug || faction?.getFlag?.('boltaction','catalogueSlug'),model.type),changes={};
@@ -211,7 +211,7 @@ export async function setSquadExperience(parent, quality) {
   if (!['inexperienced','regular','veteran'].includes(quality)) throw new Error('Choose a valid squad experience.');
   return serial('group-membership',async()=>{
     const actors=[parent,...childActors(parent)],snapshots=[];
-    try {for(const actor of actors){owned(actor);snapshots.push({actor,data:{'system.quality':actor.system.quality}});await actor.update({'system.quality':quality});}}
+    try {for(const actor of actors){owned(actor);snapshots.push({actor,data:{'system.quality':actor.system.quality}});await actor.update({'system.quality':quality},{render:false});}}
     catch(error){await restore(snapshots);throw error;}
     return parent;
   });
@@ -251,7 +251,7 @@ export async function deleteGroupActor(actor) {
 
 export async function setPins(parent,value){
  squad(parent);if(!Number.isInteger(value)||value<0||value>100)throw new Error('Pins must be an integer from 0 to 100.');
- await parent.update({'system.pins':value});return parent;
+ await parent.update({'system.pins':value},{render:false});return parent;
 }
 export async function addSquadMember(parent){
  squad(parent);canCreate();

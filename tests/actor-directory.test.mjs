@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {buildActorTree, renderActorDirectoryHierarchy, registerActorDirectoryHierarchy, syncActorGroupFolder} from '../scripts/applications/actor-directory.mjs';
+import {buildActorTree, renderActorDirectoryHierarchy, registerActorDirectoryHierarchy, syncActorGroupFolder, actorDirectoryNeedsRefresh} from '../scripts/applications/actor-directory.mjs';
 
 const actor = (id, type, system = {}, extra = {}) => ({id, uuid: `Actor.${id}`, name: id, type,
   documentName: 'Actor', visible: true, isOwner: true, system, ...extra});
@@ -174,7 +174,7 @@ test('compendium drop delegates to guarded model importer once at the destinatio
   assert.equal(f.rows[1].nativeClick(), 'squad');
 });
 
-test('registration is idempotent and compendium directories are left unchanged', () => {
+test('registration is idempotent and mundane Actor updates never queue a directory refresh', async () => {
   const f = fixture(), settings = [], hooks = [];
   game.settings.register = (...args) => settings.push(args);
   globalThis.Hooks = {on: (...args) => hooks.push(args)};
@@ -185,6 +185,51 @@ test('registration is idempotent and compendium directories are left unchanged',
   assert.deepEqual(hooks.map(([name]) => name).sort(), ['renderActorDirectory', 'createActor', 'updateActor', 'deleteActor', 'updateUser'].sort());
   renderActorDirectoryHierarchy({collection: {metadata: {type: 'Actor'}}}, f.root);
   assert.equal(f.root.querySelectorAll('.ba-actor-group').length, 0);
+  let renders = 0;
+  game.actors.directory = {rendered: true, render: () => renders++};
+  const updateActor = hooks.find(([name]) => name === 'updateActor')[1];
+  updateActor(f.model, {'system.pins': 2});
+  updateActor(f.model, {system: {dead: true, weapons: ['rifle'], quality: 'veteran'}});
+  updateActor({...f.model, isToken: true}, {name: 'Synthetic Actor'});
+  updateActor({...f.model, pack: 'boltaction.models'}, {img: 'new-art.svg'});
+  await new Promise(resolve => setTimeout(resolve, 55));
+  assert.equal(renders, 0);
+  updateActor(f.model, {system: {role: 'NCO'}});
+  updateActor(f.team, {'system.unitUuids': ['Actor.squad']});
+  await new Promise(resolve => setTimeout(resolve, 55));
+  assert.equal(renders, 1, 'relevant changes share one debounced refresh');
+  assert.equal(hooks.some(([name]) => name === 'updateToken'), false);
+});
+
+test('directory invalidation accepts flat/nested presentation changes and excludes battlefield state', () => {
+  for (const changes of [{name: 'Renamed'}, {img: 'custom-art.webp'}, {folder: null}, {sort: 12},
+    {ownership: {player: 3}}, {'ownership.player': 2}, {system: {armyUuid: 'Actor.army'}},
+    {'system.modelUuids': []}, {system: {factionUuid: 'Item.faction'}}, {'flags.boltaction.factionSlug': 'germany'},
+    {'system.-=role': null}, {'system.isNco': true}]) assert.equal(actorDirectoryNeedsRefresh(changes), true);
+  for (const changes of [{}, {system: {pins: 2}}, {'system.dead': true}, {system: {weapons: [], quality: 'regular'}},
+    {prototypeToken: {texture: {src: 'new-token.webp'}}}, {flags: {boltaction: {lastRoll: 5}}}]) assert.equal(actorDirectoryNeedsRefresh(changes), false);
+});
+
+test('group portraits precede names and preserve existing native images and custom artwork', () => {
+  const f = fixture();
+  f.team.img = 'worlds/test/custom-army.webp'; f.squad.img = 'systems/boltaction/assets/unit.svg';
+  const nativeImage = document.createElement('img'); nativeImage.setAttribute('src', f.team.img);
+  const armyName = document.createElement('h4'); armyName.className = 'document-name'; armyName.textContent = f.team.name;
+  const squadName = document.createElement('h4'); squadName.className = 'document-name'; squadName.textContent = f.squad.name;
+  f.rows[0].append(nativeImage, armyName); f.rows[1].append(squadName);
+  renderActorDirectoryHierarchy({collection: game.actors}, f.root);
+  assert.equal(f.rows[0].childNodes[0], nativeImage, 'native portrait element and its listeners survive');
+  assert.equal(f.rows[0].querySelectorAll('img').length, 1);
+  const fallback = f.rows[1].childNodes[0];
+  assert.equal(fallback.tagName, 'IMG');
+  assert.equal(fallback.getAttribute('src'), f.squad.img);
+  assert.equal(f.rows[1].childNodes[1], squadName);
+  renderActorDirectoryHierarchy({collection: game.actors}, f.root);
+  assert.equal(f.rows[0].querySelector('img'), nativeImage);
+  assert.equal(f.rows[1].querySelectorAll('img').length, 1);
+  assert.equal(fallback.parentNode, null, 'view-only fallback images are cleaned up before rebuilding');
+  assert.equal(f.team.img, 'worlds/test/custom-army.webp');
+  assert.equal(nativeImage.getAttribute('src'), f.team.img);
 });
 
 test('folder heading and keyboard toggle expansion while the right icon opens the sheet', async () => {

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-globalThis.foundry={canvas:{placeables:{Token:class {_onClickLeft2(){return 'base';}}}}};
-const {collectGroupModels,deployGroup,fellowSquadTokens,registerSceneGroups,centeredDefaultTokenTexture,centeredDefaultTokenData,normalizeSceneTokenDefaults,refreshNcoBadge,clearNcoBadges,setSquadHover}=await import('../scripts/services/scene-groups.mjs');
+globalThis.foundry={canvas:{placeables:{Token:class {_onClickLeft2(){return 'base';}_onClickRight(){return 'native-hud';}_onClickRight2(){return 'native-config';}_refreshEffects(){}}}}};
+const {collectGroupModels,deployGroup,fellowSquadTokens,registerSceneGroups,centeredDefaultTokenTexture,centeredDefaultTokenData,normalizeSceneTokenDefaults,refreshNcoBadge,clearNcoBadges,setSquadHover,tokenStateLabels,refreshTokenStateBadges,clearTokenStateBadges}=await import('../scripts/services/scene-groups.mjs');
 const {BoltToken}=await import('../scripts/documents/token.mjs');
 const actor=(id,type,system={})=>({id,uuid:`Actor.${id}`,type,system,isOwner:true,visible:true,async getTokenDocument(){return{toObject:()=>({_id:'prototype',width:type==='modelVehicle'?2:1,height:1,texture:{src:'own-art.webp'}})};}});
 function setup(){const a=actor('a','army',{unitUuids:['Actor.s','Actor.s']});const s=actor('s','unit',{armyUuid:a.uuid,modelUuids:['Actor.m','Actor.v','Actor.m','Actor.stray','Actor.hidden']});const m=actor('m','model',{unitUuid:s.uuid});const v=actor('v','modelVehicle',{unitUuid:s.uuid});const stray=actor('stray','model',{unitUuid:'Actor.other'});const hidden=actor('hidden','model',{unitUuid:s.uuid});hidden.visible=false;globalThis.game={actors:[a,s,m,v,stray,hidden],user:{isGM:true}};globalThis.CONFIG={Token:{documentClass:{canUserCreate:()=>true}}};delete globalThis.canvas;return{a,s,m,v,hidden};}
@@ -13,7 +13,7 @@ test('drop hook synchronously cancels only world group actor drops',async()=>{co
 
 test('managed default token transforms are centered while custom artwork and opt-out transforms are preserved',()=>{
  const managed={src:'systems/boltaction/assets/factions/germany/model-token.svg',anchorX:.5,anchorY:0,scaleX:.5,scaleY:.5,fit:'cover',tint:'#fff'};
- assert.deepEqual(centeredDefaultTokenTexture(managed),{...managed,src:managed.src+'?v=13',anchorX:.5,anchorY:.5,scaleX:1,scaleY:1,fit:'contain'});
+ assert.deepEqual(centeredDefaultTokenTexture(managed),{...managed,src:managed.src+'?v=13',anchorX:.5,anchorY:.5,scaleX:1,scaleY:-1,fit:'contain'});
  const custom={...managed,src:'worlds/game/custom.webp'};assert.deepEqual(centeredDefaultTokenTexture(custom),custom);assert.deepEqual(centeredDefaultTokenTexture(managed,true),managed);
 });
 test('active scene repair changes only default model artwork and is idempotent',async()=>{
@@ -47,3 +47,23 @@ test('scene doubleclick opens a visible containing squad, falling back to the na
  assert.equal(token._onClickLeft2({}),'squad');assert.equal(rendered,1);token.actor.unit.visible=false;assert.equal(token._onClickLeft2({}),'base');token.actor.unit=null;assert.equal(token._onClickLeft2({}),'base');
 });
 test('custom token counters distinguish squad pins and explicit vehicle states',async()=>{const {tokenStateLabels}=await import('../scripts/services/scene-groups.mjs');const unit={type:'unit',system:{pins:3}},vehicle={type:'modelVehicle',unit,system:{vehicleStates:['onFire','turretJammed'],immobilised:true}};assert.deepEqual(tokenStateLabels(vehicle).map(x=>x.text),['P:3','IMM','FIRE','JAM']);assert.deepEqual(tokenStateLabels({type:'model',unit,system:{}}).map(x=>x.text),['P:3']);});
+
+test('token state labels show inherited pins, dead models and vehicle states without generic status mutation',()=>{
+ const {s,m,v}=setup();s.system.pins=3;m.unit=v.unit=s;m.system.dead=true;v.system.vehicleStates=['immobilised','onFire','turretJammed','stunned'];
+ assert.deepEqual(tokenStateLabels(m).map(x=>x.text),['☠','P:3']);
+ assert.deepEqual(tokenStateLabels(v).map(x=>x.text),['P:3','IMM','FIRE','JAM','STUN']);
+});
+test('overlay caches ignore movement coordinates and rebuild only when state or role changes',()=>{
+ const {s,m}=setup();s.system.pins=2;m.unit=s;m.system.isMedic=true;let made=0,destroyed=0;
+ globalThis.PIXI={VERSION:'7',Graphics:class{lineStyle(){return this;}drawRoundedRect(){return this;}destroy(){destroyed++;}},Text:class{constructor(text){this.text=text;made++;}destroy(){destroyed++;}}};
+ const token={actor:m,w:100,h:100,visible:true,x:1,y:1,addChild(node){node.parent={removeChild(){}};}};globalThis.canvas={tokens:{placeables:[token]}};
+ setSquadHover(token,true);refreshTokenStateBadges(token);const initial=made;
+ for(let i=0;i<20;i++){token.x+=10;refreshNcoBadge(token);refreshTokenStateBadges(token);}
+ assert.equal(made,initial);assert.equal(destroyed,0);
+ s.system.pins=4;refreshTokenStateBadges(token);assert.equal(made,initial+1);assert.equal(destroyed,1);
+ m.system.isObserver=true;refreshNcoBadge(token);assert.equal(made,initial+3);setSquadHover(token,false);clearTokenStateBadges();clearNcoBadges();
+});
+test('system token rightclick HUD is suppressed and native effect icons are replaced without changing art',()=>{
+ const token=new BoltToken();token.actor={type:'model'};token.effects={visible:true};assert.equal(token._onClickRight({}),undefined);assert.equal(token._onClickRight2({}),undefined);token._refreshEffects();assert.equal(token.effects.visible,false);
+ token.actor.type='other';assert.equal(token._onClickRight({}),'native-hud');assert.equal(token._onClickRight2({}),'native-config');
+});

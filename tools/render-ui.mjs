@@ -14,6 +14,7 @@ class App {async _prepareContext(){return {};}}
 globalThis.foundry={applications:{api:{HandlebarsApplicationMixin:B=>B,ApplicationV2:App},sheets:{ActorSheetV2:App,ItemSheetV2:App}}};
 const {BoltActorSheet}=await import('../scripts/applications/actor-sheet.mjs');
 const {BoltItemSheet}=await import('../scripts/applications/item-sheet.mjs');
+const {armyBuilderCatalogue}=await import('../scripts/services/army-builder.mjs');
 const {getModelChoices}=await import('../scripts/services/model-choices.mjs');
 const {loadCatalogue,modelTemplate}=await import('../scripts/services/catalogue.mjs');
 const root=fileURLToPath(new URL('../',import.meta.url));
@@ -23,13 +24,14 @@ const svg=await readFile(path.join(root,'assets/soldier.svg'),'utf8');
 const img=`data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
 const rifle={id:'rifle',uuid:'Actor.soldier.Item.rifle',name:'Rifle',type:'weapon',img,isOwner:true,system:{slug:'rifle',range:24,shots:1,penetration:0,quantity:1,cost:0,traits:[],notes:'Standard infantry armament.'}};
 const soldiers=Array.from({length:5},(_,i)=>({uuid:`Actor.soldier${i}`,name:i===0?'Sergeant Harris':`Rifleman ${i}`,img,type:'model',flags:{boltaction:{catalogueSlug:'great-britain-regular-infantry'}},system:{dead:i===4,role:'rifleman',quality:'regular',basePoints:10,pointsAdjustment:0,notes:''},items:[rifle],members:[],livingMembers:[],isOwner:true,points:10}));
-const army={uuid:'Actor.army',name:'Allied Expeditionary Force',img,type:'army',ownership:{player:3},system:{side:'allies',score:0,notes:'Team members share control of every squad and model.'},members:[],livingMembers:[],items:[],isOwner:true,effectiveSide:'allies'};
+const army={uuid:'Actor.army',name:'Allied Expeditionary Force',img,type:'army',ownership:{player:3},system:{factionUuid:'Item.previewFaction',side:'allies',score:0,notes:'Team members share control of every squad and model.'},members:[],livingMembers:[],items:[],isOwner:true,effectiveSide:'allies'};
 const unit={uuid:'Actor.unit',name:'1st Infantry Section',img,type:'unit',system:{side:'allies',kind:'infantry',quality:'regular',pins:2,order:'advance',activated:true,ncoAlive:true,startingSize:5,moveAdvance:6,moveRun:12,points:50,notes:'A squad contains individually customisable models.'},army,members:soldiers,livingMembers:soldiers.slice(0,4),items:[],weapons:[rifle],isOwner:true,points:50,morale:9,damageValue:4,effectiveSide:'allies'};
 army.members=[unit];soldiers.forEach(s=>{s.unit=unit;s.army=army;s.effectiveSide='allies';});
 army.points=50;
 const staticModel={...soldiers[0],...await modelTemplate(catalogue.units.find(r=>r.system.kind==='artillery')),isOwner:true,img};
 const vehicleModel={...soldiers[0],...await modelTemplate(catalogue.units.find(r=>r.slug==='great-britain-sherman-75')),isOwner:true,img};
-globalThis.game={user:{isGM:true},users:[{id:'player',name:'Alex',isGM:false}],items:[],packs:[],actors:[army,unit,...soldiers],boltaction:{getModelChoices,profiles:async()=>({faction:{name:'Great Britain'},traits:[]})}};
+globalThis.game={user:{isGM:true},users:[{id:'player',name:'Alex',isGM:false}],items:[],packs:[],actors:[army,unit,...soldiers],boltaction:{armyBuilderCatalogue,getModelChoices,profiles:async()=>({faction:{name:'Great Britain'},traits:[]})}};
+globalThis.fromUuid=async uuid=>uuid==='Item.previewFaction'?{system:{slug:'great-britain'}}:game.actors.find(actor=>actor.uuid===uuid);
 async function render(template,context){return Handlebars.compile(await readFile(path.join(root,'templates',template+'.hbs'),'utf8'))(context);}
 async function actorContext(actor){const app=new BoltActorSheet();app.actor=actor;return app._prepareContext({});}
 const itemApp=new BoltItemSheet();itemApp.item=rifle;
