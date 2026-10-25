@@ -20,8 +20,11 @@ export class UnitData extends foundry.abstract.TypeDataModel {
       activated: bool(), destroyed: bool(), ncoAlive: bool(true), moraleBonus: int(0, {min: -10, max: 10}),
       startingSize: int(5, {min: 1, max: 100}), maxSize: int(10, {min: 1, max: 100}), fullStrength: bool(),
       damageValue: int(4, {min: 3, max: 11}), moveAdvance: num(6), moveRun: num(12), points: int(),
+      reserve: bool(), deployment: text("field", {choices: ["field", "reserve", "outflank"]}), arrivalRound: int(),
       traitUuids: list(), transportUuid: text(), passengerUuids: list(), capacity: int(),
       vehicleDamage: text(), immobilised: bool(), openTopped: bool(), notes: text(),
+      observerKind: text("", {choices: ["", "artillery", "air"]}), observerMission: text(), observerUsed: bool(), observerPending: bool(), observerTargetUuid: text(), observerRound: int(), observerSceneUuid: text(), observerX: num(), observerY: num(), observerResult: new f.ObjectField({initial: {}}), observerResolvedUuids: list(),
+      attackPinTotals: new f.ObjectField({initial: {}}), specialPinTargets: list(),
       retained: bool(), firedWeaponUuids: list(), shotTargetUuid: text(), assaultResolved: bool(), hitTargetUuids: list()
     };
   }
@@ -35,6 +38,7 @@ export class WeaponData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     return {
       slug: text(), range: num(24), minRange: num(), shots: int(1, {min: 1, max: 200}),
+      ammoUsed: bool(), exhausted: bool(), indirectTargetUuid: text(), indirectZeroed: bool(), indirectRound: int(), indirectThreshold: int(6, {min: 2, max: 6}),
       shotsFormula: text(), indirectRange: num(), indirectMinRange: num(), heDiameter: num(),
       penetration: int(0, {max: 20}), traits: list(), quantity: int(1, {min: 1, max: 100}), notes: text()
     };

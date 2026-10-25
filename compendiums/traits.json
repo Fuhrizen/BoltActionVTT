@@ -5,8 +5,14 @@
     "type": "trait",
     "system": {
       "slug": "assault",
-      "effect": "Check movement and close-combat benefits manually.",
+      "effect": "Moving fire avoids its usual penalty; close combat grants the assault-weapon benefit.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "66",
+      "parameters": {
+        "ignoreMovedPenalty": true
+      }
     }
   },
   {
@@ -15,8 +21,15 @@
     "type": "trait",
     "system": {
       "slug": "team",
-      "effect": "Track crew availability manually.",
+      "effect": "A lone surviving operator fires less accurately; support-team weapon loss can remove its detachment.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "73",
+      "parameters": {
+        "fullCrewMinimum": 2,
+        "singleCrewHitModifier": -1
+      }
     }
   },
   {
@@ -25,8 +38,14 @@
     "type": "trait",
     "system": {
       "slug": "fixed",
-      "effect": "Apply firing arc and movement restrictions manually.",
+      "effect": "Restrict firing to the forward arc; changing facing requires the appropriate order.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "66",
+      "parameters": {
+        "arcDegrees": 90
+      }
     }
   },
   {
@@ -35,8 +54,14 @@
     "type": "trait",
     "system": {
       "slug": "shaped-charge",
-      "effect": "Check penetration exceptions manually.",
+      "effect": "Long range does not reduce penetration.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "73",
+      "parameters": {
+        "ignoreLongRangePenetrationPenalty": true
+      }
     }
   },
   {
@@ -45,8 +70,14 @@
     "type": "trait",
     "system": {
       "slug": "one-shot",
-      "effect": "Remove or mark expended after use.",
+      "effect": "The weapon is expended after one firing.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "72",
+      "parameters": {
+        "uses": 1
+      }
     }
   },
   {
@@ -55,8 +86,16 @@
     "type": "trait",
     "system": {
       "slug": "flamethrower",
-      "effect": "Roll shot count and resolve fuel, pins and morale manually.",
+      "effect": "Roll variable shots; apply flame penetration, extra pins, morale and fuel checks manually.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "67",
+      "parameters": {
+        "infantryShots": "1d6",
+        "vehicleShots": "1d6+1",
+        "penetration": 3
+      }
     }
   },
   {
@@ -65,8 +104,16 @@
     "type": "trait",
     "system": {
       "slug": "indirect-fire",
-      "effect": "Resolve ranging, visibility and minimum range manually.",
+      "effect": "Use ranging rolls and minimum range; a spotter can supply observation when permitted.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "71",
+      "parameters": {
+        "initialHitTarget": 6,
+        "rangingStep": 1,
+        "minimumHitTarget": 2
+      }
     }
   },
   {
@@ -75,8 +122,17 @@
     "type": "trait",
     "system": {
       "slug": "howitzer",
-      "effect": "Choose direct or indirect fire before resolving the attack.",
+      "effect": "Choose direct or indirect fire and use the corresponding range band.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "71",
+      "parameters": {
+        "fireModes": [
+          "direct",
+          "indirect"
+        ]
+      }
     }
   },
   {
@@ -85,8 +141,14 @@
     "type": "trait",
     "system": {
       "slug": "fanatics",
-      "effect": "Resolve exceptional morale and assault behavior manually.",
+      "effect": "With at least two survivors, resist pin rout and shooting morale checks; losing assaults may continue.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "90",
+      "parameters": {
+        "minimumModels": 2
+      }
     }
   },
   {
@@ -97,6 +159,16 @@
       "slug": "he-1",
       "effect": "1-inch HE template; resolve template hits and damage manually.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "70",
+      "parameters": {
+        "diameter": 1,
+        "penetration": 1,
+        "pins": "1d2",
+        "buildingHits": "1d3",
+        "ignoreLongRangePenetrationPenalty": true
+      }
     }
   },
   {
@@ -107,6 +179,16 @@
       "slug": "he-2",
       "effect": "2-inch HE template; resolve template hits and damage manually.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "70",
+      "parameters": {
+        "diameter": 2,
+        "penetration": 2,
+        "pins": "1d3",
+        "buildingHits": "1d6",
+        "ignoreLongRangePenetrationPenalty": true
+      }
     }
   },
   {
@@ -117,6 +199,16 @@
       "slug": "he-3",
       "effect": "3-inch HE template; resolve template hits and damage manually.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "70",
+      "parameters": {
+        "diameter": 3,
+        "penetration": 3,
+        "pins": "1d3",
+        "buildingHits": "2d6",
+        "ignoreLongRangePenetrationPenalty": true
+      }
     }
   },
   {
@@ -127,6 +219,16 @@
       "slug": "he-4",
       "effect": "4-inch HE template; resolve template hits and damage manually.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "70",
+      "parameters": {
+        "diameter": 4,
+        "penetration": 4,
+        "pins": "1d6",
+        "buildingHits": "3d6",
+        "ignoreLongRangePenetrationPenalty": true
+      }
     }
   },
   {
@@ -137,6 +239,12 @@
       "slug": "initiative-training",
       "effect": "When an infantry NCO is lost, replacement succeeds on 2+; apply manually.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "154",
+      "parameters": {
+        "ncoReplacementTarget": 2
+      }
     }
   },
   {
@@ -147,6 +255,16 @@
       "slug": "machine-gun-training",
       "effect": "Add one shot to German light and medium machine guns manually.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "154",
+      "parameters": {
+        "weaponSlugs": [
+          "lmg",
+          "mmg"
+        ],
+        "extraShots": 1
+      }
     }
   },
   {
@@ -157,6 +275,16 @@
       "slug": "fire-and-manoeuvre",
       "effect": "Eligible US rifle/carbine and BAR models ignore the movement shooting penalty; set modifier manually.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "166",
+      "parameters": {
+        "eligibleWeaponSlugs": [
+          "rifle",
+          "automatic-rifle"
+        ],
+        "ignoreMovedPenalty": true
+      }
     }
   },
   {
@@ -167,6 +295,12 @@
       "slug": "air-support",
       "effect": "US air observers have two calls per game; track manually.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "166",
+      "parameters": {
+        "airStrikeCalls": 2
+      }
     }
   },
   {
@@ -177,6 +311,12 @@
       "slug": "artillery-support",
       "effect": "One regular artillery observer may be included without points cost; build the roster manually.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "178",
+      "parameters": {
+        "freeRegularObservers": 1
+      }
     }
   },
   {
@@ -187,6 +327,13 @@
       "slug": "bombardment",
       "effect": "For preparatory bombardment, roll twice per enemy unit and choose the preferred result manually.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "178",
+      "parameters": {
+        "rollCount": 2,
+        "keep": "best"
+      }
     }
   },
   {
@@ -197,6 +344,16 @@
       "slug": "morale-reroll",
       "effect": "Infantry and artillery may repeat a failed morale check that would destroy them; apply the second result manually.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "189",
+      "parameters": {
+        "kinds": [
+          "infantry",
+          "artillery"
+        ],
+        "destructionMoraleRerolls": 1
+      }
     }
   },
   {
@@ -207,6 +364,14 @@
       "slug": "extra-infantry",
       "effect": "One twelve-model inexperienced infantry squad may be added without points cost; configure options manually.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "189",
+      "parameters": {
+        "freeCount": 1,
+        "models": 12,
+        "quality": "inexperienced"
+      }
     }
   },
   {
@@ -217,6 +382,546 @@
       "slug": "banzai-charge",
       "effect": "Eligible infantry runs toward the nearest visible enemy pass the order test automatically; confirm eligibility and move manually.",
       "notes": "Manual reference; not automatically applied."
+    },
+    "profile": {
+      "sourcePage": "201",
+      "parameters": {
+        "order": "run",
+        "target": "closest-visible-enemy",
+        "orderTest": "double-one"
+      }
+    }
+  },
+  {
+    "slug": "multiple-launcher",
+    "name": "Multiple Launcher",
+    "type": "trait",
+    "system": {
+      "slug": "multiple-launcher",
+      "effect": "Resolve salvo coverage and affected units separately; standard ranging improvement does not apply.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "72",
+      "parameters": {
+        "hitTarget": 6
+      }
+    }
+  },
+  {
+    "slug": "bicycles",
+    "name": "Bicycles",
+    "type": "trait",
+    "system": {
+      "slug": "bicycles",
+      "effect": "Road movement can use the bicycle Run rate; other orders or pins force permanent dismounting.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "89",
+      "parameters": {
+        "roadRun": 24
+      }
+    }
+  },
+  {
+    "slug": "cavalry",
+    "name": "Cavalry",
+    "type": "trait",
+    "system": {
+      "slug": "cavalry",
+      "effect": "Mounted movement and shooting restrictions apply; dismounting is permanent.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "89",
+      "parameters": {
+        "advance": 9,
+        "run": 18,
+        "regroup": "2d6",
+        "mountedWeapons": [
+          "pistol"
+        ],
+        "mountedToughFighters": true
+      }
+    }
+  },
+  {
+    "slug": "green",
+    "name": "Green",
+    "type": "trait",
+    "system": {
+      "slug": "green",
+      "effect": "Resolve a one-time experience roll after the first casualty.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "90",
+      "parameters": {
+        "morale": 8,
+        "roll1": {
+          "pins": "1d6",
+          "order": "down"
+        },
+        "roll2to4": "unchanged",
+        "roll5to6": {
+          "quality": "regular",
+          "morale": 9
+        }
+      }
+    }
+  },
+  {
+    "slug": "motorbikes",
+    "name": "Motorbikes",
+    "type": "trait",
+    "system": {
+      "slug": "motorbikes",
+      "effect": "Mounted units shoot only when stationary, cannot initiate assaults and can escape; dismounting is permanent.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "90",
+      "parameters": {
+        "advance": 12,
+        "run": 24,
+        "regroup": "2d6"
+      }
+    }
+  },
+  {
+    "slug": "shirkers",
+    "name": "Shirkers",
+    "type": "trait",
+    "system": {
+      "slug": "shirkers",
+      "effect": "Every order requires a test and pins count double for testing.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "91",
+      "parameters": {
+        "alwaysOrderTest": true,
+        "pinMultiplier": 2
+      }
+    }
+  },
+  {
+    "slug": "stubborn",
+    "name": "Stubborn",
+    "type": "trait",
+    "system": {
+      "slug": "stubborn",
+      "effect": "Morale checks ignore pin penalties; order tests retain them.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "91",
+      "parameters": {
+        "moraleIgnoresPins": true
+      }
+    }
+  },
+  {
+    "slug": "sniper",
+    "name": "Sniper",
+    "type": "trait",
+    "system": {
+      "slug": "sniper",
+      "effect": "Scoped Fire or Ambush uses a restricted range band, selective modifier exceptions and chosen-model damage.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "91",
+      "parameters": {
+        "scopeMinExclusive": 12,
+        "scopeRange": 36,
+        "retainedHitPenalties": [
+          "pins",
+          "missing-assistant"
+        ],
+        "ignoreGunShield": true,
+        "exceptionalDamage": true
+      }
+    }
+  },
+  {
+    "slug": "tank-hunters",
+    "name": "Tank Hunters",
+    "type": "trait",
+    "system": {
+      "slug": "tank-hunters",
+      "effect": "A damaging assault against armour uses normal penetration damage rather than superficial damage.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "91",
+      "parameters": {
+        "armourAssaultDamage": "normal"
+      }
+    }
+  },
+  {
+    "slug": "tough-fighters",
+    "name": "Tough Fighters",
+    "type": "trait",
+    "system": {
+      "slug": "tough-fighters",
+      "effect": "Successful close-combat damage allows one extra damage die; extra successes do not chain.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "91",
+      "parameters": {
+        "extraRollsPerInitialKill": 1,
+        "chain": false
+      }
+    }
+  },
+  {
+    "slug": "gun-shield",
+    "name": "Gun Shield",
+    "type": "trait",
+    "system": {
+      "slug": "gun-shield",
+      "effect": "Eligible frontal fire against the gun crew receives the shield damage protection.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "95",
+      "parameters": {
+        "damageThresholdBonus": 1
+      }
+    }
+  },
+  {
+    "slug": "amphibious",
+    "name": "Amphibious",
+    "type": "trait",
+    "system": {
+      "slug": "amphibious",
+      "effect": "Cross deep water straight ahead at half Advance speed; immobilisation there destroys vehicle and occupants.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "118",
+      "parameters": {
+        "waterAdvanceMultiplier": 0.5,
+        "waterRun": false,
+        "waterTurns": false
+      }
+    }
+  },
+  {
+    "slug": "command-vehicle",
+    "name": "Command Vehicle",
+    "type": "trait",
+    "system": {
+      "slug": "command-vehicle",
+      "effect": "Give the command morale bonus to itself and nearby friendly armour.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "118",
+      "parameters": {
+        "moraleBonus": 1,
+        "radius": 12
+      }
+    }
+  },
+  {
+    "slug": "open-topped",
+    "name": "Open Topped",
+    "type": "trait",
+    "system": {
+      "slug": "open-topped",
+      "effect": "Small arms can pin; infantry assaults and indirect hits have additional consequences.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "118",
+      "parameters": {
+        "smallArmsPin": true,
+        "indirectDamageTableModifier": 1
+      }
+    }
+  },
+  {
+    "slug": "recce",
+    "name": "Recce",
+    "type": "trait",
+    "system": {
+      "slug": "recce",
+      "effect": "Reverse at full Advance and use eligible escape reactions before acting; towing prevents escape.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "118",
+      "parameters": {
+        "reverseAdvanceMultiplier": 1,
+        "escapeBeforeActivation": true
+      }
+    }
+  },
+  {
+    "slug": "slow",
+    "name": "Slow",
+    "type": "trait",
+    "system": {
+      "slug": "slow",
+      "effect": "Use reduced vehicle movement.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "119",
+      "parameters": {
+        "advance": 6,
+        "run": 12
+      }
+    }
+  },
+  {
+    "slug": "slow-load",
+    "name": "Slow Load",
+    "type": "trait",
+    "system": {
+      "slug": "slow-load",
+      "effect": "Delay activation until the side has attempted another order; apply the all-slow-load exception manually.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "119",
+      "parameters": {
+        "priorFriendlyOrderRequired": true
+      }
+    }
+  },
+  {
+    "slug": "turret-rear-mg",
+    "name": "Turret Rear Mg",
+    "type": "trait",
+    "system": {
+      "slug": "turret-rear-mg",
+      "effect": "The turret rear gun fires into the arc opposite the main-gun target.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "119",
+      "parameters": {
+        "oppositeMainGunArc": true
+      }
+    }
+  },
+  {
+    "slug": "front-armour-10",
+    "name": "Front Armour 10",
+    "type": "trait",
+    "system": {
+      "slug": "front-armour-10",
+      "effect": "Use the improved front armour value while other facings retain the vehicle profile.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "161",
+      "parameters": {
+        "frontDamageValue": 10
+      }
+    }
+  },
+  {
+    "slug": "fire-pins-1d3",
+    "name": "Fire Pins 1D3",
+    "type": "trait",
+    "system": {
+      "slug": "fire-pins-1d3",
+      "effect": "When this vehicle catches fire, replace its usual single pin with a D3 roll before morale.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "173",
+      "parameters": {
+        "firePins": "1d3"
+      }
+    }
+  },
+  {
+    "slug": "one-man-turret",
+    "name": "One Man Turret",
+    "type": "trait",
+    "system": {
+      "slug": "one-man-turret",
+      "effect": "Advance requires an order test even without pins; choose main gun or turret rear gun.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "207",
+      "parameters": {
+        "advanceAlwaysTests": true,
+        "mainRearMutuallyExclusive": true
+      }
+    }
+  },
+  {
+    "slug": "dual-direction-steering",
+    "name": "Dual Direction Steering",
+    "type": "trait",
+    "system": {
+      "slug": "dual-direction-steering",
+      "effect": "Reverse can use the vehicle Run allowance.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "164",
+      "parameters": {
+        "reverseRun": true
+      }
+    }
+  },
+  {
+    "slug": "turn-on-spot",
+    "name": "Turn On Spot",
+    "type": "trait",
+    "system": {
+      "slug": "turn-on-spot",
+      "effect": "Pivoting permits a full Run reverse manoeuvre.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "188",
+      "parameters": {
+        "reverseRun": true,
+        "turnOnSpot": true
+      }
+    }
+  },
+  {
+    "slug": "flak",
+    "name": "Flak",
+    "type": "trait",
+    "system": {
+      "slug": "flak",
+      "effect": "The weapon can engage aircraft using the anti-aircraft procedure.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "160",
+      "parameters": {
+        "antiAircraft": true
+      }
+    }
+  },
+  {
+    "slug": "bamboo-spears",
+    "name": "Bamboo Spears",
+    "type": "trait",
+    "system": {
+      "slug": "bamboo-spears",
+      "effect": "Models lack ranged attacks and retain close-combat attacks.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "204",
+      "parameters": {
+        "shooting": false
+      }
+    }
+  },
+  {
+    "slug": "sword-tough-fighters",
+    "name": "Sword Tough Fighters",
+    "type": "trait",
+    "system": {
+      "slug": "sword-tough-fighters",
+      "effect": "An officer represented with a sword gains the close-combat fighter benefit.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "202",
+      "parameters": {
+        "grants": "tough-fighters",
+        "requires": "sword-model"
+      }
+    }
+  },
+  {
+    "slug": "observer-manual",
+    "name": "Observer Manual",
+    "type": "trait",
+    "system": {
+      "slug": "observer-manual",
+      "effect": "Resolve observation, call availability and strike timing with the observer procedures.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "83",
+      "parameters": {}
+    }
+  },
+  {
+    "slug": "transport-manual",
+    "name": "Transport Manual",
+    "type": "trait",
+    "system": {
+      "slug": "transport-manual",
+      "effect": "Track passengers, capacity and towing separately from the vehicle weapon attacks.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "114",
+      "parameters": {}
+    }
+  },
+  {
+    "slug": "one-free-regular-artillery-observer",
+    "name": "One Free Regular Artillery Observer",
+    "type": "trait",
+    "system": {
+      "slug": "one-free-regular-artillery-observer",
+      "effect": "One regular artillery observer has no roster points cost.",
+      "notes": "Reference parameters; apply manually unless the system explicitly implements this effect."
+    },
+    "profile": {
+      "sourcePage": "178",
+      "parameters": {
+        "quality": "regular",
+        "freeCount": 1
+      }
+    }
+  },
+  {
+    "slug": "versatile",
+    "name": "Versatile",
+    "type": "trait",
+    "system": {
+      "slug": "versatile",
+      "effect": "This gun may use a separate indirect-fire profile.",
+      "notes": "Apply alternate profile manually."
+    },
+    "profile": {
+      "sourcePage": "160",
+      "parameters": {
+        "indirectWeaponSlug": "medium-howitzer"
+      }
+    }
+  },
+  {
+    "slug": "death-before-dishonour",
+    "name": "Death before dishonour",
+    "type": "trait",
+    "system": {
+      "slug": "death-before-dishonour",
+      "effect": "Japanese units gain fanatic behavior; infantry and artillery pass tank-assault morale checks.",
+      "notes": "Artillery destruction rules still apply."
+    },
+    "profile": {
+      "sourcePage": "201",
+      "parameters": {
+        "grants": "fanatics",
+        "tankAssaultMoraleAutoPassKinds": [
+          "infantry",
+          "artillery"
+        ]
+      }
     }
   }
 ]

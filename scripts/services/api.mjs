@@ -64,6 +64,15 @@ async function confirm(title, content) {
 }
 
 export const importStarter = () => importCatalogue();
+export async function setReserve(actor, {outflank = false} = {}) {
+  requireGM(); const unit = asUnit(actor);
+  if (!canvas.scene) throw new Error('Open the battlefield Scene first.');
+  await unit.setFlag(SID, 'battlefield', canvas.scene.uuid);
+  await unit.update({'system.reserve':true,'system.deployment':outflank ? 'outflank' : 'reserve','system.arrivalRound':0});
+  const ids = new Set([unit.id,...unit.members.map(m=>m.id)]);
+  await canvas.scene.updateEmbeddedDocuments('Token',canvas.scene.tokens.filter(t=>ids.has(t.actorId)).map(t=>({_id:t.id,hidden:true})));
+  return unit;
+}
 export async function profiles(actor) {
   const unit = actor.type === 'army' ? null : actor.unit;
   const army = actor.type === 'army' ? actor : actor.army;
@@ -182,7 +191,7 @@ export async function casualty(model, dead = true) {
   if (unit) requireOwner(unit);
   await model.update({'system.dead': Boolean(dead)});
   if (unit) {
-    const nco = unit.members.filter(a => a.system.role === 'nco');
+    const nco = unit.members.filter(a => ['nco','officer'].includes(a.system.role));
     if (nco.length) await unit.update({'system.ncoAlive': nco.some(a => !a.system.dead)});
   }
   await model.toggleStatusEffect('dead', {active: Boolean(dead)});
@@ -202,6 +211,16 @@ export async function order(actor, requestedOrder, {forceTest = false, modifier 
     activeCheck(unit);
     if (unit.system.activated) throw new Error('This unit already has an order this round.');
     modifier = number(modifier, 0, -20, 20, true);
+    if (unit.system.reserve) {
+      const round = game.combat?.round ?? 1;
+      const scenario = canvas.scene?.getFlag('boltaction', 'scenario');
+      const minimum = unit.system.deployment === 'outflank' ? 3 : scenario?.slug === 'top-secret' ? 1 : 2;
+      if (!['advance','run','down'].includes(requestedOrder)) throw new Error('Reserve units may wait Down or attempt entry with Advance/Run.');
+      if (requestedOrder !== 'down') {
+        if (round < minimum) throw new Error(`This reserve cannot attempt entry before round ${minimum}.`);
+        forceTest = true; modifier -= 1;
+      }
+    }
     const options = {...moraleContext(unit), order: requestedOrder, forceTest, modifier, livingSize: unit.livingMembers.length};
     const automatic = requestedOrder === 'down' || (!unit.system.pins && !forceTest);
     const first = automatic ? {values: [], roll: null} : await dice(2);
@@ -225,7 +244,11 @@ export async function order(actor, requestedOrder, {forceTest = false, modifier 
       lines.push(`FUBAR: ${fubar.effect}. Resolve eligible friendly-fire targets, visible enemies and compulsory movement manually; use the order field to set Down if no legal target/move exists.`);
     }
     if (!result.passed && unit.system.kind === 'vehicle') lines.push('Failed vehicle order: resolve the compulsory reverse move manually; tracked/half-tracked/wheeled and terrain restrictions still apply.');
-    await unit.update({'system.order': actualOrder, 'system.activated': true, 'system.retained': false, 'system.pins': result.remainingPins, 'system.firedWeaponUuids': [], 'system.shotTargetUuid': '', 'system.assaultResolved': false, 'system.hitTargetUuids': []});
+    await unit.update({'system.order': actualOrder, 'system.activated': true, 'system.retained': false, 'system.pins': result.remainingPins, 'system.firedWeaponUuids': [], 'system.shotTargetUuid': '', 'system.assaultResolved': false, 'system.hitTargetUuids': [], 'system.attackPinTotals': {}, 'system.specialPinTargets': []});
+    if (unit.system.reserve && result.passed && ['advance','run'].includes(requestedOrder)) {
+      await unit.update({'system.reserve': false, 'system.deployment':'field', 'system.arrivalRound':game.combat?.round ?? 1});
+      lines.push('Reserve entry passed. Deploy at a legal entry edge and move manually; no assault or table exit is permitted this arrival turn.');
+    }
     await report(unit, 'Order test', lines, rolls);
     return result;
   });
@@ -245,7 +268,7 @@ export async function retainOrder(actor, retain = true) {
 
 function battlefieldUnits() {
   const scene = canvas.scene;
-  return game.actors.filter(a => a.type === 'unit' && !a.isDestroyed && !a.system.transportUuid && scene?.tokens.some(t => t.actorId === a.id || a.members.some(m => t.actorId === m.id)));
+  return game.actors.filter(a => a.type === 'unit' && !a.isDestroyed && !a.system.transportUuid && (scene?.tokens.some(t => !t.hidden && (t.actorId === a.id || a.members.some(m => t.actorId === m.id))) || (a.system.reserve && a.getFlag?.(SID, 'battlefield') === scene?.uuid)));
 }
 async function ensureCombat() {
   if (!canvas.scene) throw new Error('Open a Scene first.');
@@ -270,7 +293,7 @@ export async function nextRound() {
         const rolled = await dice(1); rolls.push(rolled.roll);
         pins = Math.max(0, pins - Math.ceil(rolled.values[0] / 2));
       }
-      await unit.update({'system.activated': retained, 'system.order': retained ? unit.system.order : '', 'system.pins': pins, 'system.firedWeaponUuids': [], 'system.shotTargetUuid': '', 'system.assaultResolved': false, 'system.hitTargetUuids': []});
+      await unit.update({'system.activated': retained, 'system.order': retained ? unit.system.order : '', 'system.pins': pins, 'system.firedWeaponUuids': [], 'system.shotTargetUuid': '', 'system.assaultResolved': false, 'system.hitTargetUuids': [], 'system.attackPinTotals': {}, 'system.specialPinTargets': []});
     }
     const active = units.filter(u => !u.isDestroyed);
     const existing = new Set(combat.combatants.map(c => c.actorId));
@@ -400,7 +423,7 @@ async function resolveShooting(unit, options) {
     if (target.isOwner) { await addPin(target, 1); lines.push('One hit pin applied.'); }
     else lines.push('Target owner or GM must apply one hit pin; you do not have permission to edit the target.');
   } else if (eligiblePin && !alreadyHit) lines.push('One hit pin suggested; apply manually or enable the pin assistant and confirm Apply.');
-  await unit.update({'system.firedWeaponUuids': [...new Set([...unit.system.firedWeaponUuids, ...group.map(w => w.uuid)])], 'system.shotTargetUuid': target.uuid, 'system.hitTargetUuids': eligiblePin ? [...new Set([...(unit.system.hitTargetUuids ?? []), target.uuid])] : (unit.system.hitTargetUuids ?? [])});
+  await unit.update({'system.firedWeaponUuids': [...new Set([...unit.system.firedWeaponUuids, ...group.map(w => w.uuid)])], 'system.shotTargetUuid': target.uuid, 'system.attackPinTotals':eligiblePin ? {...(unit.system.attackPinTotals ?? {}),[target.uuid]:Math.max(1,unit.system.attackPinTotals?.[target.uuid] ?? 0)} : (unit.system.attackPinTotals ?? {}), 'system.hitTargetUuids': eligiblePin ? [...new Set([...(unit.system.hitTargetUuids ?? []), target.uuid])] : (unit.system.hitTargetUuids ?? [])});
   await report(unit, 'Shooting', lines, rolls);
   return {hits, damage, eligiblePin};
 }
@@ -410,6 +433,7 @@ export async function assault(actor, options = {}) {
 }
 async function resolveAssault(unit, options) {
   activeCheck(unit);
+  if (unit.system.arrivalRound && unit.system.arrivalRound === game.combat?.round) throw new Error('A unit cannot assault in its reserve arrival turn.');
   if (unit.system.assaultResolved) throw new Error('An assault exchange was already resolved under this order. Resolve tied exchanges manually.');
   if (unit.system.order !== 'run') throw new Error('Assaults require a Run order.');
   const target = await resolve(options.targetUuid, 'unit');
@@ -458,12 +482,14 @@ export async function spawnUnit(actor, {x, y} = {}) {
     return output;
   }
   const unit = asUnit(actor);
+  if (unit.system.reserve) throw new Error('Pass a legal reserve entry order before deploying this unit.');
   if (!unit.members.length && unit.system.kind !== 'vehicle') {
     const composition = unit.getFlag(SID, 'composition');
     if (!Array.isArray(composition) || !composition.length) throw new Error('Add the individual soldiers on the unit sheet before deployment.');
     for (const entry of composition) await addModels(unit, entry);
   }
   const existing = canvas.scene.tokens.filter(t => t.actorId === unit.id || unit.members.some(m => m.id === t.actorId));
+  if (game.user.isGM && !unit.system.reserve && existing.some(t=>t.hidden)) await canvas.scene.updateEmbeddedDocuments('Token',existing.map(t=>({_id:t.id,hidden:false})));
   const scale = pixelsPerInch();
   const center = {x: x ?? canvas.stage.pivot.x, y: y ?? canvas.stage.pivot.y};
   const baseX = Math.max(0, Math.min(canvas.scene.width - 6 * scale, center.x));

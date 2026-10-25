@@ -1,5 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
 
 let actors, messages, rolls, combat, scene;
 function apply(target, updates) {
@@ -13,12 +14,14 @@ function apply(target, updates) {
 }
 function actor(id, type = 'unit', extra = {}) {
   const value = {
-    id, uuid: `Actor.${id}`, name: id, type, documentName: 'Actor', isOwner: true, items: [],
+    id, uuid: `Actor.${id}`, name: id, type, documentName: 'Actor', isOwner: true, items: [], flags: {},
     system: {kind: 'infantry', side: 'allies', pins: 0, quality: 'regular', ncoAlive: true,
       moraleBonus: 0, activated: false, destroyed: false, modelUuids: [], unitUuids: [],
       unitUuid: '', armyUuid: '', transportUuid: '', passengerUuids: [], order: '',
       firedWeaponUuids: [], hitTargetUuids: [], shotTargetUuid: '', assaultResolved: false, moveRun: 12, ...extra},
     async update(updates) { if (this.failUpdate) { this.failUpdate = false; throw new Error('Injected update failure'); } apply(this, updates); return this; },
+    async setFlag(namespace, key, value) { this.flags[namespace] ??= {}; this.flags[namespace][key] = structuredClone(value); },
+    getFlag(namespace, key) { return this.flags[namespace]?.[key]; },
     get unit() { return this.type === 'unit' ? this : actors.find(a => a.uuid === this.system.unitUuid); },
     get army() { return this.type === 'army' ? this : actors.find(a => a.uuid === this.unit?.system.armyUuid); },
     get members() { return (this.system[this.type === 'army' ? 'unitUuids' : 'modelUuids'] ?? []).map(uuid => actors.find(a => a.uuid === uuid)).filter(Boolean); },
@@ -32,7 +35,10 @@ function actor(id, type = 'unit', extra = {}) {
 }
 function setup() {
   actors = []; messages = []; rolls = [];
-  scene = {id: 'scene', tokens: [], async updateEmbeddedDocuments() {}};
+  scene = {id: 'scene', uuid: 'Scene.scene', tokens: [], flags: {},
+    async setFlag(namespace, key, value) { this.flags[namespace] ??= {}; this.flags[namespace][key] = structuredClone(value); },
+    getFlag(namespace, key) { return this.flags[namespace]?.[key]; },
+    async updateEmbeddedDocuments(_type, updates) { for (const row of updates) { const token = this.tokens.find(token => token.id === row._id); if (token) apply(token, row); } }};
   combat = {
     scene, round: 0, flags: {}, combatants: [],
     getFlag(namespace, key) { return this.flags[namespace]?.[key]; },
@@ -246,6 +252,80 @@ test('bag recovers when a drawn side disappears and cannot activate an embarked 
   assert.deepEqual(combat.getFlag('boltaction', 'bag').remaining.map(entry => entry.unitUuid), [enemy.uuid]);
 });
 
+test('reserves are scene assigned and hidden, receive bag dice without tokens, and enter with a forced -1 test', async () => {
+  const {deploy} = setup();
+  const unit = actor('reserve'), model = actor('reserve-soldier', 'model', {unitUuid: unit.uuid});
+  unit.system.modelUuids = [model.uuid];
+  deploy(unit, model);
+  await api.setReserve(unit);
+  assert.equal(unit.getFlag('boltaction', 'battlefield'), scene.uuid);
+  assert.equal(unit.system.reserve, true);
+  assert.equal(unit.system.deployment, 'reserve');
+  assert.ok(scene.tokens.every(token => token.hidden));
+  scene.tokens = [];
+  const roundOne = await api.nextRound();
+  assert.deepEqual(roundOne.remaining.map(entry => entry.unitUuid), [unit.uuid]);
+  rolls.push(1);
+  await api.drawDie(); await api.activateUnit(unit);
+  await assert.rejects(api.order(unit, 'fire'), /Reserve units/);
+  await assert.rejects(api.order(unit, 'advance'), /before round 2/);
+  await api.order(unit, 'down');
+  assert.equal(unit.system.reserve, true);
+  await api.nextRound();
+  rolls.push(1);
+  await api.drawDie(); await api.activateUnit(unit);
+  rolls.push(4, 4);
+  const result = await api.order(unit, 'run');
+  assert.equal(result.automatic, false);
+  assert.equal(result.target, 8);
+  assert.equal(result.passed, true);
+  assert.equal(unit.system.reserve, false);
+  assert.equal(unit.system.deployment, 'field');
+  assert.equal(unit.system.arrivalRound, 2);
+  await assert.rejects(api.assault(unit, {}), /reserve arrival turn/);
+});
+
+test('failed reserve entry retains reserve state and still consumes this round order', async () => {
+  setup();
+  const unit = actor('waiting', 'unit', {reserve: true, deployment: 'reserve'});
+  await unit.setFlag('boltaction', 'battlefield', scene.uuid);
+  combat.round = 2;
+  combat.flags = {boltaction: {bag: {activeUnitUuid: unit.uuid}}};
+  rolls.push(4, 5);
+  const result = await api.order(unit, 'advance');
+  assert.equal(result.target, 8);
+  assert.equal(result.passed, false);
+  assert.equal(unit.system.reserve, true);
+  assert.equal(unit.system.activated, true);
+  await assert.rejects(api.order(unit, 'run'), /already has an order/);
+});
+
+test('scenario configuration loads catalogue, persists chosen sides and reports the configured profile', async () => {
+  setup();
+  const rows = JSON.parse(await readFile(new URL('../compendiums/scenarios.json', import.meta.url), 'utf8'));
+  const previousFetch = globalThis.fetch;
+  globalThis.fetch = async url => {
+    assert.equal(url, 'systems/boltaction/compendiums/scenarios.json');
+    return {ok: true, json: async () => structuredClone(rows)};
+  };
+  try {
+    const scenarios = await import('../scripts/services/scenario-service.mjs');
+    assert.equal(await scenarios.scenarioStatus(), null);
+    assert.equal((await scenarios.listScenarios()).length, 12);
+    const chosen = await scenarios.configureScenario({scenarioId: 'top-secret', attackerSide: 'red', defenderSide: 'blue'});
+    assert.equal(chosen.id, 5);
+    assert.deepEqual(scene.getFlag('boltaction', 'scenario'), {scenarioId: 5, slug: 'top-secret', attackerSide: 'red', defenderSide: 'blue'});
+    const status = await scenarios.scenarioStatus();
+    assert.equal(status.name, 'Top Secret');
+    assert.equal(status.scenario.duration.baseTurns, 6);
+    assert.equal(status.attackerSide, 'red');
+    await assert.rejects(scenarios.configureScenario({scenarioId: 5, attackerSide: 'red', defenderSide: 'red'}), /different sides/);
+    game.user.isGM = false;
+    await assert.rejects(scenarios.configureScenario({scenarioId: 1}), /GM configures/);
+    assert.equal(scene.getFlag('boltaction', 'scenario').scenarioId, 5);
+  } finally { globalThis.fetch = previousFetch; }
+});
+
 test('complete main module boots with V14 namespaces and registers schemas, sheets and API', async () => {
   setup();
   const hooks = new Map(), registered = [], sheets = [];
@@ -259,7 +339,7 @@ test('complete main module boots with V14 namespaces and registers schemas, shee
   class Application {
     render() { return this; }
   }
-  foundry.data = {fields: Object.fromEntries(['StringField', 'NumberField', 'BooleanField', 'ArrayField', 'SchemaField'].map(name => [name, Field]))};
+  foundry.data = {fields: Object.fromEntries(['StringField', 'NumberField', 'BooleanField', 'ArrayField', 'SchemaField', 'ObjectField'].map(name => [name, Field]))};
   foundry.abstract = {TypeDataModel: class {}};
   foundry.documents.Actor = class {};
   foundry.documents.Combat = class {};

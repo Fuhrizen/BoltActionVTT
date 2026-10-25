@@ -1,0 +1,877 @@
+[
+  {
+    "id": 1,
+    "slug": "no-mans-land",
+    "name": "No Man's Land",
+    "sourcePage": 134,
+    "sourceEdition": 2,
+    "asymmetric": false,
+    "duration": {
+      "baseTurns": 6,
+      "maxTurns": 7,
+      "extensionMinimum": 4
+    },
+    "reserves": {
+      "rule": "standard-reserves",
+      "sourcePage": 132,
+      "entryTurn": 2,
+      "orderTestModifier": -1,
+      "arrivalOrders": [
+        "advance",
+        "run"
+      ],
+      "assaultOnArrival": false,
+      "exitOnArrival": false,
+      "outflank": {
+        "allowed": true,
+        "rule": "outflanking-manoeuvre",
+        "firstTurn": 3,
+        "initialDepth": 24,
+        "extraDepthPerTurn": 12
+      },
+      "allocation": {
+        "both": {
+          "mode": "maximum",
+          "numerator": 1,
+          "denominator": 2,
+          "round": "down"
+        }
+      }
+    },
+    "preparatoryBombardment": {
+      "rule": "preparatory-bombardment",
+      "sourcePage": 132,
+      "by": "both",
+      "triggerMinimum": 2,
+      "sourcePages": [
+        131,
+        132
+      ]
+    },
+    "scoring": {
+      "rule": "attrition",
+      "victoryMargin": 2
+    },
+    "notes": "Optional dawn visibility replaces the fixed opening range only by agreement.",
+    "deployment": {
+      "mode": "alternating-order-dice",
+      "minimumFromMiddleLine": 12,
+      "hidden": true,
+      "firstWave": false
+    },
+    "firstTurn": {
+      "visibilityInches": 24
+    },
+    "sourcePages": [
+      134
+    ]
+  },
+  {
+    "id": 2,
+    "slug": "meeting-engagement",
+    "name": "Meeting Engagement",
+    "sourcePage": 135,
+    "sourceEdition": 2,
+    "asymmetric": false,
+    "duration": {
+      "baseTurns": 6,
+      "maxTurns": 7,
+      "extensionMinimum": 4
+    },
+    "reserves": {
+      "rule": "standard-reserves",
+      "sourcePage": 132,
+      "entryTurn": 2,
+      "orderTestModifier": -1,
+      "arrivalOrders": [
+        "advance",
+        "run"
+      ],
+      "assaultOnArrival": false,
+      "exitOnArrival": false,
+      "outflank": {
+        "allowed": true,
+        "rule": "outflanking-manoeuvre",
+        "firstTurn": 3,
+        "initialDepth": 24,
+        "extraDepthPerTurn": 12
+      },
+      "allocation": {
+        "both": {
+          "mode": "maximum",
+          "numerator": 1,
+          "denominator": 2,
+          "round": "down"
+        }
+      }
+    },
+    "preparatoryBombardment": {
+      "rule": "preparatory-bombardment",
+      "sourcePage": 132,
+      "by": "none",
+      "triggerMinimum": 2,
+      "sourcePages": [
+        131,
+        132
+      ]
+    },
+    "scoring": {
+      "rule": "attrition",
+      "victoryMargin": 2
+    },
+    "notes": "Non-reserve units enter from their own long edge during the opening turn.",
+    "deployment": {
+      "mode": "first-wave",
+      "firstWave": true,
+      "arrivalOrders": [
+        "advance",
+        "run"
+      ],
+      "firstWaveOrderTest": false
+    },
+    "sourcePages": [
+      135
+    ]
+  },
+  {
+    "id": 3,
+    "slug": "key-positions",
+    "name": "Key Positions",
+    "sourcePage": 136,
+    "sourceEdition": 2,
+    "asymmetric": false,
+    "duration": {
+      "baseTurns": 6,
+      "maxTurns": 7,
+      "extensionMinimum": 4
+    },
+    "reserves": {
+      "rule": "standard-reserves",
+      "sourcePage": 132,
+      "entryTurn": 2,
+      "orderTestModifier": -1,
+      "arrivalOrders": [
+        "advance",
+        "run"
+      ],
+      "assaultOnArrival": false,
+      "exitOnArrival": false,
+      "outflank": {
+        "allowed": true,
+        "rule": "outflanking-manoeuvre",
+        "firstTurn": 3,
+        "initialDepth": 24,
+        "extraDepthPerTurn": 12
+      },
+      "allocation": {
+        "both": {
+          "mode": "maximum",
+          "numerator": 1,
+          "denominator": 2,
+          "round": "down"
+        }
+      }
+    },
+    "preparatoryBombardment": {
+      "rule": "preparatory-bombardment",
+      "sourcePage": 132,
+      "by": "none",
+      "triggerMinimum": 2,
+      "sourcePages": [
+        131,
+        132
+      ]
+    },
+    "scoring": {
+      "rule": "objectives",
+      "victoryMargin": 1
+    },
+    "notes": "Resolve objective terrain and eligible transported troops before assigning final control.",
+    "deployment": {
+      "mode": "first-wave",
+      "firstWave": true,
+      "firstWaveOrderTest": false
+    },
+    "objectives": {
+      "countFormula": "D3+2",
+      "minimumCount": 3,
+      "maximumCount": 5,
+      "separationGreaterThan": 12,
+      "controlRange": 3,
+      "controlTiming": "game-end",
+      "eligibleKinds": [
+        "infantry",
+        "artillery",
+        "occupied-transport"
+      ]
+    },
+    "sourcePages": [
+      136
+    ]
+  },
+  {
+    "id": 4,
+    "slug": "double-envelopment",
+    "name": "Double Envelopment",
+    "sourcePage": 137,
+    "sourceEdition": 2,
+    "asymmetric": false,
+    "duration": {
+      "baseTurns": 6,
+      "maxTurns": 8,
+      "extensionMinimum": 4
+    },
+    "reserves": {
+      "rule": "standard-reserves",
+      "sourcePage": 132,
+      "entryTurn": 2,
+      "orderTestModifier": -1,
+      "arrivalOrders": [
+        "advance",
+        "run"
+      ],
+      "assaultOnArrival": false,
+      "exitOnArrival": false,
+      "outflank": {
+        "allowed": false,
+        "rule": "outflanking-manoeuvre",
+        "firstTurn": 3,
+        "initialDepth": 24,
+        "extraDepthPerTurn": 12
+      },
+      "allocation": {
+        "both": {
+          "mode": "exact",
+          "numerator": 1,
+          "denominator": 2,
+          "round": "down"
+        }
+      }
+    },
+    "preparatoryBombardment": {
+      "rule": "preparatory-bombardment",
+      "sourcePage": 132,
+      "by": "none",
+      "triggerMinimum": 2,
+      "sourcePages": [
+        131,
+        132
+      ]
+    },
+    "scoring": {
+      "rule": "envelopment",
+      "victoryMargin": 2,
+      "destroyedEnemy": 1,
+      "unitsEnemyZone": 2,
+      "unitsExited": 3
+    },
+    "notes": "Count a unit in the enemy deployment area or as exited, never both.",
+    "deployment": {
+      "mode": "alternating-order-dice",
+      "minimumFromMiddleLine": 12,
+      "hidden": true,
+      "firstWave": false
+    },
+    "sourcePages": [
+      137
+    ]
+  },
+  {
+    "id": 5,
+    "slug": "top-secret",
+    "name": "Top Secret",
+    "sourcePage": 138,
+    "sourceEdition": 2,
+    "asymmetric": false,
+    "duration": {
+      "baseTurns": 6,
+      "maxTurns": 7,
+      "extensionMinimum": 4
+    },
+    "reserves": {
+      "rule": "standard-reserves",
+      "sourcePage": 132,
+      "entryTurn": 1,
+      "orderTestModifier": -1,
+      "arrivalOrders": [
+        "advance",
+        "run"
+      ],
+      "assaultOnArrival": false,
+      "exitOnArrival": false,
+      "outflank": {
+        "allowed": true,
+        "rule": "outflanking-manoeuvre",
+        "firstTurn": 3,
+        "initialDepth": 24,
+        "extraDepthPerTurn": 12
+      },
+      "allocation": {
+        "both": {
+          "mode": "all"
+        }
+      }
+    },
+    "preparatoryBombardment": {
+      "rule": "preparatory-bombardment",
+      "sourcePage": 132,
+      "by": "none",
+      "triggerMinimum": 2,
+      "sourcePages": [
+        131,
+        132
+      ]
+    },
+    "scoring": {
+      "rule": "extraction",
+      "victoryMargin": 1
+    },
+    "notes": "Keep the marker with a surviving carrier; handle handover, dropped markers and assault capture explicitly.",
+    "deployment": {
+      "mode": "all-reserves",
+      "firstWave": false
+    },
+    "objectives": {
+      "count": 1,
+      "placement": "centre",
+      "maximumLateralOffset": 12,
+      "pickup": "infantry-contact-after-advance-or-run",
+      "carryingBegins": "following-turn",
+      "handoverRange": 1,
+      "maximumHandoversPerTurn": 1,
+      "exitEdge": "own"
+    },
+    "sourcePages": [
+      138
+    ]
+  },
+  {
+    "id": 6,
+    "slug": "demolition",
+    "name": "Demolition",
+    "sourcePage": 139,
+    "sourceEdition": 2,
+    "asymmetric": false,
+    "duration": {
+      "baseTurns": 6,
+      "maxTurns": 7,
+      "extensionMinimum": 4,
+      "earlyEnd": "base-destruction-end-of-turn"
+    },
+    "reserves": {
+      "rule": "standard-reserves",
+      "sourcePage": 132,
+      "entryTurn": 2,
+      "orderTestModifier": -1,
+      "arrivalOrders": [
+        "advance",
+        "run"
+      ],
+      "assaultOnArrival": false,
+      "exitOnArrival": false,
+      "outflank": {
+        "allowed": true,
+        "rule": "outflanking-manoeuvre",
+        "firstTurn": 3,
+        "initialDepth": 24,
+        "extraDepthPerTurn": 12
+      },
+      "allocation": {
+        "both": {
+          "mode": "maximum",
+          "numerator": 1,
+          "denominator": 2,
+          "round": "down"
+        }
+      }
+    },
+    "preparatoryBombardment": {
+      "rule": "preparatory-bombardment",
+      "sourcePage": 132,
+      "by": "none",
+      "triggerMinimum": 2,
+      "sourcePages": [
+        131,
+        132
+      ]
+    },
+    "scoring": {
+      "rule": "demolition",
+      "victoryMargin": 1
+    },
+    "notes": "A destroyed base ends play at that turn end; simultaneous base losses draw.",
+    "deployment": {
+      "mode": "alternating-order-dice",
+      "minimumFromMiddleLine": 12,
+      "baseMaximumFromMiddleLine": 20,
+      "hidden": true,
+      "firstWave": false
+    },
+    "objectives": {
+      "count": 2,
+      "destruction": "enemy-contact-at-turn-end",
+      "emptyTransportEligible": false
+    },
+    "sourcePages": [
+      139
+    ]
+  },
+  {
+    "id": 7,
+    "slug": "envelopment",
+    "name": "Envelopment",
+    "sourcePage": 140,
+    "sourceEdition": 2,
+    "asymmetric": true,
+    "duration": {
+      "baseTurns": 6,
+      "maxTurns": 7,
+      "extensionMinimum": 4
+    },
+    "reserves": {
+      "rule": "standard-reserves",
+      "sourcePage": 132,
+      "entryTurn": 2,
+      "orderTestModifier": -1,
+      "arrivalOrders": [
+        "advance",
+        "run"
+      ],
+      "assaultOnArrival": false,
+      "exitOnArrival": false,
+      "outflank": {
+        "allowed": false,
+        "rule": "outflanking-manoeuvre",
+        "firstTurn": 3,
+        "initialDepth": 24,
+        "extraDepthPerTurn": 12
+      },
+      "allocation": {
+        "defender": {
+          "mode": "maximum",
+          "numerator": 1,
+          "denominator": 2,
+          "round": "down"
+        },
+        "attacker": {
+          "firstWaveMinimumNumerator": 1,
+          "firstWaveMinimumDenominator": 2,
+          "round": "up"
+        }
+      }
+    },
+    "preparatoryBombardment": {
+      "rule": "preparatory-bombardment",
+      "sourcePage": 132,
+      "by": "attacker",
+      "triggerMinimum": 2,
+      "sourcePages": [
+        131,
+        132
+      ]
+    },
+    "scoring": {
+      "rule": "attacker-envelopment",
+      "victoryMargin": 2,
+      "attacker": {
+        "destroyedEnemy": 1,
+        "unitsEnemyZone": 2,
+        "unitsExited": 3
+      },
+      "defender": {
+        "destroyedEnemy": 2
+      }
+    },
+    "notes": "Only attackers score penetration of the defender deployment area and exits.",
+    "deployment": {
+      "mode": "defender-deployed-attacker-first-wave",
+      "defenderMinimumFromMiddleLine": 12,
+      "defenderHidden": true,
+      "firstWaveOrderTest": false
+    },
+    "sourcePages": [
+      140
+    ]
+  },
+  {
+    "id": 8,
+    "slug": "manhunt",
+    "name": "Manhunt",
+    "sourcePage": 142,
+    "sourceEdition": 2,
+    "asymmetric": true,
+    "duration": {
+      "baseTurns": 7,
+      "maxTurns": 8,
+      "extensionMinimum": 4,
+      "earlyEnd": "officer-captured-or-killed-immediate"
+    },
+    "reserves": {
+      "rule": "standard-reserves",
+      "sourcePage": 132,
+      "entryTurn": 2,
+      "orderTestModifier": -1,
+      "arrivalOrders": [
+        "advance",
+        "run"
+      ],
+      "assaultOnArrival": false,
+      "exitOnArrival": false,
+      "outflank": {
+        "allowed": true,
+        "rule": "outflanking-manoeuvre",
+        "firstTurn": 3,
+        "initialDepth": 24,
+        "extraDepthPerTurn": 12
+      },
+      "entryRule": "confused-fight",
+      "blockedEdge": "last-enemy-reserve-edge-this-turn",
+      "allocation": {
+        "defender": {
+          "deployedNumerator": 1,
+          "deployedDenominator": 2,
+          "round": "down"
+        },
+        "attacker": {
+          "firstWaveNumerator": 1,
+          "firstWaveDenominator": 2,
+          "round": "up"
+        }
+      }
+    },
+    "preparatoryBombardment": {
+      "rule": "preparatory-bombardment",
+      "sourcePage": 132,
+      "by": "attacker",
+      "triggerMinimum": 2,
+      "targetOfficerMaximumResult": 5,
+      "sourcePages": [
+        131,
+        132
+      ]
+    },
+    "scoring": {
+      "rule": "manhunt",
+      "victoryMargin": 1
+    },
+    "notes": "Capture wins for attacker; another cause of officer death draws; surviving officer wins for defender.",
+    "deployment": {
+      "mode": "defender-centre-attacker-first-wave",
+      "defenderCentreRadius": 12,
+      "defenderHidden": true,
+      "defenderVehiclesReserveIfPossible": true,
+      "targetOfficerMustDeploy": true,
+      "firstWaveOrderTest": false
+    },
+    "objectives": {
+      "target": "highest-rank-officer",
+      "rankTie": "highest-points-then-agreement",
+      "capture": "infantry-close-quarters-destroys-officer-unit",
+      "officerRemovedLast": true
+    },
+    "sourcePages": [
+      142
+    ]
+  },
+  {
+    "id": 9,
+    "slug": "point-defence",
+    "name": "Point Defence",
+    "sourcePage": 144,
+    "sourceEdition": 2,
+    "asymmetric": true,
+    "duration": {
+      "baseTurns": 6,
+      "maxTurns": 7,
+      "extensionMinimum": 4
+    },
+    "reserves": {
+      "rule": "standard-reserves",
+      "sourcePage": 132,
+      "entryTurn": 2,
+      "orderTestModifier": -1,
+      "arrivalOrders": [
+        "advance",
+        "run"
+      ],
+      "assaultOnArrival": false,
+      "exitOnArrival": false,
+      "outflank": {
+        "allowed": true,
+        "rule": "outflanking-manoeuvre",
+        "firstTurn": 3,
+        "initialDepth": 24,
+        "extraDepthPerTurn": 12
+      },
+      "allocation": {
+        "defender": {
+          "mode": "maximum",
+          "numerator": 1,
+          "denominator": 2,
+          "round": "down"
+        },
+        "attacker": {
+          "firstWaveMinimumNumerator": 1,
+          "firstWaveMinimumDenominator": 2,
+          "round": "up"
+        }
+      }
+    },
+    "preparatoryBombardment": {
+      "rule": "preparatory-bombardment",
+      "sourcePage": 132,
+      "by": "attacker",
+      "triggerMinimum": 2,
+      "sourcePages": [
+        131,
+        132
+      ]
+    },
+    "scoring": {
+      "rule": "point-defence",
+      "victoryMargin": 1
+    },
+    "notes": "Attacker needs at least two objectives to win; one draws; none loses.",
+    "deployment": {
+      "mode": "defender-deployed-attacker-first-wave",
+      "defenderMinimumFromMiddleLine": 12,
+      "defenderHidden": true,
+      "firstWaveOrderTest": false
+    },
+    "objectives": {
+      "count": 3,
+      "minimumFromDefenderEdge": 6,
+      "minimumSeparation": 24,
+      "controlRange": 3,
+      "controlTiming": "turn-end",
+      "stickyControl": true,
+      "initialOwner": "defender",
+      "eligibleKinds": [
+        "infantry",
+        "artillery",
+        "occupied-transport"
+      ]
+    },
+    "sourcePages": [
+      144
+    ]
+  },
+  {
+    "id": 10,
+    "slug": "hold-until-relieved",
+    "name": "Hold Until Relieved",
+    "sourcePage": 145,
+    "sourceEdition": 2,
+    "asymmetric": true,
+    "duration": {
+      "baseTurns": 6,
+      "maxTurns": 7,
+      "extensionMinimum": 4
+    },
+    "reserves": {
+      "rule": "standard-reserves",
+      "sourcePage": 132,
+      "entryTurn": 2,
+      "orderTestModifier": -1,
+      "arrivalOrders": [
+        "advance",
+        "run"
+      ],
+      "assaultOnArrival": false,
+      "exitOnArrival": false,
+      "outflank": {
+        "allowed": true,
+        "rule": "outflanking-manoeuvre",
+        "firstTurn": 3,
+        "initialDepth": 24,
+        "extraDepthPerTurn": 12
+      }
+    },
+    "preparatoryBombardment": {
+      "rule": "preparatory-bombardment",
+      "sourcePage": 132,
+      "by": "none",
+      "triggerMinimum": 2,
+      "sourcePages": [
+        131,
+        132
+      ]
+    },
+    "scoring": {
+      "rule": "single-objective",
+      "victoryMargin": 1
+    },
+    "notes": "Defender reinforcements have an opening first wave; attacker non-infantry begin in reserve.",
+    "deployment": {
+      "mode": "central-defender-attacker-infantry",
+      "defenderInitialInfantrySquads": 1,
+      "defenderInitialOtherUnits": 1,
+      "otherUnitMaximumDamageValue": 7,
+      "defenderObjectiveRange": 6,
+      "defenderFirstWaveRemainingFraction": {
+        "numerator": 1,
+        "denominator": 2,
+        "round": "down"
+      },
+      "attackerInfantryMinimumFromObjective": 18,
+      "attackerInfantryMinimumFromEnemy": 18,
+      "attackerHidden": true,
+      "firstWaveOrderTest": false
+    },
+    "objectives": {
+      "count": 1,
+      "placement": "centre",
+      "recommendedMaximumWidth": 6,
+      "recommendedMaximumHeight": 6,
+      "maximumLateralOffset": 12,
+      "controlRange": 3,
+      "controlTiming": "game-end",
+      "eligibleKinds": [
+        "infantry",
+        "artillery",
+        "occupied-transport"
+      ]
+    },
+    "sourcePages": [
+      145
+    ]
+  },
+  {
+    "id": 11,
+    "slug": "surrounded",
+    "name": "Surrounded!",
+    "sourcePage": 146,
+    "sourceEdition": 2,
+    "asymmetric": true,
+    "duration": {
+      "baseTurns": 6,
+      "maxTurns": 7,
+      "extensionMinimum": 4
+    },
+    "reserves": {
+      "rule": "standard-reserves",
+      "sourcePage": 132,
+      "entryTurn": 2,
+      "orderTestModifier": -1,
+      "arrivalOrders": [
+        "advance",
+        "run"
+      ],
+      "assaultOnArrival": false,
+      "exitOnArrival": false,
+      "outflank": {
+        "allowed": true,
+        "rule": "outflanking-manoeuvre",
+        "firstTurn": 3,
+        "initialDepth": 24,
+        "extraDepthPerTurn": 12
+      },
+      "entryRule": "confused-fight",
+      "blockedEdge": "last-enemy-reserve-edge-this-turn",
+      "allocation": {
+        "defender": {
+          "deployedNumerator": 1,
+          "deployedDenominator": 2,
+          "round": "down"
+        },
+        "attacker": {
+          "firstWaveNumerator": 1,
+          "firstWaveDenominator": 2,
+          "round": "up"
+        }
+      }
+    },
+    "preparatoryBombardment": {
+      "rule": "preparatory-bombardment",
+      "sourcePage": 132,
+      "by": "attacker",
+      "triggerMinimum": 2,
+      "sourcePages": [
+        131,
+        132
+      ]
+    },
+    "scoring": {
+      "rule": "attrition",
+      "victoryMargin": 2
+    },
+    "notes": "Record the latest enemy reserve entry edge for each turn; reset the restriction next turn.",
+    "deployment": {
+      "mode": "defender-centre-attacker-first-wave",
+      "defenderCentreRadius": 12,
+      "defenderHidden": true,
+      "firstWaveOrderTest": false
+    },
+    "sourcePages": [
+      146,
+      147
+    ]
+  },
+  {
+    "id": 12,
+    "slug": "sectors",
+    "name": "Sectors",
+    "sourcePage": 148,
+    "sourceEdition": 2,
+    "asymmetric": false,
+    "duration": {
+      "baseTurns": 6,
+      "maxTurns": 8,
+      "extensionMinimum": 4
+    },
+    "reserves": {
+      "rule": "standard-reserves",
+      "sourcePage": 132,
+      "entryTurn": 2,
+      "orderTestModifier": -1,
+      "arrivalOrders": [
+        "advance",
+        "run"
+      ],
+      "assaultOnArrival": false,
+      "exitOnArrival": false,
+      "outflank": {
+        "allowed": false,
+        "rule": "outflanking-manoeuvre",
+        "firstTurn": 3,
+        "initialDepth": 24,
+        "extraDepthPerTurn": 12
+      },
+      "allocation": {
+        "both": {
+          "mode": "maximum",
+          "numerator": 1,
+          "denominator": 2,
+          "round": "down"
+        }
+      }
+    },
+    "preparatoryBombardment": {
+      "rule": "preparatory-bombardment",
+      "sourcePage": 132,
+      "by": "both",
+      "triggerMinimum": 2,
+      "sourcePages": [
+        131,
+        132
+      ]
+    },
+    "scoring": {
+      "rule": "sectors",
+      "victoryMargin": 2,
+      "destroyedEnemy": 1,
+      "neutralQuarterUnits": 1,
+      "enemyQuarterUnits": 3
+    },
+    "notes": "Adjudicate each unit into one quarter using model majority, or footprint majority for a single model; resolve ties manually.",
+    "deployment": {
+      "mode": "alternating-order-dice-opposite-quarters",
+      "minimumFromCentre": 12,
+      "hidden": true,
+      "firstWave": false
+    },
+    "sourcePages": [
+      148
+    ]
+  }
+]

@@ -1,4 +1,6 @@
 /** Pure, deterministic rules primitives. Distances are inches; callers supply dice. */
+export * from './special.mjs';
+export {SCENARIOS, scenarioDuration, scenarioScore, objectiveControl, reserveEntry as scenarioReserveEntry, preparatoryBombardment} from './scenarios.mjs';
 export const ORDERS = Object.freeze(['fire', 'advance', 'run', 'ambush', 'rally', 'down']);
 export const QUALITY = Object.freeze({ inexperienced: { morale: 8, damage: 3 }, regular: { morale: 9, damage: 4 }, veteran: { morale: 10, damage: 5 } });
 const clamp = (n, min, max) => Math.max(min, Math.min(max, n));
@@ -71,8 +73,8 @@ export function vehiclePin({quality:q = 'regular', damageValue = 7, penetration 
   if (q === 'veteran') return {pinned:false,needsDie:false};
   return {pinned:roll === undefined ? false : die(roll) <= 3,needsDie:roll === undefined};
 }
-export function vehicleDamage({roll, superficial = false, openToppedIndirect = false, alreadyImmobilised = false, activated = false, turrets = 0, fireMoralePassed} = {}) {
-  const total = die(roll) - (superficial ? 3 : 0) + (openToppedIndirect ? 1 : 0);
+export function vehicleDamage({roll, superficial = false, openToppedIndirect = false, carriesFlamethrower = false, alreadyImmobilised = false, activated = false, turrets = 0, fireMoralePassed} = {}) {
+  const total = die(roll) - (superficial ? 3 : 0) + (openToppedIndirect ? 1 : 0) + (carriesFlamethrower ? 1 : 0);
   const effect = total <= 1 ? 'stunned' : total === 2 ? 'immobilised' : total === 3 ? 'on-fire' : 'knocked-out';
   const destroyed = effect === 'knocked-out' || (effect === 'immobilised' && alreadyImmobilised) || (effect === 'on-fire' && fireMoralePassed === false);
   return {total, effect, destroyed, immobilised: effect === 'immobilised', pins: total <= 3 ? 1 : 0, order: effect === 'stunned' || (effect === 'on-fire' && fireMoralePassed !== false) || (effect === 'immobilised' && activated) ? 'down' : null, moraleRequired: effect === 'on-fire' && fireMoralePassed === undefined, turretJamRequired: turrets > 0 && total <= 3 && !destroyed && (effect !== 'on-fire' || fireMoralePassed === true)};

@@ -61,7 +61,8 @@
     "type": "faction",
     "traitSlugs": [
       "fanatics",
-      "banzai-charge"
+      "banzai-charge",
+      "death-before-dishonour"
     ],
     "system": {
       "slug": "imperial-japan",

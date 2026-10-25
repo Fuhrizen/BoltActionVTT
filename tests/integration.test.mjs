@@ -3,7 +3,19 @@ import assert from 'node:assert/strict';
 import { zip, releaseFiles, root } from '../tools/package.mjs';
 import { mkdtemp, mkdir, writeFile, rm, symlink } from 'node:fs/promises';
 import path from 'node:path';
-import {phases, validateGraph, nextTasks} from '../tools/tasks.mjs';
+import {phases, validateGraph, nextTasks, requiredFeatures, completenessGate} from '../tools/tasks.mjs';
+
+test('completeness gate requires the full feature scope and explicit live verification', () => {
+  const all = Object.values(requiredFeatures).flat();
+  assert.equal(new Set(all).size, all.length);
+  assert.equal(completenessGate().complete, false);
+  assert.equal(completenessGate(all).complete, true);
+  const automated = all.filter(feature => !feature.startsWith('live-v14-'));
+  const gate = completenessGate(automated);
+  assert.equal(gate.complete, false);
+  assert.deepEqual(gate.missing.verification, ['live-v14-gm-player', 'live-v14-restart', 'live-v14-two-rounds']);
+  assert.throws(() => completenessGate(['unknown']), /Unknown completed feature/);
+});
 
 test('task planner validates the dependency graph and offers only unblocked incomplete phases', () => {
   assert.equal(validateGraph().size, phases.length);

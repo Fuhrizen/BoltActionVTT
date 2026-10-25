@@ -10,8 +10,10 @@
       "startingSize": 5,
       "maxSize": 10,
       "points": 0,
-      "notes": "Generic practice template; set points and verify army-list eligibility before matched play."
-    }
+      "notes": "Generic practice template; set points and verify army-list eligibility before matched play.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "regular-rifle-squad",
@@ -24,8 +26,10 @@
       "startingSize": 5,
       "maxSize": 10,
       "points": 0,
-      "notes": "Generic practice template; set points and verify army-list eligibility before matched play."
-    }
+      "notes": "Generic practice template; set points and verify army-list eligibility before matched play.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "veteran-rifle-squad",
@@ -38,8 +42,10 @@
       "startingSize": 5,
       "maxSize": 10,
       "points": 0,
-      "notes": "Generic practice template; set points and verify army-list eligibility before matched play."
-    }
+      "notes": "Generic practice template; set points and verify army-list eligibility before matched play.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "mmg-team",
@@ -56,8 +62,10 @@
       "moveAdvance": 6,
       "moveRun": 12,
       "points": 0,
-      "notes": "Generic practice template. Verify crew, movement, armour, points, weapon mounts and army-list eligibility. Create linked crew models for infantry teams; indirect fire and HE require manual resolution."
-    }
+      "notes": "Generic practice template. Verify crew, movement, armour, points, weapon mounts and army-list eligibility. Create linked crew models for infantry teams; indirect fire and HE require manual resolution.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "anti-tank-rifle-team",
@@ -74,8 +82,10 @@
       "moveAdvance": 6,
       "moveRun": 12,
       "points": 0,
-      "notes": "Generic practice template. Verify crew, movement, armour, points, weapon mounts and army-list eligibility. Create linked crew models for infantry teams; indirect fire and HE require manual resolution."
-    }
+      "notes": "Generic practice template. Verify crew, movement, armour, points, weapon mounts and army-list eligibility. Create linked crew models for infantry teams; indirect fire and HE require manual resolution.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "light-mortar-team",
@@ -92,8 +102,10 @@
       "moveAdvance": 6,
       "moveRun": 12,
       "points": 0,
-      "notes": "Generic practice template. Verify crew, movement, armour, points, weapon mounts and army-list eligibility. Create linked crew models for infantry teams; indirect fire and HE require manual resolution."
-    }
+      "notes": "Generic practice template. Verify crew, movement, armour, points, weapon mounts and army-list eligibility. Create linked crew models for infantry teams; indirect fire and HE require manual resolution.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "light-at-gun-team",
@@ -107,10 +119,18 @@
       "startingSize": 3,
       "maxSize": 3,
       "damageValue": 4,
-      "moveAdvance": 6,
-      "moveRun": 12,
+      "moveAdvance": 0,
+      "moveRun": 6,
       "points": 0,
-      "notes": "Generic practice template. Verify crew, movement, armour, points, weapon mounts and army-list eligibility. Create linked crew models for infantry teams; indirect fire and HE require manual resolution."
+      "notes": "Generic practice template. Verify crew, movement, armour, points, weapon mounts and army-list eligibility. Create linked crew models for infantry teams; indirect fire and HE require manual resolution.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "team",
+      "fixed"
+    ],
+    "profile": {
+      "movementSourcePage": "95"
     }
   },
   {
@@ -128,8 +148,10 @@
       "moveAdvance": 9,
       "moveRun": 18,
       "points": 0,
-      "notes": "Generic practice template. Verify crew, movement, armour, points, weapon mounts and army-list eligibility. Create linked crew models for infantry teams; indirect fire and HE require manual resolution."
-    }
+      "notes": "Generic practice template. Verify crew, movement, armour, points, weapon mounts and army-list eligibility. Create linked crew models for infantry teams; indirect fire and HE require manual resolution.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "germany-wehrmacht",
@@ -182,8 +204,10 @@
       "startingSize": 5,
       "maxSize": 10,
       "points": 50,
-      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
-    }
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "germany-veteran-infantry",
@@ -223,6 +247,10 @@
           "costEach": 5,
           "additional": true
         }
+      ],
+      "aliases": [
+        "Waffen-SS",
+        "Fallschirmjaeger"
       ]
     },
     "system": {
@@ -231,8 +259,10 @@
       "startingSize": 5,
       "maxSize": 10,
       "points": 65,
-      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
-    }
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "germany-inexperienced-infantry",
@@ -276,7 +306,16 @@
           "option": "green",
           "cost": 0,
           "subtype": "volkssturm"
+        },
+        {
+          "option": "anti-tank-grenades",
+          "costPerModel": 2,
+          "condition": "not-osttruppen-with-panzerfaust"
         }
+      ],
+      "aliases": [
+        "Volkssturm",
+        "Osttruppen"
       ]
     },
     "system": {
@@ -285,8 +324,10 @@
       "startingSize": 5,
       "maxSize": 10,
       "points": 35,
-      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
-    }
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "united-states-regular-infantry",
@@ -325,8 +366,10 @@
       "startingSize": 5,
       "maxSize": 12,
       "points": 50,
-      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
-    }
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "united-states-veteran-infantry",
@@ -357,6 +400,11 @@
           "option": "anti-tank-grenades",
           "costPerModel": 2
         }
+      ],
+      "aliases": [
+        "Rangers",
+        "Airborne",
+        "Marines"
       ]
     },
     "system": {
@@ -365,8 +413,10 @@
       "startingSize": 5,
       "maxSize": 12,
       "points": 65,
-      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
-    }
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "united-states-inexperienced-infantry",
@@ -405,8 +455,10 @@
       "startingSize": 5,
       "maxSize": 12,
       "points": 35,
-      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
-    }
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "great-britain-regular-infantry",
@@ -447,8 +499,10 @@
       "startingSize": 5,
       "maxSize": 10,
       "points": 50,
-      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
-    }
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "great-britain-veteran-infantry",
@@ -481,6 +535,12 @@
           "option": "anti-tank-grenades",
           "costPerModel": 2
         }
+      ],
+      "aliases": [
+        "Commandos",
+        "Chindits",
+        "Royal Marines",
+        "Airborne"
       ]
     },
     "system": {
@@ -489,8 +549,10 @@
       "startingSize": 5,
       "maxSize": 10,
       "points": 65,
-      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
-    }
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "great-britain-inexperienced-infantry",
@@ -531,8 +593,10 @@
       "startingSize": 5,
       "maxSize": 10,
       "points": 35,
-      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
-    }
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "soviet-union-regular-infantry",
@@ -573,8 +637,10 @@
       "startingSize": 5,
       "maxSize": 12,
       "points": 50,
-      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
-    }
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "soviet-union-veteran-infantry",
@@ -613,6 +679,10 @@
           "costEach": 5,
           "additional": true
         }
+      ],
+      "aliases": [
+        "Guards",
+        "NKVD"
       ]
     },
     "system": {
@@ -621,8 +691,10 @@
       "startingSize": 5,
       "maxSize": 12,
       "points": 65,
-      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
-    }
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "soviet-union-inexperienced-infantry",
@@ -667,8 +739,10 @@
       "startingSize": 5,
       "maxSize": 12,
       "points": 35,
-      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
-    }
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "imperial-japan-regular-infantry",
@@ -708,8 +782,10 @@
       "startingSize": 7,
       "maxSize": 15,
       "points": 70,
-      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
-    }
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "imperial-japan-veteran-infantry",
@@ -741,6 +817,10 @@
           "option": "anti-tank-grenades",
           "costPerModel": 2
         }
+      ],
+      "aliases": [
+        "SNLF",
+        "Paratroopers"
       ]
     },
     "system": {
@@ -749,8 +829,10 @@
       "startingSize": 7,
       "maxSize": 15,
       "points": 91,
-      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility."
-    }
+      "notes": "Base rifle configuration. Options and national rules require manual application; verify scenario and era eligibility.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "germany-panzer-iv",
@@ -796,8 +878,10 @@
       "damageValue": 9,
       "moveAdvance": 9,
       "moveRun": 18,
-      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually."
-    }
+      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "united-states-sherman-75",
@@ -857,8 +941,12 @@
       "damageValue": 9,
       "moveAdvance": 9,
       "moveRun": 18,
-      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually."
-    }
+      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "fire-pins-1d3"
+    ]
   },
   {
     "slug": "united-states-sherman-76",
@@ -912,8 +1000,12 @@
       "damageValue": 9,
       "moveAdvance": 9,
       "moveRun": 18,
-      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually."
-    }
+      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "fire-pins-1d3"
+    ]
   },
   {
     "slug": "great-britain-cromwell",
@@ -967,8 +1059,10 @@
       "damageValue": 9,
       "moveAdvance": 9,
       "moveRun": 18,
-      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually."
-    }
+      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "soviet-union-t34-76",
@@ -1014,8 +1108,10 @@
       "damageValue": 9,
       "moveAdvance": 9,
       "moveRun": 18,
-      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually."
-    }
+      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "imperial-japan-chi-ha",
@@ -1061,8 +1157,10 @@
       "damageValue": 8,
       "moveAdvance": 9,
       "moveRun": 18,
-      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually."
-    }
+      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": []
   },
   {
     "slug": "imperial-japan-shinhoto-chi-ha",
@@ -1108,7 +1206,6611 @@
       "damageValue": 8,
       "moveAdvance": 9,
       "moveRun": 18,
-      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually."
-    }
+      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": []
+  },
+  {
+    "slug": "germany-second-lieutenant",
+    "name": "Second lieutenant",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "155",
+      "pointsByQuality": {
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle",
+            "assault-rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 1,
+      "officerRange": 6,
+      "extraOrders": 1,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 1
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "germany-first-lieutenant",
+    "name": "First lieutenant",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "155",
+      "pointsByQuality": {
+        "regular": 75,
+        "veteran": 90
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle",
+            "assault-rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 2,
+      "officerRange": 6,
+      "extraOrders": 2,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 75,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 2
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "germany-captain",
+    "name": "Captain",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "155",
+      "pointsByQuality": {
+        "regular": 110,
+        "veteran": 125
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle",
+            "assault-rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 3,
+      "officerRange": 12,
+      "extraOrders": 3,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 110,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 3
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "germany-major",
+    "name": "Major",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "155",
+      "pointsByQuality": {
+        "regular": 150,
+        "veteran": 165
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle",
+            "assault-rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 4,
+      "officerRange": 12,
+      "extraOrders": 4,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 150,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 4
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "germany-artillery-observer",
+    "name": "Artillery forward observer",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "155",
+      "pointsByQuality": {
+        "regular": 100,
+        "veteran": 115
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "observer-manual"
+      ],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 100,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "observerKind": "artillery"
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "observer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": [
+      "observer-manual"
+    ]
+  },
+  {
+    "slug": "germany-air-observer",
+    "name": "Air forward observer",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "155",
+      "pointsByQuality": {
+        "regular": 75,
+        "veteran": 90
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "observer-manual"
+      ],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 75,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "observerKind": "air"
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "observer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": [
+      "observer-manual"
+    ]
+  },
+  {
+    "slug": "united-states-second-lieutenant",
+    "name": "Second lieutenant",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "167",
+      "pointsByQuality": {
+        "inexperienced": 35,
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "inexperienced": 7,
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 1,
+      "officerRange": 6,
+      "extraOrders": 1,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 1
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "united-states-first-lieutenant",
+    "name": "First lieutenant",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "167",
+      "pointsByQuality": {
+        "inexperienced": 60,
+        "regular": 75,
+        "veteran": 90
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "inexperienced": 7,
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 2,
+      "officerRange": 6,
+      "extraOrders": 2,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 75,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 2
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "united-states-captain",
+    "name": "Captain",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "167",
+      "pointsByQuality": {
+        "inexperienced": 95,
+        "regular": 110,
+        "veteran": 125
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "inexperienced": 7,
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 3,
+      "officerRange": 12,
+      "extraOrders": 3,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 110,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 3
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "united-states-major",
+    "name": "Major",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "167",
+      "pointsByQuality": {
+        "inexperienced": 135,
+        "regular": 150,
+        "veteran": 165
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "inexperienced": 7,
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 4,
+      "officerRange": 12,
+      "extraOrders": 4,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 150,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 4
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "united-states-artillery-observer",
+    "name": "Artillery forward observer",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "167",
+      "pointsByQuality": {
+        "regular": 100,
+        "veteran": 115
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "observer-manual"
+      ],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 100,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "observerKind": "artillery"
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "observer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": [
+      "observer-manual"
+    ]
+  },
+  {
+    "slug": "united-states-air-observer",
+    "name": "Air forward observer",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "167",
+      "pointsByQuality": {
+        "regular": 75,
+        "veteran": 90
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "observer-manual"
+      ],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 75,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "observerKind": "air"
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "observer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": [
+      "observer-manual"
+    ]
+  },
+  {
+    "slug": "great-britain-second-lieutenant",
+    "name": "Second lieutenant",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "179",
+      "pointsByQuality": {
+        "inexperienced": 35,
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "inexperienced": 7,
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 1,
+      "officerRange": 6,
+      "extraOrders": 1,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 1
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "great-britain-first-lieutenant",
+    "name": "First lieutenant",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "179",
+      "pointsByQuality": {
+        "inexperienced": 60,
+        "regular": 75,
+        "veteran": 90
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "inexperienced": 7,
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 2,
+      "officerRange": 6,
+      "extraOrders": 2,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 75,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 2
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "great-britain-captain",
+    "name": "Captain",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "179",
+      "pointsByQuality": {
+        "inexperienced": 95,
+        "regular": 110,
+        "veteran": 125
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "inexperienced": 7,
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 3,
+      "officerRange": 12,
+      "extraOrders": 3,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 110,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 3
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "great-britain-major",
+    "name": "Major",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "179",
+      "pointsByQuality": {
+        "inexperienced": 135,
+        "regular": 150,
+        "veteran": 165
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "inexperienced": 7,
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 4,
+      "officerRange": 12,
+      "extraOrders": 4,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 150,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 4
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "great-britain-artillery-observer",
+    "name": "Artillery forward observer",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "179",
+      "pointsByQuality": {
+        "regular": 100,
+        "veteran": 115
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "observer-manual",
+        "one-free-regular-artillery-observer"
+      ],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 100,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "observerKind": "artillery"
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "observer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": [
+      "observer-manual",
+      "one-free-regular-artillery-observer"
+    ]
+  },
+  {
+    "slug": "great-britain-air-observer",
+    "name": "Air forward observer",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "179",
+      "pointsByQuality": {
+        "regular": 75,
+        "veteran": 90
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "observer-manual"
+      ],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 75,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "observerKind": "air"
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "observer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": [
+      "observer-manual"
+    ]
+  },
+  {
+    "slug": "soviet-union-second-lieutenant",
+    "name": "Second lieutenant",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "190",
+      "pointsByQuality": {
+        "inexperienced": 35,
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "inexperienced": 7,
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 1,
+      "officerRange": 6,
+      "extraOrders": 1,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 1
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "soviet-union-first-lieutenant",
+    "name": "First lieutenant",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "190",
+      "pointsByQuality": {
+        "inexperienced": 60,
+        "regular": 75,
+        "veteran": 90
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "inexperienced": 7,
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 2,
+      "officerRange": 6,
+      "extraOrders": 2,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 75,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 2
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "soviet-union-captain",
+    "name": "Captain",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "190",
+      "pointsByQuality": {
+        "inexperienced": 95,
+        "regular": 110,
+        "veteran": 125
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "inexperienced": 7,
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 3,
+      "officerRange": 12,
+      "extraOrders": 3,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 110,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 3
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "soviet-union-major",
+    "name": "Major",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "190",
+      "pointsByQuality": {
+        "inexperienced": 135,
+        "regular": 150,
+        "veteran": 165
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "inexperienced": 7,
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 4,
+      "officerRange": 12,
+      "extraOrders": 4,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 150,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 4
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "soviet-union-artillery-observer",
+    "name": "Artillery forward observer",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "190",
+      "pointsByQuality": {
+        "regular": 100,
+        "veteran": 115
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "observer-manual"
+      ],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 100,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "observerKind": "artillery"
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "observer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": [
+      "observer-manual"
+    ]
+  },
+  {
+    "slug": "soviet-union-air-observer",
+    "name": "Air forward observer",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "190",
+      "pointsByQuality": {
+        "regular": 75,
+        "veteran": 90
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "observer-manual"
+      ],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 75,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "observerKind": "air"
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "observer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": [
+      "observer-manual"
+    ]
+  },
+  {
+    "slug": "imperial-japan-second-lieutenant",
+    "name": "Second lieutenant",
+    "factionSlug": "imperial-japan",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "202",
+      "pointsByQuality": {
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 1,
+      "officerRange": 6,
+      "extraOrders": 1,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 1
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "imperial-japan-first-lieutenant",
+    "name": "First lieutenant",
+    "factionSlug": "imperial-japan",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "202",
+      "pointsByQuality": {
+        "regular": 75,
+        "veteran": 90
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle"
+          ],
+          "cost": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 2,
+      "officerRange": 6,
+      "extraOrders": 2,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 75,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 2
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": []
+  },
+  {
+    "slug": "imperial-japan-captain",
+    "name": "Captain",
+    "factionSlug": "imperial-japan",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "202",
+      "pointsByQuality": {
+        "regular": 110,
+        "veteran": 125
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "sword-tough-fighters"
+      ],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle"
+          ],
+          "cost": 0
+        },
+        {
+          "option": "horse",
+          "cost": 5,
+          "trait": "cavalry",
+          "excludes": "attendants"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 3,
+      "officerRange": 12,
+      "extraOrders": 3,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 110,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 3
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": [
+      "sword-tough-fighters"
+    ]
+  },
+  {
+    "slug": "imperial-japan-major",
+    "name": "Major",
+    "factionSlug": "imperial-japan",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "202",
+      "pointsByQuality": {
+        "regular": 150,
+        "veteran": 165
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "sword-tough-fighters"
+      ],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        },
+        {
+          "option": "personal-weapon",
+          "weaponSlugs": [
+            "pistol",
+            "smg",
+            "rifle"
+          ],
+          "cost": 0
+        },
+        {
+          "option": "horse",
+          "cost": 5,
+          "trait": "cavalry",
+          "excludes": "attendants"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "officerMoraleBonus": 4,
+      "officerRange": 12,
+      "extraOrders": 4,
+      "officerRulesPage": "82"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 150,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "moraleBonus": 4
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "officer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": [
+      "sword-tough-fighters"
+    ]
+  },
+  {
+    "slug": "imperial-japan-artillery-observer",
+    "name": "Artillery forward observer",
+    "factionSlug": "imperial-japan",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "202",
+      "pointsByQuality": {
+        "regular": 100,
+        "veteran": 115
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "observer-manual"
+      ],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 100,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "observerKind": "artillery"
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "observer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": [
+      "observer-manual"
+    ]
+  },
+  {
+    "slug": "imperial-japan-air-observer",
+    "name": "Air forward observer",
+    "factionSlug": "imperial-japan",
+    "count": 1,
+    "weaponSlug": "pistol",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "202",
+      "pointsByQuality": {
+        "regular": 75,
+        "veteran": 90
+      },
+      "baseModels": 1,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "observer-manual"
+      ],
+      "options": [
+        {
+          "option": "attendants",
+          "max": 2,
+          "pointsByQuality": {
+            "regular": 10,
+            "veteran": 13
+          }
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 75,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0,
+      "observerKind": "air"
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "observer",
+        "weaponSlug": "pistol"
+      }
+    ],
+    "traitSlugs": [
+      "observer-manual"
+    ]
+  },
+  {
+    "slug": "germany-mmg",
+    "name": "Machine-gun team",
+    "factionSlug": "germany",
+    "count": 3,
+    "weaponSlug": "mmg",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "mmg",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "158",
+      "pointsByQuality": {
+        "inexperienced": 35,
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team"
+    ]
+  },
+  {
+    "slug": "germany-sniper",
+    "name": "Sniper team",
+    "factionSlug": "germany",
+    "count": 2,
+    "weaponSlug": "rifle",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "rifle",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "158",
+      "pointsByQuality": {
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 2,
+      "maxModels": 2,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team",
+        "sniper"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 2,
+      "maxSize": 2,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 2,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "sniper"
+    ]
+  },
+  {
+    "slug": "germany-medium-mortar",
+    "name": "Medium mortar team",
+    "factionSlug": "germany",
+    "count": 3,
+    "weaponSlug": "medium-mortar",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-mortar",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "158",
+      "pointsByQuality": {
+        "inexperienced": 35,
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [
+        {
+          "option": "spotter",
+          "cost": 10
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "fixed",
+      "indirect-fire"
+    ]
+  },
+  {
+    "slug": "germany-light-artillery",
+    "name": "Light artillery",
+    "factionSlug": "germany",
+    "count": 3,
+    "weaponSlug": "light-howitzer",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-howitzer",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "159",
+      "pointsByQuality": {
+        "inexperienced": 40,
+        "regular": 50,
+        "veteran": 60
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementSourcePage": "95"
+    },
+    "system": {
+      "kind": "artillery",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 0,
+      "moveRun": 6,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "fixed",
+      "gun-shield"
+    ]
+  },
+  {
+    "slug": "germany-pak40",
+    "name": "75 mm PaK 40",
+    "factionSlug": "germany",
+    "count": 4,
+    "weaponSlug": "heavy-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-at-gun",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "159",
+      "pointsByQuality": {
+        "inexperienced": 88,
+        "regular": 110,
+        "veteran": 132
+      },
+      "baseModels": 4,
+      "maxModels": 4,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementSourcePage": "95"
+    },
+    "system": {
+      "kind": "artillery",
+      "quality": "regular",
+      "startingSize": 4,
+      "maxSize": 4,
+      "damageValue": 4,
+      "points": 110,
+      "moveAdvance": 0,
+      "moveRun": 0,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 4,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "fixed",
+      "gun-shield"
+    ]
+  },
+  {
+    "slug": "germany-flak36",
+    "name": "88 mm Flak 36",
+    "factionSlug": "germany",
+    "count": 7,
+    "weaponSlug": "super-heavy-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "super-heavy-at-gun",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "160",
+      "pointsByQuality": {
+        "inexperienced": 148,
+        "regular": 185,
+        "veteran": 222
+      },
+      "baseModels": 7,
+      "maxModels": 7,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team",
+        "flak",
+        "gun-shield",
+        "flak"
+      ],
+      "options": [
+        {
+          "option": "spotter",
+          "cost": 10
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "heDiameter": 3,
+      "indirectWeaponSlug": "medium-howitzer",
+      "movementSourcePage": "95"
+    },
+    "system": {
+      "kind": "artillery",
+      "quality": "regular",
+      "startingSize": 7,
+      "maxSize": 7,
+      "damageValue": 4,
+      "points": 185,
+      "moveAdvance": 0,
+      "moveRun": 0,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 7,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "flak",
+      "gun-shield",
+      "fixed",
+      "versatile"
+    ]
+  },
+  {
+    "slug": "united-states-mmg",
+    "name": ".30-cal machine-gun team",
+    "factionSlug": "united-states",
+    "count": 3,
+    "weaponSlug": "mmg",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "mmg",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "169",
+      "pointsByQuality": {
+        "inexperienced": 35,
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team"
+    ]
+  },
+  {
+    "slug": "united-states-bazooka",
+    "name": "Bazooka team",
+    "factionSlug": "united-states",
+    "count": 2,
+    "weaponSlug": "bazooka",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "bazooka",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "170",
+      "pointsByQuality": {
+        "inexperienced": 42,
+        "regular": 60,
+        "veteran": 78
+      },
+      "baseModels": 2,
+      "maxModels": 2,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 2,
+      "maxSize": 2,
+      "damageValue": 4,
+      "points": 60,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 2,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team"
+    ]
+  },
+  {
+    "slug": "united-states-sniper",
+    "name": "Sniper team",
+    "factionSlug": "united-states",
+    "count": 2,
+    "weaponSlug": "rifle",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "rifle",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "170",
+      "pointsByQuality": {
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 2,
+      "maxModels": 2,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team",
+        "sniper"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 2,
+      "maxSize": 2,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 2,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "sniper"
+    ]
+  },
+  {
+    "slug": "united-states-medium-mortar",
+    "name": "81 mm mortar team",
+    "factionSlug": "united-states",
+    "count": 3,
+    "weaponSlug": "medium-mortar",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-mortar",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "171",
+      "pointsByQuality": {
+        "inexperienced": 35,
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [
+        {
+          "option": "spotter",
+          "cost": 10
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "fixed",
+      "indirect-fire"
+    ]
+  },
+  {
+    "slug": "united-states-light-howitzer",
+    "name": "75 mm howitzer",
+    "factionSlug": "united-states",
+    "count": 3,
+    "weaponSlug": "light-howitzer",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-howitzer",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "171",
+      "pointsByQuality": {
+        "inexperienced": 40,
+        "regular": 50,
+        "veteran": 60
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementSourcePage": "95"
+    },
+    "system": {
+      "kind": "artillery",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 0,
+      "moveRun": 6,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "fixed",
+      "gun-shield"
+    ]
+  },
+  {
+    "slug": "united-states-57mm-at",
+    "name": "57 mm anti-tank gun",
+    "factionSlug": "united-states",
+    "count": 3,
+    "weaponSlug": "medium-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-at-gun",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "171",
+      "pointsByQuality": {
+        "inexperienced": 60,
+        "regular": 75,
+        "veteran": 90
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementSourcePage": "95"
+    },
+    "system": {
+      "kind": "artillery",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 75,
+      "moveAdvance": 0,
+      "moveRun": 6,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "fixed",
+      "gun-shield"
+    ]
+  },
+  {
+    "slug": "united-states-m1a2-aa",
+    "name": "37 mm M1A2 AA gun",
+    "factionSlug": "united-states",
+    "count": 4,
+    "weaponSlug": "heavy-autocannon",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-autocannon",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "172",
+      "pointsByQuality": {
+        "inexperienced": 48,
+        "regular": 60,
+        "veteran": 72
+      },
+      "baseModels": 4,
+      "maxModels": 4,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team",
+        "flak"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementSourcePage": "95"
+    },
+    "system": {
+      "kind": "artillery",
+      "quality": "regular",
+      "startingSize": 4,
+      "maxSize": 4,
+      "damageValue": 4,
+      "points": 60,
+      "moveAdvance": 0,
+      "moveRun": 0,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 4,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "flak",
+      "fixed"
+    ]
+  },
+  {
+    "slug": "great-britain-mmg",
+    "name": "Machine-gun team",
+    "factionSlug": "great-britain",
+    "count": 3,
+    "weaponSlug": "mmg",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "mmg",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "181",
+      "pointsByQuality": {
+        "inexperienced": 35,
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team"
+    ]
+  },
+  {
+    "slug": "great-britain-piat",
+    "name": "PIAT team",
+    "factionSlug": "great-britain",
+    "count": 2,
+    "weaponSlug": "piat",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "piat",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "182",
+      "pointsByQuality": {
+        "inexperienced": 28,
+        "regular": 40,
+        "veteran": 52
+      },
+      "baseModels": 2,
+      "maxModels": 2,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 2,
+      "maxSize": 2,
+      "damageValue": 4,
+      "points": 40,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 2,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team"
+    ]
+  },
+  {
+    "slug": "great-britain-sniper",
+    "name": "Sniper team",
+    "factionSlug": "great-britain",
+    "count": 2,
+    "weaponSlug": "rifle",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "rifle",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "182",
+      "pointsByQuality": {
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 2,
+      "maxModels": 2,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team",
+        "sniper"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 2,
+      "maxSize": 2,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 2,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "sniper"
+    ]
+  },
+  {
+    "slug": "great-britain-medium-mortar",
+    "name": "Medium mortar team",
+    "factionSlug": "great-britain",
+    "count": 3,
+    "weaponSlug": "medium-mortar",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-mortar",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "182",
+      "pointsByQuality": {
+        "inexperienced": 35,
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [
+        {
+          "option": "spotter",
+          "cost": 10
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "fixed",
+      "indirect-fire"
+    ]
+  },
+  {
+    "slug": "great-britain-light-artillery",
+    "name": "Light artillery",
+    "factionSlug": "great-britain",
+    "count": 3,
+    "weaponSlug": "light-howitzer",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-howitzer",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "183",
+      "pointsByQuality": {
+        "regular": 50,
+        "veteran": 60
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementSourcePage": "95"
+    },
+    "system": {
+      "kind": "artillery",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 0,
+      "moveRun": 6,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "fixed",
+      "gun-shield"
+    ]
+  },
+  {
+    "slug": "great-britain-6pdr",
+    "name": "QF 6-pounder",
+    "factionSlug": "great-britain",
+    "count": 3,
+    "weaponSlug": "medium-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-at-gun",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "184",
+      "pointsByQuality": {
+        "inexperienced": 60,
+        "regular": 75,
+        "veteran": 90
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementSourcePage": "95"
+    },
+    "system": {
+      "kind": "artillery",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 75,
+      "moveAdvance": 0,
+      "moveRun": 6,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "fixed",
+      "gun-shield"
+    ]
+  },
+  {
+    "slug": "great-britain-bofors",
+    "name": "40 mm Bofors",
+    "factionSlug": "great-britain",
+    "count": 4,
+    "weaponSlug": "heavy-autocannon",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-autocannon",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "184",
+      "pointsByQuality": {
+        "inexperienced": 48,
+        "regular": 60,
+        "veteran": 72
+      },
+      "baseModels": 4,
+      "maxModels": 4,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team",
+        "flak"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementSourcePage": "95"
+    },
+    "system": {
+      "kind": "artillery",
+      "quality": "regular",
+      "startingSize": 4,
+      "maxSize": 4,
+      "damageValue": 4,
+      "points": 60,
+      "moveAdvance": 0,
+      "moveRun": 0,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 4,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "flak",
+      "fixed"
+    ]
+  },
+  {
+    "slug": "soviet-union-mmg",
+    "name": "Machine-gun team",
+    "factionSlug": "soviet-union",
+    "count": 3,
+    "weaponSlug": "mmg",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "mmg",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "192",
+      "pointsByQuality": {
+        "inexperienced": 35,
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [
+        {
+          "option": "gun-shield",
+          "cost": 5
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team"
+    ]
+  },
+  {
+    "slug": "soviet-union-at-rifle",
+    "name": "Anti-tank rifle team",
+    "factionSlug": "soviet-union",
+    "count": 2,
+    "weaponSlug": "anti-tank-rifle",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "anti-tank-rifle",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "192",
+      "pointsByQuality": {
+        "inexperienced": 21,
+        "regular": 30,
+        "veteran": 39
+      },
+      "baseModels": 2,
+      "maxModels": 2,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 2,
+      "maxSize": 2,
+      "damageValue": 4,
+      "points": 30,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 2,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team"
+    ]
+  },
+  {
+    "slug": "soviet-union-medium-mortar",
+    "name": "Medium mortar team",
+    "factionSlug": "soviet-union",
+    "count": 3,
+    "weaponSlug": "medium-mortar",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-mortar",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "193",
+      "pointsByQuality": {
+        "inexperienced": 35,
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [
+        {
+          "option": "spotter",
+          "cost": 10
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "fixed",
+      "indirect-fire"
+    ]
+  },
+  {
+    "slug": "soviet-union-sniper",
+    "name": "Sniper team",
+    "factionSlug": "soviet-union",
+    "count": 2,
+    "weaponSlug": "rifle",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "rifle",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "194",
+      "pointsByQuality": {
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 2,
+      "maxModels": 2,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team",
+        "sniper"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 2,
+      "maxSize": 2,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 2,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "sniper"
+    ]
+  },
+  {
+    "slug": "soviet-union-zis3",
+    "name": "ZiS-3 76.2 mm field gun",
+    "factionSlug": "soviet-union",
+    "count": 3,
+    "weaponSlug": "light-howitzer",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-howitzer",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "194",
+      "pointsByQuality": {
+        "inexperienced": 40,
+        "regular": 50,
+        "veteran": 60
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementSourcePage": "95"
+    },
+    "system": {
+      "kind": "artillery",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 0,
+      "moveRun": 6,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "fixed",
+      "gun-shield"
+    ]
+  },
+  {
+    "slug": "soviet-union-zis2",
+    "name": "ZiS-2 anti-tank gun",
+    "factionSlug": "soviet-union",
+    "count": 3,
+    "weaponSlug": "medium-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-at-gun",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "194",
+      "pointsByQuality": {
+        "inexperienced": 60,
+        "regular": 75,
+        "veteran": 90
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementSourcePage": "95"
+    },
+    "system": {
+      "kind": "artillery",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 75,
+      "moveAdvance": 0,
+      "moveRun": 6,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "fixed",
+      "gun-shield"
+    ]
+  },
+  {
+    "slug": "soviet-union-61k-aa",
+    "name": "37 mm 61-K",
+    "factionSlug": "soviet-union",
+    "count": 4,
+    "weaponSlug": "heavy-autocannon",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-autocannon",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "195",
+      "pointsByQuality": {
+        "inexperienced": 48,
+        "regular": 60,
+        "veteran": 72
+      },
+      "baseModels": 4,
+      "maxModels": 4,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team",
+        "flak"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementSourcePage": "95"
+    },
+    "system": {
+      "kind": "artillery",
+      "quality": "regular",
+      "startingSize": 4,
+      "maxSize": 4,
+      "damageValue": 4,
+      "points": 60,
+      "moveAdvance": 0,
+      "moveRun": 0,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 4,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "flak",
+      "fixed"
+    ]
+  },
+  {
+    "slug": "imperial-japan-mmg",
+    "name": "Medium machine-gun team",
+    "factionSlug": "imperial-japan",
+    "count": 3,
+    "weaponSlug": "mmg",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "mmg",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "204",
+      "pointsByQuality": {
+        "inexperienced": 35,
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team"
+    ]
+  },
+  {
+    "slug": "imperial-japan-at-rifle",
+    "name": "Anti-tank rifle team",
+    "factionSlug": "imperial-japan",
+    "count": 2,
+    "weaponSlug": "anti-tank-rifle",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "anti-tank-rifle",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "204",
+      "pointsByQuality": {
+        "inexperienced": 21,
+        "regular": 30,
+        "veteran": 39
+      },
+      "baseModels": 2,
+      "maxModels": 2,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 2,
+      "maxSize": 2,
+      "damageValue": 4,
+      "points": 30,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 2,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team"
+    ]
+  },
+  {
+    "slug": "imperial-japan-sniper",
+    "name": "Sniper team",
+    "factionSlug": "imperial-japan",
+    "count": 2,
+    "weaponSlug": "rifle",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "rifle",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "204",
+      "pointsByQuality": {
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 2,
+      "maxModels": 2,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team",
+        "sniper"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 2,
+      "maxSize": 2,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 2,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "sniper"
+    ]
+  },
+  {
+    "slug": "imperial-japan-light-mortar",
+    "name": "Light mortar team",
+    "factionSlug": "imperial-japan",
+    "count": 2,
+    "weaponSlug": "light-mortar",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-mortar",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "205",
+      "pointsByQuality": {
+        "inexperienced": 24,
+        "regular": 35,
+        "veteran": 46
+      },
+      "baseModels": 2,
+      "maxModels": 2,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 2,
+      "maxSize": 2,
+      "damageValue": 4,
+      "points": 35,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 2,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team"
+    ]
+  },
+  {
+    "slug": "imperial-japan-medium-mortar",
+    "name": "Medium mortar team",
+    "factionSlug": "imperial-japan",
+    "count": 3,
+    "weaponSlug": "medium-mortar",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-mortar",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "205",
+      "pointsByQuality": {
+        "inexperienced": 35,
+        "regular": 50,
+        "veteran": 65
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [
+        {
+          "option": "spotter",
+          "cost": 10
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 50,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "fixed",
+      "indirect-fire"
+    ]
+  },
+  {
+    "slug": "imperial-japan-75mm-field",
+    "name": "75 mm field gun",
+    "factionSlug": "imperial-japan",
+    "count": 4,
+    "weaponSlug": "light-howitzer",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-howitzer",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "206",
+      "pointsByQuality": {
+        "inexperienced": 44,
+        "regular": 55,
+        "veteran": 66
+      },
+      "baseModels": 4,
+      "maxModels": 4,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team",
+        "gun-shield"
+      ],
+      "options": [
+        {
+          "option": "loaders",
+          "max": 2,
+          "costEach": 5
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementSourcePage": "95"
+    },
+    "system": {
+      "kind": "artillery",
+      "quality": "regular",
+      "startingSize": 4,
+      "maxSize": 4,
+      "damageValue": 4,
+      "points": 55,
+      "moveAdvance": 0,
+      "moveRun": 6,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 4,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "gun-shield",
+      "fixed"
+    ]
+  },
+  {
+    "slug": "imperial-japan-type1-at",
+    "name": "Type 1 47 mm anti-tank gun",
+    "factionSlug": "imperial-japan",
+    "count": 3,
+    "weaponSlug": "medium-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-at-gun",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "206",
+      "pointsByQuality": {
+        "inexperienced": 60,
+        "regular": 75,
+        "veteran": 90
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementSourcePage": "95"
+    },
+    "system": {
+      "kind": "artillery",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 75,
+      "moveAdvance": 0,
+      "moveRun": 6,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "fixed",
+      "gun-shield"
+    ]
+  },
+  {
+    "slug": "imperial-japan-type98-aa",
+    "name": "Type 98 20 mm AA gun",
+    "factionSlug": "imperial-japan",
+    "count": 3,
+    "weaponSlug": "light-autocannon",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-autocannon",
+        "quantity": 1,
+        "mount": "unit"
+      }
+    ],
+    "profile": {
+      "sourcePage": "206",
+      "pointsByQuality": {
+        "inexperienced": 36,
+        "regular": 45,
+        "veteran": 54
+      },
+      "baseModels": 3,
+      "maxModels": 3,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "team",
+        "flak"
+      ],
+      "options": [
+        {
+          "variant": "type2-twin-aa",
+          "cost": 30,
+          "shots": 4
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementSourcePage": "95"
+    },
+    "system": {
+      "kind": "artillery",
+      "quality": "regular",
+      "startingSize": 3,
+      "maxSize": 3,
+      "damageValue": 4,
+      "points": 45,
+      "moveAdvance": 0,
+      "moveRun": 6,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 3,
+        "role": "crew",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "team",
+      "flak",
+      "fixed"
+    ]
+  },
+  {
+    "slug": "germany-panther",
+    "name": "Panther",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "super-heavy-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "super-heavy-at-gun",
+        "mount": "turret",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "161",
+      "pointsByQuality": {
+        "regular": 355,
+        "veteran": 426
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 9,
+      "transportCapacity": 0,
+      "manualRules": [
+        "front-armour-10"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 9,
+      "points": 355,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "front-armour-10"
+    ]
+  },
+  {
+    "slug": "germany-tiger-i",
+    "name": "Tiger I",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "super-heavy-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "super-heavy-at-gun",
+        "mount": "turret",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "161",
+      "pointsByQuality": {
+        "regular": 395,
+        "veteran": 474
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 10,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 10,
+      "points": 395,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": []
+  },
+  {
+    "slug": "germany-stug",
+    "name": "StuG III/IV",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "heavy-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-at-gun",
+        "mount": "casement-front",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "remote-360",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "162",
+      "pointsByQuality": {
+        "inexperienced": 184,
+        "regular": 230,
+        "veteran": 276
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 9,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "weaponSlug": "mmg",
+          "cost": 15,
+          "mount": "coaxial-front"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "aliases": [
+        "StuG III",
+        "StuG IV"
+      ]
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 9,
+      "points": 230,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": []
+  },
+  {
+    "slug": "germany-marder",
+    "name": "Marder",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "heavy-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-at-gun",
+        "mount": "front",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "163",
+      "pointsByQuality": {
+        "inexperienced": 132,
+        "regular": 165,
+        "veteran": 198
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 7,
+      "transportCapacity": 0,
+      "manualRules": [
+        "open-topped"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 7,
+      "points": 165,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "open-topped"
+    ]
+  },
+  {
+    "slug": "germany-stuh42",
+    "name": "Sturmhaubitze 42",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "medium-howitzer",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-howitzer",
+        "mount": "casement-front",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "remote-360",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "163",
+      "pointsByQuality": {
+        "inexperienced": 152,
+        "regular": 190,
+        "veteran": 228
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 9,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 9,
+      "points": 190,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": []
+  },
+  {
+    "slug": "germany-panzerwerfer",
+    "name": "Panzerwerfer 42",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "heavy-mortar",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-mortar",
+        "mount": "front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "163",
+      "pointsByQuality": {
+        "inexperienced": 92,
+        "regular": 115,
+        "veteran": 138
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 7,
+      "transportCapacity": 0,
+      "manualRules": [
+        "multiple-launcher",
+        "open-topped"
+      ],
+      "options": [
+        {
+          "weaponSlug": "mmg",
+          "cost": -55,
+          "variant": "sdkfz4-ammunition",
+          "replaceAllWeapons": true,
+          "mount": "pintle-front"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 7,
+      "points": 115,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "multiple-launcher",
+      "open-topped"
+    ]
+  },
+  {
+    "slug": "germany-sdkfz7-flak",
+    "name": "SdKfz 7 Flak half-track",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "heavy-autocannon",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-autocannon",
+        "mount": "platform-360",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "164",
+      "pointsByQuality": {
+        "inexperienced": 48,
+        "regular": 60,
+        "veteran": 72
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 6,
+      "transportCapacity": 0,
+      "manualRules": [
+        "flak"
+      ],
+      "options": [
+        {
+          "weaponSlug": "light-autocannon",
+          "cost": 80,
+          "quantity": 4,
+          "mount": "platform-360"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 6,
+      "points": 60,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "flak"
+    ]
+  },
+  {
+    "slug": "germany-sdkfz234",
+    "name": "SdKfz 234/1",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "light-autocannon",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-autocannon",
+        "mount": "open-turret",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "164",
+      "pointsByQuality": {
+        "inexperienced": 71,
+        "regular": 95,
+        "veteran": 109
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 7,
+      "transportCapacity": 0,
+      "manualRules": [
+        "recce",
+        "dual-direction-steering",
+        "open-topped"
+      ],
+      "options": [
+        {
+          "variant": "puma",
+          "cost": 50,
+          "replaceAllWeapons": true,
+          "weaponSlugs": [
+            "medium-at-gun",
+            "mmg"
+          ],
+          "removeTrait": "open-topped"
+        },
+        {
+          "weaponSlug": "light-howitzer",
+          "cost": 15,
+          "replaceAllWeapons": true,
+          "mount": "fixed-front"
+        },
+        {
+          "weaponSlug": "heavy-at-gun",
+          "cost": 75,
+          "replaceAllWeapons": true,
+          "mount": "fixed-front"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "printedPointsAnomaly": true,
+      "pointsNote": "Printed quality prices retained independently; do not derive one quality from another.",
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 7,
+      "points": 95,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "recce",
+      "dual-direction-steering",
+      "open-topped"
+    ]
+  },
+  {
+    "slug": "united-states-stuart",
+    "name": "M5 Stuart",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "light-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-at-gun",
+        "mount": "turret",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "173",
+      "pointsByQuality": {
+        "inexperienced": 108,
+        "regular": 135,
+        "veteran": 162
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 8,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "weaponSlug": "hmg",
+          "cost": 25,
+          "mount": "pintle-360"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 8,
+      "points": 135,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": []
+  },
+  {
+    "slug": "united-states-m10",
+    "name": "M10 tank destroyer",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "heavy-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-at-gun",
+        "mount": "turret",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "174",
+      "pointsByQuality": {
+        "inexperienced": 144,
+        "regular": 180,
+        "veteran": 216
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 8,
+      "transportCapacity": 0,
+      "manualRules": [
+        "open-topped"
+      ],
+      "options": [
+        {
+          "weaponSlug": "hmg",
+          "cost": 25,
+          "mount": "pintle-360"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 8,
+      "points": 180,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "open-topped"
+    ]
+  },
+  {
+    "slug": "united-states-priest",
+    "name": "M7 Priest",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "medium-howitzer",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-howitzer",
+        "mount": "front",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "hmg",
+        "mount": "pintle-360",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "174",
+      "pointsByQuality": {
+        "inexperienced": 128,
+        "regular": 160,
+        "veteran": 192
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 8,
+      "transportCapacity": 0,
+      "manualRules": [
+        "open-topped"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 8,
+      "points": 160,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "open-topped"
+    ]
+  },
+  {
+    "slug": "united-states-m16",
+    "name": "M16 AA carriage",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "hmg",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "hmg",
+        "mount": "platform",
+        "quantity": 4
+      }
+    ],
+    "profile": {
+      "sourcePage": "175",
+      "pointsByQuality": {
+        "inexperienced": 100,
+        "regular": 125,
+        "veteran": 150
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 7,
+      "transportCapacity": 0,
+      "manualRules": [
+        "flak",
+        "open-topped"
+      ],
+      "options": [
+        {
+          "weaponSlug": "heavy-autocannon",
+          "cost": -40,
+          "replaceAllWeapons": true,
+          "mount": "platform"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 7,
+      "points": 125,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "flak",
+      "open-topped"
+    ]
+  },
+  {
+    "slug": "united-states-greyhound",
+    "name": "M8 Greyhound",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "light-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-at-gun",
+        "mount": "open-turret",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "175",
+      "pointsByQuality": {
+        "inexperienced": 88,
+        "regular": 110,
+        "veteran": 132
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 7,
+      "transportCapacity": 0,
+      "manualRules": [
+        "recce",
+        "open-topped"
+      ],
+      "options": [
+        {
+          "weaponSlug": "hmg",
+          "cost": 25,
+          "mount": "pintle-360"
+        },
+        {
+          "weaponSlug": "hmg",
+          "cost": -30,
+          "variant": "m20",
+          "replaceAllWeapons": true,
+          "mount": "pintle-360"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 7,
+      "points": 110,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "recce",
+      "open-topped"
+    ]
+  },
+  {
+    "slug": "great-britain-firefly",
+    "name": "Sherman Firefly",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "super-heavy-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "super-heavy-at-gun",
+        "mount": "turret",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "185",
+      "pointsByQuality": {
+        "inexperienced": 244,
+        "regular": 305,
+        "veteran": 366
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 9,
+      "transportCapacity": 0,
+      "manualRules": [
+        "fire-pins-1d3"
+      ],
+      "options": [
+        {
+          "weaponSlug": "hmg",
+          "cost": 25,
+          "mount": "pintle-360"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 9,
+      "points": 305,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "fire-pins-1d3"
+    ]
+  },
+  {
+    "slug": "great-britain-churchill",
+    "name": "Churchill",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "medium-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-at-gun",
+        "mount": "turret",
+        "quantity": 1,
+        "heDiameter": 2
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "186",
+      "pointsByQuality": {
+        "inexperienced": 212,
+        "regular": 265,
+        "veteran": 318
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 10,
+      "transportCapacity": 0,
+      "manualRules": [
+        "slow"
+      ],
+      "options": [
+        {
+          "weaponSlug": "vehicle-flamethrower",
+          "cost": 40,
+          "variant": "crocodile",
+          "replaceWeapon": "mmg",
+          "replaceMount": "hull"
+        },
+        {
+          "weaponSlug": "medium-howitzer",
+          "cost": 0,
+          "replaceWeapon": "medium-at-gun"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 10,
+      "points": 265,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "slow"
+    ]
+  },
+  {
+    "slug": "great-britain-wolverine",
+    "name": "M10 Wolverine",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "heavy-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-at-gun",
+        "mount": "turret",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "186",
+      "pointsByQuality": {
+        "regular": 180,
+        "veteran": 216
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 8,
+      "transportCapacity": 0,
+      "manualRules": [
+        "open-topped"
+      ],
+      "options": [
+        {
+          "weaponSlug": "hmg",
+          "cost": 25,
+          "mount": "pintle-360"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 8,
+      "points": 180,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "open-topped"
+    ]
+  },
+  {
+    "slug": "great-britain-priest",
+    "name": "M7 Priest",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "medium-howitzer",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-howitzer",
+        "mount": "front",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "hmg",
+        "mount": "pintle-360",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "187",
+      "pointsByQuality": {
+        "inexperienced": 128,
+        "regular": 160,
+        "veteran": 192
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 8,
+      "transportCapacity": 0,
+      "manualRules": [
+        "open-topped"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 8,
+      "points": 160,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "open-topped"
+    ]
+  },
+  {
+    "slug": "great-britain-crusader-aa",
+    "name": "Crusader AA",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "heavy-autocannon",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-autocannon",
+        "mount": "open-turret",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "187",
+      "pointsByQuality": {
+        "inexperienced": 84,
+        "regular": 105,
+        "veteran": 126
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 8,
+      "transportCapacity": 0,
+      "manualRules": [
+        "flak",
+        "open-topped"
+      ],
+      "options": [
+        {
+          "weaponSlug": "light-autocannon",
+          "cost": 25,
+          "quantity": 2,
+          "replaceAllWeapons": true,
+          "removeTrait": "open-topped",
+          "mount": "enclosed-turret"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 8,
+      "points": 105,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "flak",
+      "open-topped"
+    ]
+  },
+  {
+    "slug": "great-britain-humber-daimler",
+    "name": "Humber/ Daimler armoured car",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "light-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-at-gun",
+        "mount": "turret",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "187",
+      "pointsByQuality": {
+        "inexperienced": 92,
+        "regular": 115,
+        "veteran": 138
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 7,
+      "transportCapacity": 0,
+      "manualRules": [
+        "recce"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "aliases": [
+        "Humber",
+        "Daimler"
+      ],
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 7,
+      "points": 115,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "recce"
+    ]
+  },
+  {
+    "slug": "soviet-union-bt5-bt7",
+    "name": "BT-5/BT-7",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "light-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-at-gun",
+        "mount": "turret",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "195",
+      "pointsByQuality": {
+        "inexperienced": 100,
+        "regular": 125,
+        "veteran": 150
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 8,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "weaponSlug": "light-howitzer",
+          "cost": 0,
+          "variant": "bt7a",
+          "replaceWeapon": "light-at-gun"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "aliases": [
+        "BT-5",
+        "BT-7"
+      ]
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 8,
+      "points": 125,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": []
+  },
+  {
+    "slug": "soviet-union-t34-85",
+    "name": "T-34/85",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "heavy-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-at-gun",
+        "mount": "turret",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "196",
+      "pointsByQuality": {
+        "inexperienced": 188,
+        "regular": 235,
+        "veteran": 282
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 9,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 9,
+      "points": 235,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": []
+  },
+  {
+    "slug": "soviet-union-is2",
+    "name": "IS-2",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "heavy-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-at-gun",
+        "mount": "turret",
+        "quantity": 1,
+        "heDiameter": 3
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "turret-rear",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "196",
+      "pointsByQuality": {
+        "inexperienced": 256,
+        "regular": 320,
+        "veteran": 384
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 10,
+      "transportCapacity": 0,
+      "manualRules": [
+        "slow-load"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 10,
+      "points": 320,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "slow-load"
+    ]
+  },
+  {
+    "slug": "soviet-union-su85",
+    "name": "SU-85",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "heavy-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-at-gun",
+        "mount": "casement-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "197",
+      "pointsByQuality": {
+        "inexperienced": 176,
+        "regular": 220,
+        "veteran": 264
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 9,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 9,
+      "points": 220,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": []
+  },
+  {
+    "slug": "soviet-union-su76",
+    "name": "SU-76",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "light-howitzer",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-howitzer",
+        "mount": "front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "198",
+      "pointsByQuality": {
+        "inexperienced": 92,
+        "regular": 115,
+        "veteran": 138
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 8,
+      "transportCapacity": 0,
+      "manualRules": [
+        "open-topped"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 8,
+      "points": 115,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "open-topped"
+    ]
+  },
+  {
+    "slug": "soviet-union-katyusha",
+    "name": "Katyusha",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "heavy-mortar",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "heavy-mortar",
+        "mount": "front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "199",
+      "pointsByQuality": {
+        "inexperienced": 64,
+        "regular": 80,
+        "veteran": 96
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 6,
+      "transportCapacity": 0,
+      "manualRules": [
+        "multiple-launcher"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 6,
+      "points": 80,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "multiple-launcher"
+    ]
+  },
+  {
+    "slug": "soviet-union-tokarev4m",
+    "name": "Tokarev 4M on GAZ-AAA",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "mmg",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "mmg",
+        "mount": "turret",
+        "quantity": 4
+      }
+    ],
+    "profile": {
+      "sourcePage": "199",
+      "pointsByQuality": {
+        "inexperienced": 48,
+        "regular": 60,
+        "veteran": 72
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 6,
+      "transportCapacity": 0,
+      "manualRules": [
+        "flak"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 6,
+      "points": 60,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "flak"
+    ]
+  },
+  {
+    "slug": "soviet-union-ba64",
+    "name": "BA-64",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "lmg",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "lmg",
+        "mount": "turret-360",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "200",
+      "pointsByQuality": {
+        "inexperienced": 48,
+        "regular": 60,
+        "veteran": 72
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 7,
+      "transportCapacity": 0,
+      "manualRules": [
+        "recce"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 7,
+      "points": 60,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "recce"
+    ]
+  },
+  {
+    "slug": "imperial-japan-hago",
+    "name": "Type 95 Ha-Go",
+    "factionSlug": "imperial-japan",
+    "count": 1,
+    "weaponSlug": "light-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-at-gun",
+        "mount": "turret",
+        "quantity": 1,
+        "penetration": 3
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "turret-rear",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "207",
+      "pointsByQuality": {
+        "inexperienced": 72,
+        "regular": 90,
+        "veteran": 108
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 7,
+      "transportCapacity": 0,
+      "manualRules": [
+        "one-man-turret"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 7,
+      "points": 90,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "one-man-turret"
+    ]
+  },
+  {
+    "slug": "imperial-japan-type98-truck",
+    "name": "Type 98 AA truck",
+    "factionSlug": "imperial-japan",
+    "count": 1,
+    "weaponSlug": "light-autocannon",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-autocannon",
+        "mount": "platform-360",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "208",
+      "pointsByQuality": {
+        "inexperienced": 40,
+        "regular": 50,
+        "veteran": 60
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 6,
+      "transportCapacity": 0,
+      "manualRules": [
+        "flak"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 6,
+      "points": 50,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "flak"
+    ]
+  },
+  {
+    "slug": "imperial-japan-type94",
+    "name": "Type 94 tankette",
+    "factionSlug": "imperial-japan",
+    "count": 1,
+    "weaponSlug": "mmg",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "mmg",
+        "mount": "turret",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "209",
+      "pointsByQuality": {
+        "inexperienced": 56,
+        "regular": 70,
+        "veteran": 84
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 7,
+      "transportCapacity": 0,
+      "manualRules": [
+        "recce"
+      ],
+      "options": [],
+      "verification": "base-profile-verified; optional-conversions-partial"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 7,
+      "points": 70,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "recce"
+    ]
+  },
+  {
+    "slug": "germany-hanomag",
+    "name": "SdKfz 251 Hanomag",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "mmg",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "mmg",
+        "mount": "pintle-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "165",
+      "pointsByQuality": {
+        "inexperienced": 67,
+        "regular": 84,
+        "veteran": 101
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 7,
+      "transportCapacity": 12,
+      "manualRules": [
+        "transport-manual",
+        "open-topped"
+      ],
+      "options": [
+        {
+          "weaponSlug": "mmg",
+          "cost": 10,
+          "mount": "pintle-rear"
+        },
+        {
+          "weaponSlug": "light-at-gun",
+          "cost": 40,
+          "replaceWeapon": "mmg",
+          "mount": "front",
+          "transportCapacity": 4
+        },
+        {
+          "weaponSlug": "light-autocannon",
+          "cost": 20,
+          "replaceWeapon": "mmg",
+          "mount": "pintle-360",
+          "transportCapacity": 4
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "towWeaponSlugs": [
+        "light-at-gun",
+        "medium-at-gun",
+        "heavy-at-gun",
+        "light-howitzer",
+        "medium-howitzer",
+        "light-autocannon"
+      ],
+      "movementClass": "tracked-or-half-tracked"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 7,
+      "points": 84,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 12
+    },
+    "traitSlugs": [
+      "transport-manual",
+      "open-topped"
+    ]
+  },
+  {
+    "slug": "germany-truck",
+    "name": "Truck",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "165",
+      "pointsByQuality": {
+        "inexperienced": 31,
+        "regular": 39,
+        "veteran": 47
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 6,
+      "transportCapacity": 12,
+      "manualRules": [
+        "transport-manual"
+      ],
+      "options": [
+        {
+          "weaponSlug": "mmg",
+          "cost": 15,
+          "mount": "pintle-360"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "towWeaponSlugs": [
+        "light-howitzer",
+        "light-at-gun",
+        "medium-at-gun",
+        "light-autocannon"
+      ],
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 6,
+      "points": 39,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 12
+    },
+    "traitSlugs": [
+      "transport-manual"
+    ]
+  },
+  {
+    "slug": "germany-kubelwagen",
+    "name": "Kubelwagen",
+    "factionSlug": "germany",
+    "count": 1,
+    "weaponSlug": "",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "165",
+      "pointsByQuality": {
+        "inexperienced": 17,
+        "regular": 21,
+        "veteran": 25
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 6,
+      "transportCapacity": 3,
+      "manualRules": [
+        "transport-manual"
+      ],
+      "options": [
+        {
+          "weaponSlug": "mmg",
+          "cost": 15,
+          "mount": "pintle-360",
+          "transportCapacity": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 6,
+      "points": 21,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 3
+    },
+    "traitSlugs": [
+      "transport-manual"
+    ]
+  },
+  {
+    "slug": "united-states-truck",
+    "name": "Truck",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "176",
+      "pointsByQuality": {
+        "inexperienced": 31,
+        "regular": 39,
+        "veteran": 47
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 6,
+      "transportCapacity": 12,
+      "manualRules": [
+        "transport-manual"
+      ],
+      "options": [
+        {
+          "weaponSlug": "mmg",
+          "cost": 15,
+          "mount": "pintle-360"
+        },
+        {
+          "weaponSlug": "hmg",
+          "cost": 10,
+          "replaceWeapon": "mmg",
+          "requiresOption": "mmg"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "towWeaponSlugs": [
+        "light-at-gun",
+        "medium-at-gun",
+        "heavy-at-gun",
+        "light-howitzer",
+        "medium-howitzer",
+        "light-autocannon",
+        "heavy-autocannon"
+      ],
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 6,
+      "points": 39,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 12
+    },
+    "traitSlugs": [
+      "transport-manual"
+    ]
+  },
+  {
+    "slug": "united-states-jeep",
+    "name": "Jeep",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "176",
+      "pointsByQuality": {
+        "inexperienced": 17,
+        "regular": 21,
+        "veteran": 25
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 6,
+      "transportCapacity": 3,
+      "manualRules": [
+        "transport-manual"
+      ],
+      "options": [
+        {
+          "weaponSlug": "mmg",
+          "cost": 15,
+          "mount": "pintle-360",
+          "transportCapacity": 0
+        },
+        {
+          "weaponSlug": "hmg",
+          "cost": 10,
+          "replaceWeapon": "mmg",
+          "requiresOption": "mmg"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "towWeaponSlugs": [
+        "light-at-gun"
+      ],
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 6,
+      "points": 21,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 3
+    },
+    "traitSlugs": [
+      "transport-manual"
+    ]
+  },
+  {
+    "slug": "united-states-m3-halftrack",
+    "name": "M3 half-track",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "hmg",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "hmg",
+        "mount": "pintle-360",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "176",
+      "pointsByQuality": {
+        "inexperienced": 79,
+        "regular": 99,
+        "veteran": 119
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 7,
+      "transportCapacity": 12,
+      "manualRules": [
+        "transport-manual",
+        "open-topped"
+      ],
+      "options": [
+        {
+          "weaponSlug": "mmg",
+          "cost": 15,
+          "max": 3,
+          "costEach": 15,
+          "mounts": [
+            "pintle-left",
+            "pintle-right",
+            "pintle-rear"
+          ]
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "towWeaponSlugs": [
+        "light-at-gun",
+        "medium-at-gun",
+        "heavy-at-gun",
+        "light-howitzer",
+        "medium-howitzer",
+        "light-autocannon",
+        "heavy-autocannon"
+      ],
+      "movementClass": "tracked-or-half-tracked"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 7,
+      "points": 99,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 12
+    },
+    "traitSlugs": [
+      "transport-manual",
+      "open-topped"
+    ]
+  },
+  {
+    "slug": "united-states-lvt",
+    "name": "LVT troop transport",
+    "factionSlug": "united-states",
+    "count": 1,
+    "weaponSlug": "mmg",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "mmg",
+        "mount": "pintle-front-left",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "pintle-front-right",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "177",
+      "pointsByQuality": {
+        "inexperienced": 78,
+        "regular": 98,
+        "veteran": 118
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 6,
+      "transportCapacity": 24,
+      "manualRules": [
+        "transport-manual",
+        "amphibious"
+      ],
+      "options": [
+        {
+          "weaponSlug": "hmg",
+          "cost": 20,
+          "quantity": 2,
+          "replaceAllWeapons": true
+        },
+        {
+          "weaponSlug": "mmg",
+          "cost": 30,
+          "quantity": 2,
+          "mounts": [
+            "rear-left",
+            "rear-right"
+          ]
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementClass": "tracked-or-half-tracked"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 6,
+      "points": 98,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 24
+    },
+    "traitSlugs": [
+      "transport-manual",
+      "amphibious"
+    ]
+  },
+  {
+    "slug": "great-britain-truck",
+    "name": "Truck",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "188",
+      "pointsByQuality": {
+        "inexperienced": 31,
+        "regular": 39,
+        "veteran": 47
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 6,
+      "transportCapacity": 12,
+      "manualRules": [
+        "transport-manual"
+      ],
+      "options": [
+        {
+          "weaponSlug": "mmg",
+          "cost": 15,
+          "mount": "pintle-360"
+        },
+        {
+          "weaponSlug": "hmg",
+          "cost": 10,
+          "replaceWeapon": "mmg",
+          "requiresOption": "mmg"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "towWeaponSlugs": [
+        "light-howitzer",
+        "light-at-gun",
+        "medium-at-gun"
+      ],
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 6,
+      "points": 39,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 12
+    },
+    "traitSlugs": [
+      "transport-manual"
+    ]
+  },
+  {
+    "slug": "great-britain-jeep",
+    "name": "Jeep",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "188",
+      "pointsByQuality": {
+        "inexperienced": 17,
+        "regular": 21,
+        "veteran": 25
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 6,
+      "transportCapacity": 3,
+      "manualRules": [
+        "transport-manual"
+      ],
+      "options": [
+        {
+          "weaponSlug": "mmg",
+          "cost": 15,
+          "mount": "pintle-360",
+          "transportCapacity": 0
+        },
+        {
+          "weaponSlug": "hmg",
+          "cost": 10,
+          "replaceWeapon": "mmg",
+          "requiresOption": "mmg"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "towWeaponSlugs": [
+        "light-at-gun"
+      ],
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 6,
+      "points": 21,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 3
+    },
+    "traitSlugs": [
+      "transport-manual"
+    ]
+  },
+  {
+    "slug": "great-britain-bren-carrier",
+    "name": "Bren carrier",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "lmg",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "lmg",
+        "mount": "front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "188",
+      "pointsByQuality": {
+        "inexperienced": 56,
+        "regular": 70,
+        "veteran": 84
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 7,
+      "transportCapacity": 5,
+      "manualRules": [
+        "transport-manual",
+        "open-topped",
+        "recce",
+        "turn-on-spot"
+      ],
+      "options": [
+        {
+          "weaponSlug": "mmg",
+          "cost": null,
+          "mount": "front",
+          "transportCapacity": 0,
+          "unresolvedCost": true,
+          "note": "The printed conversion does not state a points adjustment; agree its cost before roster use."
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "towWeaponSlugs": [
+        "light-at-gun",
+        "medium-at-gun"
+      ],
+      "movementClass": "tracked-or-half-tracked"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 7,
+      "points": 70,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 5
+    },
+    "traitSlugs": [
+      "transport-manual",
+      "open-topped",
+      "recce",
+      "turn-on-spot"
+    ]
+  },
+  {
+    "slug": "soviet-union-truck",
+    "name": "Truck",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "200",
+      "pointsByQuality": {
+        "inexperienced": 31,
+        "regular": 39,
+        "veteran": 47
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 6,
+      "transportCapacity": 12,
+      "manualRules": [
+        "transport-manual"
+      ],
+      "options": [
+        {
+          "weaponSlug": "mmg",
+          "cost": 15,
+          "mount": "pintle-360"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "towWeaponSlugs": [
+        "light-howitzer",
+        "light-at-gun",
+        "medium-at-gun"
+      ],
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 6,
+      "points": 39,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 12
+    },
+    "traitSlugs": [
+      "transport-manual"
+    ]
+  },
+  {
+    "slug": "soviet-union-gaz-jeep",
+    "name": "GAZ jeep",
+    "factionSlug": "soviet-union",
+    "count": 1,
+    "weaponSlug": "",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "200",
+      "pointsByQuality": {
+        "inexperienced": 17,
+        "regular": 21,
+        "veteran": 25
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 6,
+      "transportCapacity": 3,
+      "manualRules": [
+        "transport-manual"
+      ],
+      "options": [
+        {
+          "weaponSlug": "mmg",
+          "cost": 15,
+          "mount": "pintle-360",
+          "transportCapacity": 0
+        },
+        {
+          "weaponSlug": "hmg",
+          "cost": 10,
+          "replaceWeapon": "mmg",
+          "requiresOption": "mmg"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "towWeaponSlugs": [
+        "light-at-gun"
+      ],
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 6,
+      "points": 21,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 3
+    },
+    "traitSlugs": [
+      "transport-manual"
+    ]
+  },
+  {
+    "slug": "imperial-japan-truck",
+    "name": "General-purpose truck",
+    "factionSlug": "imperial-japan",
+    "count": 1,
+    "weaponSlug": "",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "209",
+      "pointsByQuality": {
+        "inexperienced": 33,
+        "regular": 41,
+        "veteran": 49
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 6,
+      "transportCapacity": 13,
+      "manualRules": [
+        "transport-manual"
+      ],
+      "options": [
+        {
+          "weaponSlug": "mmg",
+          "cost": 15,
+          "mount": "pintle-front"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "towWeaponSlugs": [
+        "light-howitzer",
+        "light-at-gun",
+        "medium-at-gun",
+        "light-autocannon"
+      ],
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 6,
+      "points": 41,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 13
+    },
+    "traitSlugs": [
+      "transport-manual"
+    ]
+  },
+  {
+    "slug": "imperial-japan-kurogane",
+    "name": "Type 95 Kurogane",
+    "factionSlug": "imperial-japan",
+    "count": 1,
+    "weaponSlug": "",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "209",
+      "pointsByQuality": {
+        "inexperienced": 18,
+        "regular": 23,
+        "veteran": 28
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 6,
+      "transportCapacity": 4,
+      "manualRules": [
+        "transport-manual"
+      ],
+      "options": [
+        {
+          "weaponSlug": "mmg",
+          "cost": 15,
+          "mount": "pintle-360",
+          "transportCapacity": 0
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "movementClass": "wheeled"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 6,
+      "points": 23,
+      "moveAdvance": 12,
+      "moveRun": 24,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 4
+    },
+    "traitSlugs": [
+      "transport-manual"
+    ]
+  },
+  {
+    "slug": "imperial-japan-militia",
+    "name": "Late-war militia",
+    "factionSlug": "imperial-japan",
+    "count": 5,
+    "weaponSlug": "",
+    "weaponLoadout": [],
+    "profile": {
+      "sourcePage": "204",
+      "pointsByQuality": {
+        "inexperienced": 25
+      },
+      "baseModels": 5,
+      "maxModels": 15,
+      "damageValue": 4,
+      "transportCapacity": 0,
+      "manualRules": [
+        "green",
+        "bamboo-spears"
+      ],
+      "options": [
+        {
+          "option": "additional-model",
+          "max": 10,
+          "costEach": 5
+        },
+        {
+          "option": "rifles",
+          "costPerModel": 2
+        },
+        {
+          "option": "anti-tank-grenades",
+          "costPerModel": 2
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "extraModelPoints": 5,
+      "basePoints": 25
+    },
+    "system": {
+      "kind": "infantry",
+      "quality": "inexperienced",
+      "startingSize": 5,
+      "maxSize": 15,
+      "damageValue": 4,
+      "points": 25,
+      "moveAdvance": 6,
+      "moveRun": 12,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "composition": [
+      {
+        "count": 1,
+        "role": "nco",
+        "weaponSlug": ""
+      },
+      {
+        "count": 4,
+        "role": "militia",
+        "weaponSlug": ""
+      }
+    ],
+    "traitSlugs": [
+      "green",
+      "bamboo-spears"
+    ]
+  },
+  {
+    "slug": "great-britain-stuart",
+    "name": "British M5 Stuart",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "light-at-gun",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "light-at-gun",
+        "mount": "turret",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "173",
+      "pointsByQuality": {
+        "inexperienced": 108,
+        "regular": 135,
+        "veteran": 162
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 8,
+      "transportCapacity": 0,
+      "manualRules": [],
+      "options": [
+        {
+          "weaponSlug": "hmg",
+          "cost": 25,
+          "mount": "pintle-360"
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "permissionPage": "185"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 8,
+      "points": 135,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": []
+  },
+  {
+    "slug": "great-britain-sherman-75",
+    "name": "British M4 Sherman 75 mm",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "medium-at-gun",
+    "weaponQuantity": 1,
+    "weaponLoadout": [
+      {
+        "weaponSlug": "medium-at-gun",
+        "mount": "turret",
+        "quantity": 1,
+        "heDiameter": 2
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "coaxial",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "hull-front",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "173",
+      "pointsByQuality": {
+        "inexperienced": 156,
+        "regular": 195,
+        "veteran": 234
+      },
+      "damageValue": 9,
+      "options": [
+        {
+          "weaponSlug": "hmg",
+          "mount": "pintle",
+          "cost": 25
+        },
+        {
+          "replaceWeapon": "medium-at-gun",
+          "weaponSlug": "medium-howitzer",
+          "cost": 0
+        }
+      ],
+      "manualRules": [
+        "fire-pins-1d3"
+      ],
+      "permissionPage": "185"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "points": 195,
+      "damageValue": 9,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Base regular vehicle configuration. Resolve weapon arcs, co-axial restrictions and listed special rules manually.",
+      "capacity": 0
+    },
+    "traitSlugs": [
+      "fire-pins-1d3"
+    ]
+  },
+  {
+    "slug": "great-britain-lvt-buffalo",
+    "name": "British LVT troop transport",
+    "factionSlug": "great-britain",
+    "count": 1,
+    "weaponSlug": "mmg",
+    "weaponLoadout": [
+      {
+        "weaponSlug": "mmg",
+        "mount": "pintle-front-left",
+        "quantity": 1
+      },
+      {
+        "weaponSlug": "mmg",
+        "mount": "pintle-front-right",
+        "quantity": 1
+      }
+    ],
+    "profile": {
+      "sourcePage": "177",
+      "pointsByQuality": {
+        "inexperienced": 78,
+        "regular": 98,
+        "veteran": 118
+      },
+      "baseModels": 1,
+      "maxModels": 1,
+      "damageValue": 6,
+      "transportCapacity": 24,
+      "manualRules": [
+        "transport-manual",
+        "amphibious"
+      ],
+      "options": [
+        {
+          "weaponSlug": "hmg",
+          "cost": 20,
+          "quantity": 2,
+          "replaceAllWeapons": true
+        },
+        {
+          "weaponSlug": "mmg",
+          "cost": 30,
+          "quantity": 2,
+          "mounts": [
+            "rear-left",
+            "rear-right"
+          ]
+        }
+      ],
+      "verification": "base-profile-verified; optional-conversions-partial",
+      "permissionPage": "188",
+      "movementClass": "tracked-or-half-tracked"
+    },
+    "system": {
+      "kind": "vehicle",
+      "quality": "regular",
+      "startingSize": 1,
+      "maxSize": 1,
+      "damageValue": 6,
+      "points": 98,
+      "moveAdvance": 9,
+      "moveRun": 18,
+      "notes": "Verified base profile. Configure optional conversions and apply special rules, firing arcs, transport/tow and national rules manually.",
+      "capacity": 24
+    },
+    "traitSlugs": [
+      "transport-manual",
+      "amphibious"
+    ]
   }
 ]

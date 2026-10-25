@@ -5,6 +5,9 @@ import {BoltActorSheet} from './applications/actor-sheet.mjs';
 import {BoltItemSheet} from './applications/item-sheet.mjs';
 import {BattleBoard} from './applications/board.mjs';
 import * as api from './services/api.mjs';
+import * as scenarios from './services/scenario-service.mjs';
+import * as observers from './services/observer-service.mjs';
+import {specialistAttack} from './services/special-combat.mjs';
 import {registerCanvasAssistants, formationReport} from './services/canvas.mjs';
 
 const SID = 'boltaction';
@@ -27,7 +30,7 @@ Hooks.once('init', () => {
   ]) game.settings.register(SID, key, {name, hint, scope: 'world', config: true, type: Boolean, default: initial});
   game.settings.register(SID, 'openBoard', {name: 'Open Battle Board on launch', scope: 'client', config: true, type: Boolean, default: true});
   game.keybindings.register(SID, 'board', {name: 'Open Battle Board', editable: [{key: 'KeyB', modifiers: ['Shift']}], onDown: () => {openBoard(); return true;}});
-  game.boltaction = {...api, openBoard, formationReport};
+  game.boltaction = {...api, ...scenarios, ...observers, specialistAttack, openBoard, formationReport};
   registerCanvasAssistants();
 });
 

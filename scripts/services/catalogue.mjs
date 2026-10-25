@@ -26,8 +26,9 @@ export function validateCatalogue(data) {
   }
   for (const row of data.factions) for (const slug of row.traitSlugs) if (!traits.has(slug)) throw new Error(`Unknown faction trait: ${slug}`);
   for (const row of data.units) {
-    if (!weapons.has(row.weaponSlug)) throw new Error(`Unknown unit weapon: ${row.weaponSlug}`);
+    if (row.weaponSlug && !weapons.has(row.weaponSlug)) throw new Error(`Unknown unit weapon: ${row.weaponSlug}`);
     if (row.factionSlug && !factions.has(row.factionSlug)) throw new Error(`Unknown unit faction: ${row.factionSlug}`);
+    for (const slug of row.traitSlugs ?? []) if (!traits.has(slug)) throw new Error(`Unknown unit trait: ${slug}`);
     for (const weapon of row.weaponLoadout ?? []) if (!weapons.has(weapon.weaponSlug)) throw new Error(`Unknown loadout weapon: ${weapon.weaponSlug}`);
     for (const option of row.profile?.options ?? []) if (option.weaponSlug && !weapons.has(option.weaponSlug)) throw new Error(`Unknown option weapon: ${option.weaponSlug}`);
   }
@@ -40,7 +41,7 @@ export async function resolveWeapon(slug) {
 }
 const identity = slug => ({boltaction:{catalogueSlug:slug}});
 const findSlug = (collection, slug) => collection.find(document => document.getFlag?.('boltaction','catalogueSlug') === slug || document.flags?.boltaction?.catalogueSlug === slug);
-const itemData = row => ({name:row.name,type:row.type,system:structuredClone(row.system),flags:identity(row.slug)});
+const itemData = row => ({name:row.name,type:row.type,system:structuredClone(row.system),flags:{boltaction:{catalogueSlug:row.slug,...(row.profile ? {profile:structuredClone(row.profile)} : {})}}});
 let importing;
 export function importStarter() {
   if (!globalThis.game?.user?.isGM) return Promise.reject(new Error('Only the GM can import the catalogue.'));
@@ -76,22 +77,23 @@ async function performImport() {
   if (unitPack.locked) throw new Error('Unlock the unit templates compendium to continue importing.');
   const unitTemplates = await unitPack.getDocuments();
   for (const row of data.units) if (!findSlug(unitTemplates,row.slug)) {
-    const rifles = row.weaponSlug === 'rifle';
+    const rifles = row.weaponSlug === 'rifle' && !row.weaponLoadout;
     const items = [];
     if (!rifles) for (const entry of row.weaponLoadout ?? [{weaponSlug:row.weaponSlug,quantity:row.weaponQuantity ?? 1}]) {
       const weapon = await resolveWeapon(entry.weaponSlug);
       weapon.system.quantity = entry.quantity ?? 1;
       if (entry.heDiameter) weapon.system.heDiameter = entry.heDiameter;
+      if (Number.isFinite(entry.penetration)) weapon.system.penetration = entry.penetration;
       if (entry.mount) { weapon.flags = {boltaction:{mount:entry.mount}}; weapon.system.notes += ` Mount: ${entry.mount}; arc and co-axial restrictions require manual resolution.`; }
       items.push(weapon);
     }
     const flags = identity(row.slug);
     if (row.profile) flags.boltaction.profile = structuredClone(row.profile);
     if (row.factionSlug) flags.boltaction.factionSlug = row.factionSlug;
-    if (row.system.kind !== 'vehicle') flags.boltaction.composition = rifles
+    if (row.system.kind !== 'vehicle') flags.boltaction.composition = row.composition ?? (rifles
       ? [{count:1,role:'nco',weaponSlug:'rifle'},{count:row.count-1,role:'rifleman',weaponSlug:'rifle'}]
-      : [{count:row.count,role:'crew',weaponSlug:''}];
-    await Actor.create({name:row.name,type:'unit',system:{...row.system,side:row.system.side ?? (['germany','imperial-japan'].includes(row.factionSlug) ? 'axis' : 'allies'),factionUuid:row.factionSlug ? packed.get(row.factionSlug).uuid : '',modelUuids:[],armyUuid:''},items,flags},{pack:unitPack.collection});
+      : [{count:row.count,role:'crew',weaponSlug:''}]);
+    await Actor.create({name:row.name,type:'unit',system:{...row.system,traitUuids:(row.traitSlugs ?? []).map(slug=>packed.get(slug).uuid),side:row.system.side ?? (['germany','imperial-japan'].includes(row.factionSlug) ? 'axis' : 'allies'),factionUuid:row.factionSlug ? packed.get(row.factionSlug).uuid : '',modelUuids:[],armyUuid:''},items,flags},{pack:unitPack.collection});
   }
   packs.units = unitPack;
   const ensureActor = async (slug,source) => findSlug(game.actors,slug) ?? Actor.create({...source,flags:{...source.flags,boltaction:{...source.flags?.boltaction,...identity(slug).boltaction}}});
