@@ -87,6 +87,7 @@ function assertEditable(model) {
 /** Apply one experience or equipment selection, preserving unrelated embedded equipment. */
 export async function applyModelChoice(model, {experience, choiceId, enabled = true} = {}) {
   assertEditable(model);
+  if(experience!==undefined && model.system.unitUuid)throw new Error('Set experience on the squad sheet.');
   if (busy.has(model)) throw new Error('This model is already being customized.');
   busy.add(model);
   let snapshot, quality;

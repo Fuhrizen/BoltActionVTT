@@ -1,13 +1,29 @@
+import {factionAppearance} from '../services/faction-appearance.mjs';
+
 const SID = 'boltaction';
 const SETTING = 'expandedActorGroups';
 const MODEL_TYPES = new Set(['model', 'modelStatic', 'modelVehicle']);
 const ENTRY_SELECTOR = '[data-entry-id], [data-document-id], [data-actor-id]';
 const transforms = new WeakMap();
 let registered = false;
+let folderSync = Promise.resolve();
 
 const values = collection => collection?.contents ?? Array.from(collection ?? []);
 const uuidOf = actor => actor.uuid ?? `Actor.${actor.id}`;
-const isGroup = actor => actor.type === 'army' || actor.type === 'unit';
+const isGroup = actor => actor?.type === 'army' || actor?.type === 'unit';
+
+function groupColor(actor, actors) {
+  const army = actor.type === 'army' ? actor : actors.find(parent => parent.type === 'army' && uuidOf(parent) === actor.system?.armyUuid);
+  const factionUuid = army?.system?.factionUuid || actor.system?.factionUuid;
+  let faction;
+  if (factionUuid) {
+    try {faction = globalThis.fromUuidSync?.(factionUuid);} catch { /* The pack may not have been loaded yet. */ }
+    faction ??= values(game.items).find(item => item.uuid === factionUuid);
+  }
+  const slug = faction?.system?.slug || faction?.getFlag?.(SID, 'catalogueSlug')
+    || army?.flags?.boltaction?.factionSlug || actor.flags?.boltaction?.factionSlug;
+  return factionAppearance(slug, actor.type).color;
+}
 
 /** Build the visible, reciprocal world-Actor hierarchy without changing documents. */
 export function buildActorTree(actors = []) {
@@ -55,9 +71,11 @@ function restore(root) {
   const previous = transforms.get(root);
   if (!previous) return;
   previous.controller.abort();
-  for (const {row, marker} of previous.entries) {
+  for (const {row, marker, tabIndex} of previous.entries) {
     // A partial core render can replace a row. Never resurrect its old document entry.
     if (root.contains(row) && marker.parentNode) marker.parentNode.insertBefore(row, marker);
+    if (tabIndex === null) row.removeAttribute('tabindex');
+    else row.setAttribute('tabindex', tabIndex);
     marker.remove();
   }
   for (const wrapper of root.querySelectorAll('.ba-actor-group')) {
@@ -69,6 +87,51 @@ function restore(root) {
     wrapper.remove();
   }
   transforms.delete(root);
+}
+
+/** Keep a group's actual Foundry folder consistent without creating Folder documents. */
+export async function syncActorGroupFolder(actor, changes = {}, options = {}) {
+  if (options.boltactionFolderSync || !Object.hasOwn(changes, 'folder') || actor?.pack || !isGroup(actor)) return [];
+  const isActiveGM = () => game.user?.isGM && (!game.users?.activeGM || game.users.activeGM.id === game.user.id);
+  if (!isActiveGM()) return [];
+  const folder = typeof changes.folder === 'string' ? changes.folder : changes.folder?.id ?? null;
+  const task = folderSync.catch(() => {}).then(async () => {
+    if (!isActiveGM()) return [];
+    const actors = new Map(values(game.actors).filter(member => !member.pack).map(member => [uuidOf(member), member]));
+    const descendants = [];
+    function collect(parent) {
+      if (!isGroup(parent)) return;
+      const army = parent.type === 'army';
+      for (const uuid of new Set(parent.system?.[army ? 'unitUuids' : 'modelUuids'] ?? [])) {
+        const child = actors.get(uuid);
+        if (!child || (army ? child.type !== 'unit' : !MODEL_TYPES.has(child.type))) continue;
+        if (child.system?.[army ? 'armyUuid' : 'unitUuid'] !== uuidOf(parent)) continue;
+        descendants.push(child);
+        collect(child);
+      }
+    }
+    collect(actor);
+    const updates = descendants.filter(child => (child.folder?.id ?? child.folder ?? null) !== folder)
+      .map(child => ({_id: child.id, folder}));
+    if (updates.length) await CONFIG.Actor.documentClass.updateDocuments(updates, {boltactionFolderSync: true});
+    return updates;
+  });
+  folderSync = task;
+  return task;
+}
+
+async function deleteFocusedActor(event, actors) {
+  if (event.key !== 'Delete' || !event.shiftKey || event.repeat) return;
+  if (event.target.closest('input, textarea, select, [contenteditable="true"]')) return;
+  const entry = event.target.closest(ENTRY_SELECTOR);
+  const id = entry?.dataset.entryId ?? entry?.dataset.documentId ?? entry?.dataset.actorId;
+  const groupUuid = event.target.closest('.ba-actor-group')?.dataset.groupUuid;
+  const actor = id ? actors.find(actor => actor.id === id) : actors.find(actor => uuidOf(actor) === groupUuid);
+  if (!actor?.isOwner || actor.pack) return;
+  event.preventDefault(); event.stopPropagation();
+  event.stopImmediatePropagation?.();
+  try {await actor.delete();}
+  catch (error) {globalThis.ui?.notifications?.warn(error.message ?? 'Could not delete this Actor.');}
 }
 
 async function dropActor(event, parent, wrapper) {
@@ -83,6 +146,7 @@ async function dropActor(event, parent, wrapper) {
     if (!actor || actor.documentName !== 'Actor') throw new Error('The dragged Actor could not be found.');
     const api = game.boltaction;
     if (parent.type === 'unit' && actor.pack) await api.importModel(parent, actor);
+    else if (parent.type === 'army' && actor.pack) await api.importSquad(parent, actor);
     else await api.linkGroupMember(parent, actor);
   } catch (error) {
     console.error('Bolt Action: group directory drop', error);
@@ -104,7 +168,9 @@ export function renderActorDirectoryHierarchy(app, html) {
   for (const row of rows.values()) {
     const marker = document.createComment('boltaction-actor-position');
     row.parentNode.insertBefore(marker, row);
-    state.entries.push({row, marker});
+    const tabIndex = row.getAttribute('tabindex') ?? null;
+    state.entries.push({row, marker, tabIndex});
+    if (tabIndex === null) row.setAttribute('tabindex', '0');
   }
   const expanded = expandedGroups();
   const groups = [];
@@ -120,37 +186,68 @@ export function renderActorDirectoryHierarchy(app, html) {
     wrapper.dataset.groupUuid = uuidOf(actor);
     wrapper.setAttribute('role', 'treeitem');
     const heading = document.createElement('div');
-    heading.className = 'ba-group-heading';
-    heading.setAttribute('style', 'display:flex;flex-flow:row nowrap;align-items:center;gap:0;box-sizing:border-box;min-width:0;width:100%;min-height:2rem;');
+    heading.className = 'folder-header flexrow ba-group-heading';
+    heading.setAttribute('style', `display:flex;flex-flow:row nowrap;align-items:center;gap:0;box-sizing:border-box;min-width:0;width:100%;min-height:2rem;--ba-group-color:${groupColor(actor, actors)};`);
+    heading.setAttribute('role', 'button');
+    heading.setAttribute('tabindex', '0');
+    heading.setAttribute('aria-label', `${actor.name}: expand or collapse`);
     const toggle = document.createElement('button');
     toggle.type = 'button';
     toggle.className = 'ba-group-toggle';
     toggle.setAttribute('style', 'flex:0 0 1.5rem;width:1.5rem;min-width:1.5rem;height:2rem;margin:0;padding:0;');
     toggle.setAttribute('aria-label', `Expand or collapse ${actor.name}`);
+    toggle.setAttribute('tabindex', '-1');
+    const folderIcon = document.createElement('i');
+    folderIcon.setAttribute('aria-hidden', 'true');
+    toggle.append(folderIcon);
     const nativeList = document.createElement('ol');
     nativeList.className = 'ba-group-document';
     nativeList.setAttribute('style', 'display:flex;flex:1 1 0;align-self:stretch;box-sizing:border-box;min-width:0;list-style:none;margin:0;padding:0;');
     const childList = document.createElement('ol');
     childList.className = 'directory-list ba-group-children';
     childList.setAttribute('role', 'group');
+    const sheetButton = document.createElement('button');
+    sheetButton.type = 'button';
+    sheetButton.className = 'ba-group-sheet';
+    sheetButton.setAttribute('style', 'flex:0 0 1.5rem;width:1.5rem;min-width:1.5rem;height:2rem;margin:0;padding:0;');
+    sheetButton.setAttribute('title', `Open ${actor.name} sheet`);
+    sheetButton.setAttribute('aria-label', `Open ${actor.name} sheet`);
+    const sheetIcon = document.createElement('i');
+    sheetIcon.className = 'fa-solid fa-file-lines fa-fw';
+    sheetIcon.setAttribute('aria-hidden', 'true');
+    sheetButton.append(sheetIcon);
     row.parentNode.insertBefore(wrapper, row);
     nativeList.append(row);
-    heading.append(toggle, nativeList);
+    heading.append(toggle, nativeList, sheetButton);
     wrapper.append(heading, childList);
     function applyExpansion() {
       const open = searching() || expanded.has(uuidOf(actor));
       childList.hidden = !open;
       childList.setAttribute('style', `display:${open ? 'block' : 'none'};list-style:none;margin:0;padding:0 0 0 1rem;box-sizing:border-box;width:100%;min-width:0;`);
-      toggle.textContent = open ? '▾' : '▸';
+      folderIcon.className = `fa-solid ${open ? 'fa-folder-open' : 'fa-folder'} fa-fw`;
       toggle.setAttribute('aria-expanded', String(open));
+      heading.setAttribute('aria-expanded', String(open));
       wrapper.setAttribute('aria-expanded', String(open));
     }
-    toggle.addEventListener('click', event => {
+    function toggleExpansion(event) {
       event.preventDefault(); event.stopPropagation();
+      event.stopImmediatePropagation?.();
       const uuid = uuidOf(actor);
       if (expanded.has(uuid)) expanded.delete(uuid); else expanded.add(uuid);
       applyExpansion();
       Promise.resolve(game.settings.set(SID, SETTING, [...expanded])).catch(error => console.error('Bolt Action: group expansion', error));
+    }
+    // Capture before native Actor name listeners: folder headings expand, and
+    // the separate sheet control is the explicit way to open the Actor sheet.
+    heading.addEventListener('click', event => {
+      if (!event.target.closest('.ba-group-sheet')) toggleExpansion(event);
+    }, {capture: true});
+    heading.addEventListener('keydown', event => {
+      if (event.target === heading && ['Enter', ' '].includes(event.key)) toggleExpansion(event);
+    });
+    sheetButton.addEventListener('click', event => {
+      event.preventDefault(); event.stopPropagation();
+      actor.sheet?.render({force: true});
     });
     wrapper.addEventListener('dragover', event => {
       if (actor.isOwner && event.target.closest('.ba-actor-group') === wrapper) event.preventDefault();
@@ -165,6 +262,7 @@ export function renderActorDirectoryHierarchy(app, html) {
   root.addEventListener('input', event => {
     if (event.target.matches('input[name="search"]')) groups.forEach(apply => apply());
   }, {signal: state.controller.signal});
+  root.addEventListener('keydown', event => void deleteFocusedActor(event, actors), {capture: true, signal: state.controller.signal});
   transforms.set(root, state);
 }
 
@@ -183,5 +281,12 @@ export function registerActorDirectoryHierarchy() {
       if (directory?.popout?.rendered) directory.popout.render({force:true});
     }, 40);
   }
-  for (const hook of ['createActor', 'updateActor', 'deleteActor', 'updateUser']) Hooks.on(hook, refresh);
+  for (const hook of ['createActor', 'deleteActor', 'updateUser']) Hooks.on(hook, refresh);
+  Hooks.on('updateActor', (actor, changes, options) => {
+    refresh();
+    void syncActorGroupFolder(actor, changes, options).catch(error => {
+      console.error('Bolt Action: group folder synchronization', error);
+      globalThis.ui?.notifications?.warn('Could not move all group members into the new folder.');
+    });
+  });
 }

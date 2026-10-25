@@ -91,8 +91,8 @@ export async function linkGroupMember(parent, child) {
     if (previousParent && previousParent !== parent.uuid) throw new Error('This actor already belongs to another group. Unlink it there first.');
     const snapshots = [], previousList = [...(parent.system[fields.list] ?? [])];
     try {
-      snapshots.push({actor: child, data: {[`system.${fields.parent}`]: previousParent}});
-      await child.update({[`system.${fields.parent}`]: parent.uuid});
+      snapshots.push({actor: child, data: {folder:child.folder?.id??child.folder??null,[`system.${fields.parent}`]: previousParent,...(parent.type==='unit'?{'system.quality':child.system.quality}:{})}});
+      await child.update({folder:parent.folder?.id??parent.folder??null,[`system.${fields.parent}`]: parent.uuid,...(parent.type==='unit'?{'system.quality':parent.system.quality||'regular'}:{})});
       snapshots.push({actor: parent, data: {[`system.${fields.list}`]: previousList}});
       await parent.update({[`system.${fields.list}`]: [...new Set([...previousList, child.uuid])]});
       await setOwnership([child, ...descendants(child)], parent.ownership ?? {}, snapshots);
@@ -201,4 +201,31 @@ export function groupSummary(parent) {
   const squads = parent.type === 'army' ? members : [];
   const models = parent.type === 'unit' ? members : squads.flatMap(childActors).filter(actor => actor.visible !== false);
   return {members, modelCount: models.length, squadCount: squads.length, models: models.length, squads: squads.length};
+}
+
+export async function setSquadExperience(parent, quality) {
+  squad(parent);
+  if (!['inexperienced','regular','veteran'].includes(quality)) throw new Error('Choose a valid squad experience.');
+  return serial('group-membership',async()=>{
+    const actors=[parent,...childActors(parent)],snapshots=[];
+    try {for(const actor of actors){owned(actor);snapshots.push({actor,data:{'system.quality':actor.system.quality}});await actor.update({'system.quality':quality});}}
+    catch(error){await restore(snapshots);throw error;}
+    return parent;
+  });
+}
+export async function importSquad(parent, sourceOrUuid) {
+  team(parent);canCreate();
+  const source=typeof sourceOrUuid==='string'?await fromUuid(sourceOrUuid):sourceOrUuid;
+  if(source?.type!=='unit'||!source.pack||source.visible===false)throw new Error('Choose a squad compendium template.');
+  const templates=source.getFlag?.('boltaction','memberTemplates') ?? source.flags?.boltaction?.memberTemplates;
+  if(!Array.isArray(templates)||!templates.length)throw new Error('This squad template contains no model definitions.');
+  let group;const created=[];
+  try{
+    group=await createGroup(parent,{name:source.name,squadKind:source.system.squadKind||'infantry'});
+    const sourceSystem=clone(source.toObject?.().system ?? source.system);delete sourceSystem.armyUuid;delete sourceSystem.modelUuids;delete sourceSystem.transportUuid;delete sourceSystem.passengerUuids;
+    await group.update({...Object.fromEntries(Object.entries(sourceSystem).map(([key,value])=>['system.'+key,value])),flags:{boltaction:{profile:clone(source.flags?.boltaction?.profile??{}),sourceName:source.flags?.boltaction?.sourceName??source.name,factionSlug:source.flags?.boltaction?.factionSlug??''}}});
+    await setSquadExperience(group,source.system.quality||'regular');
+    for(const template of templates){const data=clone(template);delete data._id;data.system={...data.system,unitUuid:''};data.ownership=clone(parent.ownership??{});const model=await actorClass().create(data);created.push(model);await linkGroupMember(group,model);}
+    return group;
+  }catch(error){for(const model of created.reverse())await model.delete();if(group){await unlinkGroupMember(parent,group.uuid);await group.delete();}throw error;}
 }

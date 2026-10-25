@@ -23,11 +23,11 @@ Hooks.once('init',()=>{
  game.boltaction={...groups,...modelChoices,profiles,prepareCatalogue,importStarter:prepareCatalogue};
 });
 Hooks.once('ready',async()=>{
- if(activeGM()&&game.settings.get(SID,'catalogueFolderVersion')!=='alpha9'){
-  try{await prepareCatalogue();await game.settings.set(SID,'catalogueFolderVersion','alpha9');}catch(error){console.error('Bolt Action compendium preparation',error);ui.notifications.error(`Could not prepare model compendiums: ${error.message}`);}
+ if(activeGM()&&game.settings.get(SID,'catalogueFolderVersion')!=='alpha10'){
+  try{await prepareCatalogue();for(const actor of game.actors)if(actor.type==='unit')await groups.setSquadExperience(actor,actor.system.quality||'regular');await game.settings.set(SID,'catalogueFolderVersion','alpha10');}catch(error){console.error('Bolt Action compendium preparation',error);ui.notifications.error(`Could not prepare model compendiums: ${error.message}`);}
  }
  if(activeGM())for(const actor of game.actors){if(!modelTypes.includes(actor.type)||actor.system.profileName)continue;const source=actor.getFlag?.(SID,'sourceName')||actor.name;const original=actor.getFlag?.(SID,'sourceName');const generic=Boolean(original)&&(actor.name===original||actor.name===original.replace(/squad|section/gi,'model'));await actor.update({'system.profileName':source,...(generic?{name:actor.type==='model'?'Unnamed Soldier':actor.type==='modelStatic'?'Unnamed Crew':'Unnamed Vehicle'}:{})});}
- if(!game.user.isGM&&game.user.character?.type==='army')game.user.character.sheet.render({force:true});
+
 });
 Hooks.on('preCreateActor',(actor,source)=>{
  if(modelTypes.includes(source.type)&&!source.system?.profileName)actor.updateSource({'system.profileName':source.name||'Infantry',name:source.type==='model'?'Unnamed Soldier':source.type==='modelStatic'?'Unnamed Crew':'Unnamed Vehicle'});
@@ -45,9 +45,6 @@ Hooks.on('renderActorDirectory',(app,html)=>{
 Hooks.on('updateActor',(actor,changes,options)=>{
  if(options.boltactionOwnership||options.boltactionOwnershipSync||!activeGM()||!['army','unit'].includes(actor.type))return;
  if(changes.ownership)void groups.syncGroupOwnership(actor).catch(e=>ui.notifications.error(e.message));
-});
-Hooks.on('updateUser',(user,changes)=>{
- if(user.id===game.user.id&&changes.character&&user.character?.type==='army')user.character.sheet.render({force:true});
 });
 let refreshTimer;
 function refresh(){clearTimeout(refreshTimer);refreshTimer=setTimeout(()=>{for(const actor of game.actors){for(const app of Object.values(actor.apps??{})){if(app instanceof BoltActorSheet&&app.rendered)app.render({force:true});}}},80);}

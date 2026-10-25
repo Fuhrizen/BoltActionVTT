@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {buildActorTree, renderActorDirectoryHierarchy, registerActorDirectoryHierarchy} from '../scripts/applications/actor-directory.mjs';
+import {buildActorTree, renderActorDirectoryHierarchy, registerActorDirectoryHierarchy, syncActorGroupFolder} from '../scripts/applications/actor-directory.mjs';
 
 const actor = (id, type, system = {}, extra = {}) => ({id, uuid: `Actor.${id}`, name: id, type,
   documentName: 'Actor', visible: true, isOwner: true, system, ...extra});
@@ -47,6 +47,7 @@ class Element {
   contains(node) {return node === this || this.childNodes.some(child => child.contains(node));}
   setAttribute(name, value) {this.attributes[name] = String(value);}
   getAttribute(name) {return this.attributes[name];}
+  removeAttribute(name) {delete this.attributes[name];}
   matches(selector) {
     return selector.split(',').some(part => {
       part = part.trim();
@@ -66,12 +67,24 @@ class Element {
   querySelector(selector) {return this.querySelectorAll(selector)[0] ?? null;}
   addEventListener(type, callback, options) {
     const entries = this.listeners.get(type) ?? [];
-    entries.push(callback); this.listeners.set(type, entries);
-    options?.signal?.addEventListener('abort', () => this.listeners.set(type, entries.filter(entry => entry !== callback)), {once: true});
+    const listener = {callback, capture: options === true || Boolean(options?.capture)};
+    entries.push(listener); this.listeners.set(type, entries);
+    options?.signal?.addEventListener('abort', () => this.listeners.set(type, (this.listeners.get(type) ?? []).filter(entry => entry !== listener)), {once: true});
   }
   async fire(type, fields = {}) {
-    const event = {target: this, preventDefault() {this.prevented = true;}, stopPropagation() {this.stopped = true;}, ...fields};
-    for (const callback of this.listeners.get(type) ?? []) await callback(event);
+    const event = {target: this, preventDefault() {this.prevented = true;}, stopPropagation() {this.stopped = true;},
+      stopImmediatePropagation() {this.stopped = true; this.immediate = true;}, ...fields};
+    const path = [];
+    for (let element = event.target; element; element = element.parentNode) path.push(element);
+    async function invoke(element, capture) {
+      event.currentTarget = element;
+      for (const listener of element.listeners.get(type) ?? []) {
+        if (listener.capture === capture) await listener.callback(event);
+        if (event.immediate) break;
+      }
+    }
+    for (const element of [...path].reverse()) {await invoke(element, true); if (event.stopped) return event;}
+    for (const element of path) {await invoke(element, false); if (event.stopped) break;}
     return event;
   }
 }
@@ -169,7 +182,98 @@ test('registration is idempotent and compendium directories are left unchanged',
   assert.equal(settings.length, 1);
   assert.equal(settings[0][1], 'expandedActorGroups');
   assert.equal(settings[0][2].scope, 'client');
-  assert.deepEqual(hooks.map(([name]) => name), ['renderActorDirectory', 'createActor', 'updateActor', 'deleteActor', 'updateUser']);
+  assert.deepEqual(hooks.map(([name]) => name).sort(), ['renderActorDirectory', 'createActor', 'updateActor', 'deleteActor', 'updateUser'].sort());
   renderActorDirectoryHierarchy({collection: {metadata: {type: 'Actor'}}}, f.root);
   assert.equal(f.root.querySelectorAll('.ba-actor-group').length, 0);
+});
+
+test('folder heading and keyboard toggle expansion while the right icon opens the sheet', async () => {
+  const f = fixture(), renders = [];
+  f.team.sheet = {render: options => renders.push(options)};
+  let nativeClicks = 0;
+  f.rows[0].addEventListener('click', () => nativeClicks++);
+  renderActorDirectoryHierarchy({collection: game.actors}, f.root);
+  const heading = f.rows[0].closest('.ba-group-heading');
+  assert.ok(heading.className.includes('folder-header'));
+  const event = await f.rows[0].fire('click');
+  assert.deepEqual(f.expanded, [f.team.uuid]);
+  assert.equal(nativeClicks, 0, 'capture prevents native name click from opening a sheet');
+  assert.equal(event.prevented, true);
+  assert.ok(heading.querySelector('.ba-group-toggle').querySelector('i').className.includes('fa-folder-open'));
+  await heading.querySelector('.ba-group-sheet').fire('click');
+  assert.deepEqual(renders, [{force: true}]);
+  assert.deepEqual(f.expanded, [f.team.uuid], 'sheet button does not change expansion');
+  await heading.fire('keydown', {key: 'Enter'});
+  assert.deepEqual(f.expanded, []);
+  assert.ok(heading.querySelector('.ba-group-toggle').querySelector('i').className.includes('fa-folder'));
+  await heading.fire('keydown', {key: ' '});
+  assert.deepEqual(f.expanded, [f.team.uuid]);
+});
+
+test('group rows retain native drag/context listeners and faction color follows the Army', async () => {
+  const f = fixture();
+  f.team.system.factionUuid = 'Item.britain';
+  game.items = {contents: [{uuid: 'Item.britain', system: {slug: 'great-britain'}}]};
+  const native = [];
+  f.rows[0].addEventListener('contextmenu', () => native.push('context'));
+  f.rows[0].addEventListener('dragstart', () => native.push('drag'));
+  renderActorDirectoryHierarchy({collection: game.actors}, f.root);
+  for (const row of f.rows.slice(0, 2)) assert.match(row.closest('.ba-group-heading').getAttribute('style'), /--ba-group-color:#8b7958/);
+  await f.rows[0].fire('contextmenu');
+  await f.rows[0].fire('dragstart');
+  assert.deepEqual(native, ['context', 'drag']);
+});
+
+test('compendium Squad dropped on Army delegates to guarded squad importer', async () => {
+  const f = fixture(), imported = [];
+  const source = actor('source', 'unit', {}, {pack: 'boltaction.squads'});
+  globalThis.fromUuid = async () => source;
+  game.boltaction = {importSquad: async (...args) => imported.push(args), linkGroupMember: () => assert.fail('pack must be imported')};
+  renderActorDirectoryHierarchy({collection: game.actors}, f.root);
+  await f.rows[0].fire('drop', {dataTransfer: {getData: () => JSON.stringify({type: 'Actor', uuid: source.uuid})}});
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(imported, [[f.team, source]]);
+});
+
+test('Shift+Delete deletes the focused owned Actor without unlinking or deleting children', async () => {
+  const f = fixture(), deleted = [];
+  for (const entry of f.actors) entry.delete = async () => deleted.push(entry.id);
+  renderActorDirectoryHierarchy({collection: game.actors}, f.root);
+  const heading = f.rows[0].closest('.ba-group-heading');
+  await heading.fire('keydown', {key: 'Delete', shiftKey: true});
+  assert.deepEqual(deleted, [f.team.id]);
+  await f.rows[2].fire('keydown', {key: 'Delete', shiftKey: true});
+  assert.deepEqual(deleted, [f.team.id, f.model.id]);
+  f.squad.isOwner = false;
+  await f.rows[1].fire('keydown', {key: 'Delete', shiftKey: true});
+  await f.rows[3].fire('keydown', {key: 'Delete', shiftKey: false});
+  await f.search.fire('keydown', {key: 'Delete', shiftKey: true});
+  assert.deepEqual(deleted, [f.team.id, f.model.id]);
+});
+
+test('only the active GM cascades a group folder move to reciprocal descendants', async () => {
+  const f = fixture(), batches = [];
+  game.user = {id: 'gm', isGM: true}; game.users = {activeGM: game.user};
+  f.model.visible = false;
+  f.team.system.unitUuids.push('Actor.lone'); // A stale wrong-type link never receives the move.
+  f.squad.folder = {id: 'old'}; f.model.folder = {id: 'old'};
+  globalThis.CONFIG = {Actor: {documentClass: {updateDocuments: async (updates, options) => {
+    batches.push({updates, options});
+    for (const update of updates) f.actors.find(entry => entry.id === update._id).folder = update.folder;
+  }}}};
+  const updates = await syncActorGroupFolder(f.team, {folder: 'new'});
+  assert.deepEqual(updates, [{_id: f.squad.id, folder: 'new'}, {_id: f.model.id, folder: 'new'}]);
+  assert.deepEqual(batches[0].options, {boltactionFolderSync: true});
+  assert.deepEqual(await syncActorGroupFolder(f.squad, {folder: 'new'}, batches[0].options), []);
+  assert.deepEqual(await syncActorGroupFolder(f.team, {name: 'Renamed'}), []);
+  game.users.activeGM = {id: 'another-gm'};
+  assert.deepEqual(await syncActorGroupFolder(f.team, {folder: 'other'}), []);
+  game.users.activeGM = game.user;
+  await syncActorGroupFolder(f.squad, {folder: null});
+  assert.deepEqual(batches[1].updates, [{_id: f.model.id, folder: null}]);
+  assert.equal(f.squad.folder, 'new', 'moving a Squad never moves its Army or sibling groups');
+  assert.equal(batches.length, 2);
+  game.users.activeGM = null;
+  await syncActorGroupFolder(f.team, {folder: 'fallback'});
+  assert.deepEqual(batches[2].updates, [{_id: f.squad.id, folder: 'fallback'}, {_id: f.model.id, folder: 'fallback'}]);
 });

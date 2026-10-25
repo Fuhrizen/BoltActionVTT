@@ -3,6 +3,7 @@ import assert from 'node:assert/strict';
 import * as groups from '../scripts/services/groups.mjs';
 let actors, users, nextId;
 function assignPath(target, key, value) {const path = key.split('.'), last = path.pop();let at = target;for (const part of path) at = at[part] ??= {};at[last] = structuredClone(value);}
+function mergeData(target, source) {for(const [key,value] of Object.entries(source)){if(value && typeof value==='object' && !Array.isArray(value)) mergeData(target[key] ??= {},value);else target[key]=structuredClone(value);}return target;}
 function actor(source = {}) {
   const id = source._id ?? `actor${nextId++}`;
   const doc = {id, uuid:`Actor.${id}`, documentName:'Actor', type:source.type ?? 'model', name:source.name ?? id,
@@ -13,7 +14,7 @@ function actor(source = {}) {
     async update(data, options={}) {
       if (this.failUpdate) {this.failUpdate=false;throw new Error('Injected actor failure');}
       for (const [key,value] of Object.entries(data)) {
-        if (key === 'ownership' && options.recursive !== false) this.ownership={...this.ownership,...structuredClone(value)};
+        if (['ownership','system','flags'].includes(key) && options.recursive !== false) mergeData(this[key],value);
         else assignPath(this,key,value);
       }
       return this;
@@ -127,4 +128,67 @@ test('legacy vehicle groups infer their category while mixed groups must be sort
   assert.deepEqual(legacy.system.modelUuids,before);
   await groups.unlinkGroupMember(legacy,soldier.uuid);await groups.setSquadKind(legacy,'vehicleStatic');
   await groups.linkGroupMember(legacy,actor({type:'modelVehicle'}));
+});
+
+test('squad experience updates reciprocal members and is inherited by later imports',async()=>{
+  setup();const army=await groups.createTeam({userIds:['p1']});const squad=await groups.createGroup(army);
+  const first=actor({system:{quality:'inexperienced'}}),second=actor({system:{quality:'regular'}});
+  await groups.linkGroupMember(squad,first);await groups.linkGroupMember(squad,second);
+  const unrelated=actor({system:{unitUuid:'Actor.other',quality:'inexperienced'}});
+  squad.system.modelUuids.push(unrelated.uuid);
+  await groups.setSquadExperience(squad,'veteran');
+  for(const member of [squad,first,second])assert.equal(member.system.quality,'veteran');
+  assert.equal(unrelated.system.quality,'inexperienced');
+  const source=actor({pack:'world.models',system:{quality:'regular'}}),imported=await groups.importModel(squad,source);
+  assert.equal(imported.system.quality,'veteran');assert.equal(source.system.quality,'regular');
+  await assert.rejects(groups.setSquadExperience(squad,'elite'),/valid squad experience/);
+  assert.equal(squad.system.quality,'veteran');
+  game.user={id:'p2',isGM:false,can:()=>true};
+  await assert.rejects(groups.setSquadExperience(squad,'regular'),/must own/);
+});
+test('failed squad experience cascades restore every previous individual quality',async()=>{
+  setup();const parent=actor({type:'unit',system:{quality:'regular'}});
+  const first=actor({system:{quality:'inexperienced',unitUuid:parent.uuid}}),second=actor({system:{quality:'veteran',unitUuid:parent.uuid}});
+  parent.system.modelUuids=[first.uuid,second.uuid];second.failUpdate=true;
+  await assert.rejects(groups.setSquadExperience(parent,'veteran'),/Injected actor failure/);
+  assert.equal(parent.system.quality,'regular');assert.equal(first.system.quality,'inexperienced');assert.equal(second.system.quality,'veteran');
+});
+test('failed model links restore experience as well as membership and ownership',async()=>{
+  setup();const parent=actor({type:'unit',system:{quality:'veteran'}}),child=actor({system:{quality:'inexperienced'}});
+  parent.failUpdate=true;
+  await assert.rejects(groups.linkGroupMember(parent,child),/Injected actor failure/);
+  assert.equal(child.system.quality,'inexperienced');assert.equal(child.system.unitUuid,'');assert.deepEqual(parent.system.modelUuids,[]);
+});
+test('squad compendium import creates independent model actors with reciprocal links and army ownership',async()=>{
+  setup();const army=await groups.createTeam({userIds:['p1']});
+  const memberTemplates=[{_id:'template-a',name:'Unnamed Soldier',type:'model',system:{quality:'regular',unitUuid:'Actor.old'},items:[{name:'Rifle',type:'weapon',system:{slug:'rifle'}}]},
+    {_id:'template-b',name:'Unnamed Soldier',type:'model',system:{quality:'regular'},items:[]}];
+  const source=actor({name:'British infantry',type:'unit',pack:'world.squads',system:{quality:'veteran',squadKind:'infantry'},flags:{boltaction:{memberTemplates}}});
+  const before=structuredClone(source.flags);
+  const squad=await groups.importSquad(army,source.uuid);
+  assert.notEqual(squad.id,source.id);assert.equal(squad.pack,undefined);assert.equal(squad.name,'British infantry');
+  assert.deepEqual(army.system.unitUuids,[squad.uuid]);assert.equal(squad.system.armyUuid,army.uuid);assert.equal(squad.system.quality,'veteran');
+  assert.equal(squad.system.modelUuids.length,2);assert.equal(new Set(squad.system.modelUuids).size,2);
+  for(const uuid of squad.system.modelUuids){const member=actors.find(a=>a.uuid===uuid);assert.ok(member);assert.equal(member.system.unitUuid,squad.uuid);assert.equal(member.system.quality,'veteran');assert.equal(member.ownership.p1,3);assert.ok(!['template-a','template-b'].includes(member.id));}
+  assert.equal(squad.ownership.p1,3);assert.deepEqual(source.flags,before);assert.equal(groups.groupSummary(army).modelCount,2);
+  const repeated=await groups.importSquad(army,source);
+  assert.equal(repeated.system.modelUuids.some(uuid=>squad.system.modelUuids.includes(uuid)),false);
+});
+test('failed squad import removes every created actor and restores the army membership',async()=>{
+  setup();const army=await groups.createTeam({userIds:['p1']});const existing=await groups.createGroup(army);
+  const source=actor({type:'unit',pack:'world.squads',system:{quality:'regular',squadKind:'infantry'},flags:{boltaction:{memberTemplates:[
+    {name:'Infantry',type:'model',system:{}},{name:'Incompatible tank',type:'modelVehicle',system:{}}
+  ]}}});
+  const before=actors.map(a=>a.id);
+  await assert.rejects(groups.importSquad(army,source),/Infantry squads contain/);
+  assert.deepEqual(actors.map(a=>a.id),before);assert.deepEqual(army.system.unitUuids,[existing.uuid]);
+  assert.equal(existing.system.armyUuid,army.uuid);
+});
+test('squad import rejects missing templates and world squads before creating actors',async()=>{
+  setup();const army=await groups.createTeam();
+  const world=actor({type:'unit'}),empty=actor({type:'unit',pack:'world.squads',flags:{boltaction:{memberTemplates:[]}}});
+  const before=actors.length;
+  await assert.rejects(groups.importSquad(army,world),/compendium template/);
+  await assert.rejects(groups.importSquad(army,empty),/no model definitions/);
+  assert.equal(actors.length,before);assert.deepEqual(army.system.unitUuids,[]);
 });
