@@ -2,10 +2,11 @@
   "id": "boltaction",
   "title": "Bolt Action 2e (Unofficial)",
   "description": "Unofficial, assisted top-down tabletop wargaming for Bolt Action Second Edition.",
-  "version": "0.1.0-alpha.2",
+  "version": "0.1.0-alpha.3",
   "compatibility": {
     "minimum": "14",
-    "maximum": "14"
+    "maximum": "14",
+    "verified": "14"
   },
   "authors": [
     {
@@ -14,7 +15,7 @@
   ],
   "url": "https://github.com/Fuhrizen/BoltActionVTT",
   "manifest": "https://github.com/Fuhrizen/BoltActionVTT/releases/latest/download/system.json",
-  "download": "https://github.com/Fuhrizen/BoltActionVTT/releases/download/v0.1.0-alpha.2/boltaction.zip",
+  "download": "https://github.com/Fuhrizen/BoltActionVTT/releases/download/v0.1.0-alpha.3/boltaction.zip",
   "esmodules": [
     "scripts/main.mjs"
   ],
