@@ -183,6 +183,7 @@ export async function importModel(parent, documentOrUuid) {
   validateSquadMembers(parent, source);
   const data = clone(source.toObject());
   delete data._id; delete data.folder; delete data._stats;
+  data.name=source.type==='model'?'Unnamed Soldier':source.type==='modelStatic'?'Unnamed Crew':'Unnamed Vehicle';
   data.system ??= {}; data.system.unitUuid = '';
   delete data.system.armyUuid; delete data.system.modelUuids; delete data.system.unitUuids;
   data.ownership = clone(parent.ownership ?? {});

@@ -45,7 +45,7 @@ test('GM preparation organizes profiles and refreshes defaults while preserving 
   for(const template of templates){
     const row=data.units.find(row=>row.slug===template.flags.boltaction.catalogueSlug);
     assert.equal(template.system.profileName,row.name);
-    assert.equal(template.name,{model:'Unnamed Soldier',modelStatic:'Unnamed Crew',modelVehicle:'Unnamed Vehicle'}[template.type]);
+    assert.equal(template.name,row.name);
     const art=factionAppearance(row.factionSlug,template.type);assert.equal(template.img,art.img);assert.equal(template.prototypeToken.texture.src,art.tokenSrc);
   }
   const infantry=templates.find(d=>d.flags.boltaction.catalogueSlug==='germany-wehrmacht');
@@ -85,13 +85,13 @@ test('GM preparation organizes profiles and refreshes defaults while preserving 
   const custom=await create({name:'My custom model',type:'model',system:{}},{pack:modelPack.collection});
   const foldersBefore=modelPack.folders.length;
   await prepareCatalogue();assert.equal(infantry.folder,originalFolder);assert.equal(custom.folder,undefined);
-  assert.equal(modelPack.folders.length,foldersBefore);assert.equal(infantry.name,'Unnamed Soldier');assert.deepEqual(infantry.system,originalSystem);assert.deepEqual(infantry.items,originalItems);
+  assert.equal(modelPack.folders.length,foldersBefore);assert.equal(infantry.name,infantry.system.profileName);assert.deepEqual(infantry.system,originalSystem);assert.deepEqual(infantry.items,originalItems);
   assert.equal(infantry.img,factionAppearance('germany').img);assert.equal(infantry.prototypeToken.texture.src,factionAppearance('germany').tokenSrc);
   assert.equal(officer.img,'custom/officer.webp');assert.equal(officer.prototypeToken.texture.src,'custom/officer-token.webp');
   assert.equal(worldActor.name,'Friedrich');assert.equal(worldActor.system.profileName,undefined);assert.equal(custom.name,'My custom model');
   const counts=packs.map(p=>p.documents.length);
   packs.forEach(pack=>pack.locked=true);
-  await prepareCatalogue();assert.equal(actors.length,1);assert.deepEqual(packs.map(p=>p.documents.length),counts);assert.equal(infantry.name,'Unnamed Soldier');
+  await prepareCatalogue();assert.equal(actors.length,1);assert.deepEqual(packs.map(p=>p.documents.length),counts);assert.equal(infantry.name,infantry.system.profileName);
   infantry.folder=null;await assert.rejects(prepareCatalogue(),/Unlock the Models/);assert.equal(infantry.folder,null);
   infantry.folder=originalFolder;
   const legacy={metadata:{name:'boltaction-units',packageType:'world'},documents:[{name:'My old squad'}]};packs.push(legacy);

@@ -77,7 +77,7 @@ export async function modelTemplate(row, packed = new Map()) {
   flags.boltaction.factionSlug = row.factionSlug ?? '';
   flags.boltaction.includedEquipment = true;
   flags.boltaction.modelTemplate = true;
-  const name = defaultModelName(type);
+  const name = row.name;
   const system = {
     profileName:row.name, unitUuid: '', quality, role: personal?.role ?? (type === 'model' ? 'rifleman' : type === 'modelStatic' ? 'weapon' : 'vehicle'),
     dead: false, basePoints, pointsAdjustment: 0, sourceFactionUuid,
@@ -186,7 +186,7 @@ async function performImport() {
     } else {
       const updates = {};
       if (folderId(document.folder) !== folder) updates.folder = folder;
-      if (document.name !== defaultModelName(document.type)) updates.name = defaultModelName(document.type);
+      if (document.name !== row.name) updates.name = row.name;
       if (document.system.profileName !== row.name) updates['system.profileName'] = row.name;
       const appearance = factionAppearance(row.factionSlug,document.type);
       if (isDefaultModelArt(document.img) && document.img !== appearance.img) updates.img = appearance.img;

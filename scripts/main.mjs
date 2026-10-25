@@ -23,8 +23,8 @@ Hooks.once('init',()=>{
  game.boltaction={...groups,...modelChoices,profiles,prepareCatalogue,importStarter:prepareCatalogue};
 });
 Hooks.once('ready',async()=>{
- if(activeGM()&&game.settings.get(SID,'catalogueFolderVersion')!=='alpha8'){
-  try{await prepareCatalogue();await game.settings.set(SID,'catalogueFolderVersion','alpha8');}catch(error){console.error('Bolt Action compendium preparation',error);ui.notifications.error(`Could not prepare model compendiums: ${error.message}`);}
+ if(activeGM()&&game.settings.get(SID,'catalogueFolderVersion')!=='alpha9'){
+  try{await prepareCatalogue();await game.settings.set(SID,'catalogueFolderVersion','alpha9');}catch(error){console.error('Bolt Action compendium preparation',error);ui.notifications.error(`Could not prepare model compendiums: ${error.message}`);}
  }
  if(activeGM())for(const actor of game.actors){if(!modelTypes.includes(actor.type)||actor.system.profileName)continue;const source=actor.getFlag?.(SID,'sourceName')||actor.name;const original=actor.getFlag?.(SID,'sourceName');const generic=Boolean(original)&&(actor.name===original||actor.name===original.replace(/squad|section/gi,'model'));await actor.update({'system.profileName':source,...(generic?{name:actor.type==='model'?'Unnamed Soldier':actor.type==='modelStatic'?'Unnamed Crew':'Unnamed Vehicle'}:{})});}
  if(!game.user.isGM&&game.user.character?.type==='army')game.user.character.sheet.render({force:true});
