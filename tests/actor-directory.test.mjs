@@ -218,10 +218,18 @@ test('group rows retain native drag/context listeners and faction color follows 
   f.rows[0].addEventListener('contextmenu', () => native.push('context'));
   f.rows[0].addEventListener('dragstart', () => native.push('drag'));
   renderActorDirectoryHierarchy({collection: game.actors}, f.root);
-  for (const row of f.rows.slice(0, 2)) assert.match(row.closest('.ba-group-heading').getAttribute('style'), /--ba-group-color:#8b7958/);
+  for (const row of f.rows.slice(0, 2)) {
+    const style = row.closest('.ba-group-heading').getAttribute('style');
+    assert.match(style, /--ba-group-color:#8b7958/);
+    assert.match(style, /background:color-mix\(in srgb,#8b7958 35%,transparent\)/);
+    assert.match(style, /border-inline-start:5px solid #8b7958/);
+  }
   await f.rows[0].fire('contextmenu');
   await f.rows[0].fire('dragstart');
   assert.deepEqual(native, ['context', 'drag']);
+  game.items.contents[0].system.slug = '__proto__';
+  renderActorDirectoryHierarchy({collection: game.actors}, f.root);
+  assert.match(f.rows[0].closest('.ba-group-heading').getAttribute('style'), /--ba-group-color:#758353/);
 });
 
 test('compendium Squad dropped on Army delegates to guarded squad importer', async () => {
@@ -235,20 +243,45 @@ test('compendium Squad dropped on Army delegates to guarded squad importer', asy
   assert.deepEqual(imported, [[f.team, source]]);
 });
 
-test('Shift+Delete deletes the focused owned Actor without unlinking or deleting children', async () => {
-  const f = fixture(), deleted = [];
+test('Shift+Delete delegates focused owned Actor deletion to the group service', async () => {
+  const f = fixture(), deleted = [], requests = [];
   for (const entry of f.actors) entry.delete = async () => deleted.push(entry.id);
+  game.boltaction = {deleteGroupActor: async actor => {requests.push(actor); await actor.delete();}};
   renderActorDirectoryHierarchy({collection: game.actors}, f.root);
   const heading = f.rows[0].closest('.ba-group-heading');
   await heading.fire('keydown', {key: 'Delete', shiftKey: true});
   assert.deepEqual(deleted, [f.team.id]);
   await f.rows[2].fire('keydown', {key: 'Delete', shiftKey: true});
   assert.deepEqual(deleted, [f.team.id, f.model.id]);
+  await f.rows[1].fire('keydown', {key: 'Delete', shiftKey: true});
+  assert.deepEqual(requests, [f.team, f.model, f.squad], 'the service decides how to cascade Squad deletion');
   f.squad.isOwner = false;
   await f.rows[1].fire('keydown', {key: 'Delete', shiftKey: true});
   await f.rows[3].fire('keydown', {key: 'Delete', shiftKey: false});
   await f.search.fire('keydown', {key: 'Delete', shiftKey: true});
-  assert.deepEqual(deleted, [f.team.id, f.model.id]);
+  assert.deepEqual(deleted, [f.team.id, f.model.id, f.squad.id]);
+  assert.deepEqual(requests, [f.team, f.model, f.squad]);
+});
+
+test('NCO roles receive a removable badge without changing model names or artwork', () => {
+  const f = fixture();
+  f.model.system.role = ' nCo ';
+  f.model.name = 'Private Allen'; f.model.img = 'worlds/test/allen.webp';
+  f.squad.system.role = 'nco';
+  const before = structuredClone(f.model);
+  renderActorDirectoryHierarchy({collection: game.actors}, f.root);
+  assert.equal(f.rows[2].querySelectorAll('.ba-nco-badge').length, 1);
+  assert.equal(f.rows[1].querySelectorAll('.ba-nco-badge').length, 0, 'group documents do not acquire model badges');
+  const badge = f.rows[2].querySelector('.ba-nco-badge');
+  assert.equal(badge.getAttribute('aria-label'), 'NCO, squad leader');
+  assert.match(badge.querySelector('i').className, /fa-star/);
+  renderActorDirectoryHierarchy({collection: game.actors}, f.root);
+  assert.equal(f.rows[2].querySelectorAll('.ba-nco-badge').length, 1, 're-rendering never duplicates badges');
+  assert.deepEqual(f.model, before);
+  f.model.system.role = 'rifleman';
+  renderActorDirectoryHierarchy({collection: game.actors}, f.root);
+  assert.equal(f.rows[2].querySelectorAll('.ba-nco-badge').length, 0);
+  assert.equal(f.model.name, before.name); assert.equal(f.model.img, before.img);
 });
 
 test('only the active GM cascades a group folder move to reciprocal descendants', async () => {

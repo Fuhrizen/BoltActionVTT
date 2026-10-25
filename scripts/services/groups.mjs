@@ -169,11 +169,11 @@ export async function createTeam({name = 'Army', userIds = [], factionUuid = ''}
   try {await setTeamFaction(actor, factionUuid); await assignTeam(actor, userIds); return actor;}
   catch (error) {await actor.delete(); throw error;}
 }
-export async function createGroup(parent, {name = 'Squad', squadKind = 'infantry'} = {}) {
+export async function createGroup(parent, {name = 'Unnamed Squad', squadKind = 'infantry'} = {}) {
   team(parent); canCreate(); validateSquadKind(squadKind);
   const actor = await actorClass().create({name: String(name).trim().slice(0, 150) || 'Squad', type: 'unit',
     img: 'systems/boltaction/assets/unit.svg', ownership: clone(parent.ownership ?? {}),
-    system: {armyUuid: '', modelUuids: [], squadKind}});
+    system: {armyUuid: '', modelUuids: [], squadKind,identity:name,profileName:''}});
   try {await linkGroupMember(parent, actor); return actor;} catch (error) {await actor.delete(); throw error;}
 }
 export async function importModel(parent, documentOrUuid) {
@@ -221,11 +221,27 @@ export async function importSquad(parent, sourceOrUuid) {
   if(!Array.isArray(templates)||!templates.length)throw new Error('This squad template contains no model definitions.');
   let group;const created=[];
   try{
-    group=await createGroup(parent,{name:source.name,squadKind:source.system.squadKind||'infantry'});
-    const sourceSystem=clone(source.toObject?.().system ?? source.system);delete sourceSystem.armyUuid;delete sourceSystem.modelUuids;delete sourceSystem.transportUuid;delete sourceSystem.passengerUuids;
+    group=await createGroup(parent,{name:'Unnamed Squad',squadKind:source.system.squadKind||'infantry'});
+    const sourceSystem=clone(source.toObject?.().system ?? source.system);sourceSystem.profileName=source.system.profileName||source.flags?.boltaction?.sourceName||source.name;delete sourceSystem.identity;delete sourceSystem.armyUuid;delete sourceSystem.modelUuids;delete sourceSystem.transportUuid;delete sourceSystem.passengerUuids;
     await group.update({...Object.fromEntries(Object.entries(sourceSystem).map(([key,value])=>['system.'+key,value])),flags:{boltaction:{profile:clone(source.flags?.boltaction?.profile??{}),sourceName:source.flags?.boltaction?.sourceName??source.name,factionSlug:source.flags?.boltaction?.factionSlug??''}}});
     await setSquadExperience(group,source.system.quality||'regular');
     for(const template of templates){const data=clone(template);delete data._id;data.system={...data.system,unitUuid:''};data.ownership=clone(parent.ownership??{});const model=await actorClass().create(data);created.push(model);await linkGroupMember(group,model);}
     return group;
   }catch(error){for(const model of created.reverse())await model.delete();if(group){await unlinkGroupMember(parent,group.uuid);await group.delete();}throw error;}
+}
+
+export function squadDisplayName(identity='Unnamed Squad',quality='regular') {
+  const level=['inexperienced','regular','veteran'].includes(quality)?quality:'regular';
+  return `${level[0].toUpperCase()+level.slice(1)} ${String(identity||'Unnamed Squad').trim()||'Unnamed Squad'}`;
+}
+export async function deleteGroupActor(actor) {
+  owned(actor);
+  const members=actor.type==='unit'?childActors(actor):[];
+  for(const member of members)owned(member);
+  const documents=[...members,actor];
+  if(actorClass().deleteDocuments)await actorClass().deleteDocuments(documents.map(a=>a.id));
+  else for(const document of documents)await document.delete();
+  const parent=worldActor(actor.system[actor.type==='unit'?'armyUuid':'unitUuid']);
+  if(parent?.isOwner){const field=actor.type==='unit'?'unitUuids':'modelUuids';await parent.update({['system.'+field]:(parent.system[field]??[]).filter(uuid=>uuid!==actor.uuid)});}
+  return documents;
 }

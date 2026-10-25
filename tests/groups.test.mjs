@@ -166,7 +166,7 @@ test('squad compendium import creates independent model actors with reciprocal l
   const source=actor({name:'British infantry',type:'unit',pack:'world.squads',system:{quality:'veteran',squadKind:'infantry'},flags:{boltaction:{memberTemplates}}});
   const before=structuredClone(source.flags);
   const squad=await groups.importSquad(army,source.uuid);
-  assert.notEqual(squad.id,source.id);assert.equal(squad.pack,undefined);assert.equal(squad.name,'British infantry');
+  assert.notEqual(squad.id,source.id);assert.equal(squad.pack,undefined);assert.equal(squad.system.identity,'Unnamed Squad');assert.equal(squad.system.profileName,'British infantry');
   assert.deepEqual(army.system.unitUuids,[squad.uuid]);assert.equal(squad.system.armyUuid,army.uuid);assert.equal(squad.system.quality,'veteran');
   assert.equal(squad.system.modelUuids.length,2);assert.equal(new Set(squad.system.modelUuids).size,2);
   for(const uuid of squad.system.modelUuids){const member=actors.find(a=>a.uuid===uuid);assert.ok(member);assert.equal(member.system.unitUuid,squad.uuid);assert.equal(member.system.quality,'veteran');assert.equal(member.ownership.p1,3);assert.ok(!['template-a','template-b'].includes(member.id));}
@@ -192,3 +192,15 @@ test('squad import rejects missing templates and world squads before creating ac
   await assert.rejects(groups.importSquad(army,empty),/no model definitions/);
   assert.equal(actors.length,before);assert.deepEqual(army.system.unitUuids,[]);
 });
+test('squad display names prefix experience while identity remains independent',()=>{
+ assert.equal(groups.squadDisplayName('Red Devils','veteran'),'Veteran Red Devils');assert.equal(groups.squadDisplayName('','regular'),'Regular Unnamed Squad');
+});
+test('deleting a squad deletes its reciprocal models and removes the army reference',async()=>{
+ setup();const army=await groups.createTeam(),squad=await groups.createGroup(army),one=actor(),two=actor(),stranger=actor();await groups.linkGroupMember(squad,one);await groups.linkGroupMember(squad,two);
+ const deleted=await groups.deleteGroupActor(squad);assert.deepEqual(deleted.map(x=>x.uuid),[one.uuid,two.uuid,squad.uuid]);assert.ok(actors.includes(army));assert.ok(actors.includes(stranger));assert.deepEqual(army.system.unitUuids,[]);
+});
+test('squad deletion validates every model ownership before deleting anything',async()=>{
+ setup();const army=await groups.createTeam(),squad=await groups.createGroup(army),model=actor();await groups.linkGroupMember(squad,model);game.user={id:'player',isGM:false};squad.ownership={player:3};model.ownership={other:3};await assert.rejects(groups.deleteGroupActor(squad),/own/);assert.ok(actors.includes(model));assert.ok(actors.includes(squad));
+});
+
+test('only system art is eligible for automatic faction replacement',async()=>{const {isDefaultModelArt}=await import('../scripts/services/faction-appearance.mjs');assert.equal(isDefaultModelArt('icons/svg/mystery-man.svg'),false);assert.equal(isDefaultModelArt('worlds/campaign/my-nco.webp'),false);assert.equal(isDefaultModelArt('systems/boltaction/assets/soldier.svg'),true);});

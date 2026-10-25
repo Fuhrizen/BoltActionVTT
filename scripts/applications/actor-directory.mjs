@@ -22,7 +22,8 @@ function groupColor(actor, actors) {
   }
   const slug = faction?.system?.slug || faction?.getFlag?.(SID, 'catalogueSlug')
     || army?.flags?.boltaction?.factionSlug || actor.flags?.boltaction?.factionSlug;
-  return factionAppearance(slug, actor.type).color;
+  const color = factionAppearance(slug, actor.type).color;
+  return /^#[0-9a-f]{6}$/i.test(color) ? color : '#758353';
 }
 
 /** Build the visible, reciprocal world-Actor hierarchy without changing documents. */
@@ -71,6 +72,7 @@ function restore(root) {
   const previous = transforms.get(root);
   if (!previous) return;
   previous.controller.abort();
+  for (const badge of previous.badges) badge.remove();
   for (const {row, marker, tabIndex} of previous.entries) {
     // A partial core render can replace a row. Never resurrect its old document entry.
     if (root.contains(row) && marker.parentNode) marker.parentNode.insertBefore(row, marker);
@@ -130,7 +132,7 @@ async function deleteFocusedActor(event, actors) {
   if (!actor?.isOwner || actor.pack) return;
   event.preventDefault(); event.stopPropagation();
   event.stopImmediatePropagation?.();
-  try {await actor.delete();}
+  try {await game.boltaction.deleteGroupActor(actor);}
   catch (error) {globalThis.ui?.notifications?.warn(error.message ?? 'Could not delete this Actor.');}
 }
 
@@ -163,7 +165,7 @@ export function renderActorDirectoryHierarchy(app, html) {
   const actors = values(game.actors);
   const rows = entryRows(root, actors);
   const renderedActors = actors.filter(actor => rows.has(actor.id));
-  const state = {entries: [], controller: new AbortController()};
+  const state = {entries: [], badges: [], controller: new AbortController()};
   const document = root.ownerDocument;
   for (const row of rows.values()) {
     const marker = document.createComment('boltaction-actor-position');
@@ -171,6 +173,21 @@ export function renderActorDirectoryHierarchy(app, html) {
     const tabIndex = row.getAttribute('tabindex') ?? null;
     state.entries.push({row, marker, tabIndex});
     if (tabIndex === null) row.setAttribute('tabindex', '0');
+  }
+  for (const actor of renderedActors) {
+    if (!MODEL_TYPES.has(actor.type) || String(actor.system?.role ?? '').trim().toLowerCase() !== 'nco') continue;
+    const badge = document.createElement('span');
+    badge.className = 'ba-nco-badge';
+    badge.setAttribute('title', 'NCO — squad leader');
+    badge.setAttribute('role', 'img');
+    badge.setAttribute('aria-label', 'NCO, squad leader');
+    const icon = document.createElement('i');
+    icon.className = 'fa-solid fa-star fa-fw';
+    icon.setAttribute('aria-hidden', 'true');
+    badge.append(icon);
+    const row = rows.get(actor.id);
+    (row.querySelector('.document-name, .entry-name') ?? row).append(badge);
+    state.badges.push(badge);
   }
   const expanded = expandedGroups();
   const groups = [];
@@ -187,7 +204,8 @@ export function renderActorDirectoryHierarchy(app, html) {
     wrapper.setAttribute('role', 'treeitem');
     const heading = document.createElement('div');
     heading.className = 'folder-header flexrow ba-group-heading';
-    heading.setAttribute('style', `display:flex;flex-flow:row nowrap;align-items:center;gap:0;box-sizing:border-box;min-width:0;width:100%;min-height:2rem;--ba-group-color:${groupColor(actor, actors)};`);
+    const color = groupColor(actor, actors);
+    heading.setAttribute('style', `display:flex;flex-flow:row nowrap;align-items:center;gap:0;box-sizing:border-box;min-width:0;width:100%;min-height:2rem;--ba-group-color:${color};background:color-mix(in srgb,${color} 35%,transparent);border-inline-start:5px solid ${color};`);
     heading.setAttribute('role', 'button');
     heading.setAttribute('tabindex', '0');
     heading.setAttribute('aria-label', `${actor.name}: expand or collapse`);
@@ -199,6 +217,7 @@ export function renderActorDirectoryHierarchy(app, html) {
     toggle.setAttribute('tabindex', '-1');
     const folderIcon = document.createElement('i');
     folderIcon.setAttribute('aria-hidden', 'true');
+    folderIcon.setAttribute('style', 'color:color-mix(in srgb,var(--ba-group-color) 70%,currentColor);');
     toggle.append(folderIcon);
     const nativeList = document.createElement('ol');
     nativeList.className = 'ba-group-document';

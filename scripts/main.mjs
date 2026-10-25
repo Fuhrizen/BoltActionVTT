@@ -23,8 +23,8 @@ Hooks.once('init',()=>{
  game.boltaction={...groups,...modelChoices,profiles,prepareCatalogue,importStarter:prepareCatalogue};
 });
 Hooks.once('ready',async()=>{
- if(activeGM()&&game.settings.get(SID,'catalogueFolderVersion')!=='alpha10'){
-  try{await prepareCatalogue();for(const actor of game.actors)if(actor.type==='unit')await groups.setSquadExperience(actor,actor.system.quality||'regular');await game.settings.set(SID,'catalogueFolderVersion','alpha10');}catch(error){console.error('Bolt Action compendium preparation',error);ui.notifications.error(`Could not prepare model compendiums: ${error.message}`);}
+ if(activeGM()&&game.settings.get(SID,'catalogueFolderVersion')!=='alpha11'){
+  try{await prepareCatalogue();for(const actor of game.actors)if(actor.type==='unit'){if(!actor.system.profileName)await actor.update({'system.identity':actor.name.replace(/^(Inexperienced|Regular|Veteran)\s+/i,'')||'Unnamed Squad','system.profileName':actor.getFlag?.(SID,'sourceName')||''});await groups.setSquadExperience(actor,actor.system.quality||'regular');}await game.settings.set(SID,'catalogueFolderVersion','alpha11');}catch(error){console.error('Bolt Action compendium preparation',error);ui.notifications.error(`Could not prepare model compendiums: ${error.message}`);}
  }
  if(activeGM())for(const actor of game.actors){if(!modelTypes.includes(actor.type)||actor.system.profileName)continue;const source=actor.getFlag?.(SID,'sourceName')||actor.name;const original=actor.getFlag?.(SID,'sourceName');const generic=Boolean(original)&&(actor.name===original||actor.name===original.replace(/squad|section/gi,'model'));await actor.update({'system.profileName':source,...(generic?{name:actor.type==='model'?'Unnamed Soldier':actor.type==='modelStatic'?'Unnamed Crew':'Unnamed Vehicle'}:{})});}
 
@@ -51,3 +51,15 @@ function refresh(){clearTimeout(refreshTimer);refreshTimer=setTimeout(()=>{for(c
 for(const event of ['createActor','updateActor','deleteActor','createItem','updateItem','deleteItem'])Hooks.on(event,refresh);
 
 Hooks.on('preUpdateActor',(actor,changes)=>{if(modelTypes.includes(actor.type)&&typeof changes.name==='string')changes['prototypeToken.name']=changes.name.trim()||'Unnamed Soldier';});
+
+Hooks.on('preUpdateActor',(actor,changes)=>{
+ if(actor.type!=='unit'||actor.pack)return;
+ const identity=changes['system.identity']??changes.system?.identity??actor.system.identity??'Unnamed Squad';
+ const quality=changes['system.quality']??changes.system?.quality??actor.system.quality;
+ changes.name=groups.squadDisplayName(identity,quality);
+});
+Hooks.on('preCreateActor',(actor,source)=>{
+ if(source.type!=='unit'||actor.pack)return;
+ const identity=source.system?.identity || source.name || 'Unnamed Squad';
+ actor.updateSource({'system.identity':identity,name:groups.squadDisplayName(identity,source.system?.quality)});
+});

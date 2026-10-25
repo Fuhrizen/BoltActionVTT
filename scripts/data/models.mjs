@@ -14,7 +14,7 @@ export class ArmyData extends foundry.abstract.TypeDataModel {
 export class UnitData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     return {
-      squadKind: text("", {choices: ["", "infantry", "vehicleStatic"]}),
+      identity: text("Unnamed Squad"), profileName: text(), squadKind: text("", {choices: ["", "infantry", "vehicleStatic"]}),
       armyUuid: text(), factionUuid: text(), modelUuids: list(), side: text("allies"),
       kind: text("infantry", {choices: ["infantry", "artillery", "vehicle"]}), battlefieldRole: text("infantry"),
       quality: quality(), pins: int(), order: text("", {choices: ["", "fire", "advance", "run", "ambush", "rally", "down"]}),

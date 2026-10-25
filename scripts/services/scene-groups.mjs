@@ -1,3 +1,4 @@
+import {isDefaultModelArt} from './faction-appearance.mjs';
 const MODEL_TYPES = new Set(['model', 'modelStatic', 'modelVehicle']);
 const values = collection => collection?.contents ?? Array.from(collection ?? []);
 const groupTypes = new Set(['army', 'unit']);
@@ -17,6 +18,12 @@ export function collectGroupModels(parent, actors = globalThis.game?.actors) {
   const models = parent.type === 'unit' ? children(parent, actors) : children(parent, actors).flatMap(squad => children(squad, actors));
   return [...new Map(models.map(actor => [uuid(actor), actor])).values()];
 }
+/** Managed default artwork always fills its token bounds; custom artwork is untouched. */
+export function centeredDefaultTokenTexture(texture = {}, preserveTransform = false) {
+  if (!isDefaultModelArt(texture.src) || preserveTransform) return {...texture};
+  return {...texture,anchorX:.5,anchorY:.5,scaleX:1,scaleY:1,fit:'contain'};
+}
+
 /** Prepare all token data first, then create a single embedded-document batch. */
 export async function deployGroup(parent, {canvas = globalThis.canvas, x, y} = {}) {
   const scene = canvas?.scene;
@@ -33,6 +40,7 @@ export async function deployGroup(parent, {canvas = globalThis.canvas, x, y} = {
   const data = documents.map((doc, index) => {
     const source = doc.toObject();delete source._id;
     source.actorId = models[index].id;source.actorLink = true;
+    source.texture = centeredDefaultTokenTexture(source.texture,source.flags?.boltaction?.preserveTokenTransform === true);
     return source;
   });
   const columns = Math.ceil(Math.sqrt(data.length));
@@ -61,7 +69,7 @@ export function fellowSquadTokens(token, tokens = [], actors = globalThis.game?.
 const overlays = new Map();
 let hovered = null, registered = false;
 export function clearSquadHighlight() {
-  for (const graphic of overlays.values()) {graphic.parent?.removeChild(graphic);graphic.destroy();}
+  for (const graphic of overlays.values()) {graphic.parent?.removeChild(graphic);if (!graphic.destroyed) graphic.destroy();}
   overlays.clear();
 }
 function redrawHighlight() {
@@ -76,9 +84,58 @@ function redrawHighlight() {
     token.addChild(graphic);overlays.set(token,graphic);
   }
 }
+const ncoBadges = new Map();
+function removeNcoBadge(token) {
+  const graphic = ncoBadges.get(token);
+  if (!graphic) return;
+  graphic.parent?.removeChild(graphic);if (!graphic.destroyed) graphic.destroy();ncoBadges.delete(token);
+}
+export function clearNcoBadges() {for (const token of [...ncoBadges.keys()]) removeNcoBadge(token);}
+/** A separate scene overlay marks the NCO without replacing any portrait, texture or core filters. */
+export function refreshNcoBadge(token) {
+  removeNcoBadge(token);
+  if (!token || token.destroyed || token.visible === false || !MODEL_TYPES.has(token.actor?.type)
+    || String(token.actor.system?.role ?? '').trim().toLowerCase() !== 'nco') return;
+  const width = Number(token.w ?? token.width), height = Number(token.h ?? token.height);
+  if (!(width > 0 && height > 0)) return;
+  const radius = Math.max(5,Math.min(width,height)*.12);
+  const cx = width-radius-3, cy = radius+3;
+  const points = Array.from({length:10},(_,i)=>{
+    const angle = -Math.PI/2+i*Math.PI/5, r = i%2 ? radius*.45 : radius;
+    return [cx+Math.cos(angle)*r,cy+Math.sin(angle)*r];
+  }).flat();
+  const graphic = new PIXI.Graphics();graphic.eventMode='none';graphic.interactive=false;
+  if (graphic.poly && graphic.fill) graphic.poly(points).fill({color:0xf5d76e,alpha:.95}).stroke({color:0x222222,width:1.5,alpha:.9});
+  else graphic.lineStyle(1.5,0x222222,.9).beginFill(0xf5d76e,.95).drawPolygon(points).endFill();
+  token.addChild(graphic);ncoBadges.set(token,graphic);
+}
+function refreshNcoBadges() {for (const token of globalThis.canvas?.tokens?.placeables ?? []) refreshNcoBadge(token);}
+/** Repair earlier managed token defaults in the active scene, without touching custom artwork. */
+export async function normalizeSceneTokenDefaults(scene = globalThis.canvas?.scene) {
+  if (!scene) return [];
+  const updates = values(scene.tokens).filter(token => MODEL_TYPES.has(token.actor?.type)
+    && token.texture?.src && isDefaultModelArt(token.texture.src)
+    && token.flags?.boltaction?.preserveTokenTransform !== true).flatMap(token => {
+      const texture = token.texture.toObject?.() ?? {...token.texture};
+      const fixed = centeredDefaultTokenTexture(texture);
+      return ['anchorX','anchorY','scaleX','scaleY','fit'].some(key=>texture[key]!==fixed[key]) ? [{_id:token.id,texture:fixed}] : [];
+    });
+  if (updates.length) await scene.updateEmbeddedDocuments('Token',updates);
+  return updates;
+}
+function normalizeActiveScene() {
+  if (!game.user?.isGM || game.users?.activeGM && game.users.activeGM.id !== game.user.id) return;
+  void normalizeSceneTokenDefaults().catch(error=>console.error('Bolt Action: default token layout',error));
+}
 /** Foundry V14 public dropCanvasData and hoverToken hooks; no core token/filter mutation. */
 export function registerSceneGroups() {
   if (registered) return;registered = true;
+  Hooks.on('preCreateToken', (token, source) => {
+    const actor = token.actor ?? game.actors?.get?.(source.actorId) ?? values(game.actors).find(actor=>actor.id===source.actorId);
+    if (!MODEL_TYPES.has(actor?.type)) return;
+    const texture = source.texture ?? token.texture ?? {};
+    if (isDefaultModelArt(texture.src)) token.updateSource({texture:centeredDefaultTokenTexture(texture,source.flags?.boltaction?.preserveTokenTransform === true)});
+  });
   Hooks.on('dropCanvasData', (canvas, data) => {
     if (data.type !== 'Actor' || typeof data.uuid !== 'string' || !data.uuid.startsWith('Actor.')) return;
     const parent = resolveWorld(data.uuid, game.actors);
@@ -90,7 +147,11 @@ export function registerSceneGroups() {
     if (active) hovered = token;else if (hovered === token) hovered = null;
     redrawHighlight();
   });
-  for (const hook of ['canvasTearDown','canvasReady']) Hooks.on(hook, () => {hovered=null;clearSquadHighlight();});
-  Hooks.on('deleteToken', () => {hovered=null;clearSquadHighlight();});
+  Hooks.on('canvasTearDown', () => {hovered=null;clearSquadHighlight();clearNcoBadges();});
+  Hooks.on('canvasReady', () => {hovered=null;clearSquadHighlight();clearNcoBadges();refreshNcoBadges();normalizeActiveScene();});
+  Hooks.on('ready',normalizeActiveScene);
+  Hooks.on('deleteToken', document => {hovered=null;clearSquadHighlight();if(document?.object)removeNcoBadge(document.object);});
+  for (const hook of ['drawToken','refreshToken']) Hooks.on(hook,refreshNcoBadge);
+  for (const hook of ['visibilityRefresh','updateActor']) Hooks.on(hook,refreshNcoBadges);
   for (const hook of ['refreshToken','visibilityRefresh','updateActor']) Hooks.on(hook,redrawHighlight);
 }
