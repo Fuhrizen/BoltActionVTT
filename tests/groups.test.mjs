@@ -204,3 +204,4 @@ test('squad deletion validates every model ownership before deleting anything',a
 });
 
 test('only system art is eligible for automatic faction replacement',async()=>{const {isDefaultModelArt}=await import('../scripts/services/faction-appearance.mjs');assert.equal(isDefaultModelArt('icons/svg/mystery-man.svg'),false);assert.equal(isDefaultModelArt('worlds/campaign/my-nco.webp'),false);assert.equal(isDefaultModelArt('systems/boltaction/assets/soldier.svg'),true);});
+test('pin counters require an owned squad and bounded whole numbers',async()=>{setup();const squad=actor({type:'unit'});await groups.setPins(squad,4);assert.equal(squad.system.pins,4);await assert.rejects(groups.setPins(squad,-1),/Pins/);await assert.rejects(groups.setPins(squad,2.5),/Pins/);game.user={id:'other',isGM:false};await assert.rejects(groups.setPins(squad,1),/own/);});

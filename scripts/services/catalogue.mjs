@@ -1,6 +1,7 @@
 import {factionAppearance,isDefaultModelArt} from './faction-appearance.mjs';
 
 export const CATALOGUE_FILES = ['weapons','traits','factions','units'];
+export const BUILDER_TEMPLATE_VERSION = 1;
 let cached;
 export async function loadCatalogue() {
   if (!cached) cached = Promise.all(CATALOGUE_FILES.map(async key => {
@@ -100,6 +101,7 @@ export async function modelTemplate(row, packed = new Map()) {
   flags.boltaction.factionSlug = row.factionSlug ?? '';
   flags.boltaction.includedEquipment = true;
   flags.boltaction.modelTemplate = true;
+  flags.boltaction.sourceRole = personal?.role ?? (type === 'model' ? 'rifleman' : type === 'modelStatic' ? 'weapon' : 'vehicle');
   flags.boltaction.sourceProfiles = sourceProfiles(row,catalogue.units);
   const name = modelProfileName(row,catalogue.units);
   const system = {
@@ -145,6 +147,8 @@ export async function squadTemplate(row, packed = new Map()) {
       member.system.notes = 'Individual crew member. The shared weapon is assigned to the operator.';
       if (memberTemplates.length) member.items = [];
     }
+    member.flags.boltaction.sourceRole = member.system.role;
+    member.flags.boltaction.builderTemplateVersion = BUILDER_TEMPLATE_VERSION;
     memberTemplates.push(member);
   }
   const appearance = factionAppearance(row.factionSlug,'unit');
@@ -152,7 +156,7 @@ export async function squadTemplate(row, packed = new Map()) {
     name:squadProfileName(row,catalogue.units),type:'unit',img:appearance.img,
     prototypeToken:{actorLink:true,texture:{src:appearance.tokenSrc}},
     system:{...structuredClone(row.system),notes:sourceNotes(row,catalogue.units),armyUuid:'',modelUuids:[],squadKind:base.type === 'model' ? 'infantry' : 'vehicleStatic',startingSize:memberTemplates.length,traitUuids:(row.traitSlugs ?? []).map(slug=>packed.get(slug)?.uuid).filter(Boolean)},
-    flags:{boltaction:{catalogueSlug:row.slug,sourceName:row.name,factionSlug:row.factionSlug ?? '',profile:{...structuredClone(row.profile ?? {}),sourceName:row.name},sourceProfiles:sourceProfiles(row,catalogue.units),composition:structuredClone(row.composition ?? []),squadTemplate:true,memberTemplates}}
+    flags:{boltaction:{catalogueSlug:row.slug,sourceName:row.name,factionSlug:row.factionSlug ?? '',profile:{...structuredClone(row.profile ?? {}),sourceName:row.name},sourceProfiles:sourceProfiles(row,catalogue.units),composition:structuredClone(row.composition ?? []),squadTemplate:true,builderTemplateVersion:BUILDER_TEMPLATE_VERSION,memberTemplates}}
   };
 }
 
@@ -237,7 +241,7 @@ async function performImport() {
     }
   }
   let modelPack = game.packs.find(pack => pack.metadata?.name === 'boltaction-models' && pack.metadata?.packageType === 'world');
-  if (!modelPack) modelPack = await foundry.documents.collections.CompendiumCollection.createCompendium({name:'boltaction-models',label:'Bolt Action: Models',type:'Actor',package:'world'});
+  if (!modelPack) modelPack = await foundry.documents.collections.CompendiumCollection.createCompendium({name:'boltaction-models',label:'Bolt Action: Model References',type:'Actor',package:'world'});
   const existing = await modelPack.getDocuments();
   const folders = Array.from(modelPack.folders ?? []);
   const preferred = new Set(preferredModelRows(data.units).map(row=>row.slug));
@@ -259,6 +263,7 @@ async function performImport() {
       const provenance = sourceProfiles(row,data.units);
       if (JSON.stringify(document.flags?.boltaction?.sourceProfiles) !== JSON.stringify(provenance)) updates['flags.boltaction.sourceProfiles'] = provenance;
       if (!document.system.notes && sourceNotes(row,data.units)) updates['system.notes'] = sourceNotes(row,data.units);
+      if (!document.flags?.boltaction?.sourceRole) updates['flags.boltaction.sourceRole'] = row.composition?.find(entry=>['officer','observer','medic'].includes(entry.role))?.role ?? document.system.role;
       const appearance = factionAppearance(row.factionSlug,document.type);
       if (isDefaultModelArt(document.img) && document.img !== appearance.img) updates.img = appearance.img;
       if (isDefaultModelArt(document.prototypeToken?.texture?.src) && document.prototypeToken?.texture?.src !== appearance.tokenSrc) updates['prototypeToken.texture.src'] = appearance.tokenSrc;
@@ -270,7 +275,7 @@ async function performImport() {
   }
   packs.models = modelPack;
   let squadPack = game.packs.find(pack=>pack.metadata?.name === 'boltaction-squads' && pack.metadata?.packageType === 'world');
-  if (!squadPack) squadPack = await foundry.documents.collections.CompendiumCollection.createCompendium({name:'boltaction-squads',label:'Bolt Action: Squads',type:'Actor',package:'world'});
+  if (!squadPack) squadPack = await foundry.documents.collections.CompendiumCollection.createCompendium({name:'boltaction-squads',label:'Bolt Action: Squad Templates',type:'Actor',package:'world'});
   const existingSquads = await squadPack.getDocuments(), squadFolders = Array.from(squadPack.folders ?? []);
   const squadRows = preferredModelRows(data.units.filter(row=>row.factionSlug && row.profile?.sourcePage));
   const preferredSquads = new Set(squadRows.map(row=>row.slug));
@@ -291,7 +296,7 @@ async function performImport() {
       const updates = {};
       if (folderId(document.folder) !== folder) updates.folder = folder;
       if (document.name !== source.name) updates.name = source.name;
-      for (const key of ['profile','memberTemplates','sourceProfiles']) if (JSON.stringify(document.flags?.boltaction?.[key]) !== JSON.stringify(source.flags.boltaction[key])) updates[`flags.boltaction.${key}`] = source.flags.boltaction[key];
+      for (const key of ['profile','memberTemplates','sourceProfiles','builderTemplateVersion']) if (JSON.stringify(document.flags?.boltaction?.[key]) !== JSON.stringify(source.flags.boltaction[key])) updates[`flags.boltaction.${key}`] = source.flags.boltaction[key];
       if (!document.system.notes || document.system.notes === row.system.notes) {
         if (document.system.notes !== source.system.notes) updates['system.notes'] = source.system.notes;
       }

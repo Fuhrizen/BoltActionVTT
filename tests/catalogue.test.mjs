@@ -139,12 +139,12 @@ test('faction appearance resolves existing SVG assets and excludes custom artwor
   for(const faction of data.factions){
     for(const type of ['army','unit','model','modelStatic','modelVehicle']){
       const art=factionAppearance(faction.slug,type);colors.add(art.color);assert.equal(art.slug,faction.slug);
-      for(const path of [art.img,art.tokenSrc]){assert.equal(isDefaultModelArt(path),true);assert.match(path,/\?v=12$/);const svg=await readFile(new URL(`../${path.split('?')[0].replace('systems/boltaction/','')}`,import.meta.url),'utf8');assert.match(svg,/^<svg/);const box=svg.match(/viewBox="0 0 (\d+) (\d+)"/);assert.match(svg,new RegExp(`width="${box[1]}" height="${box[2]}"`));}
+      for(const path of [art.img,art.tokenSrc]){assert.equal(isDefaultModelArt(path),true);assert.match(path,/\?v=13$/);const svg=await readFile(new URL(`../${path.split('?')[0].replace('systems/boltaction/','')}`,import.meta.url),'utf8');assert.match(svg,/^<svg/);const box=svg.match(/viewBox="0 0 (\d+) (\d+)"/);assert.match(svg,new RegExp(`width="${box[1]}" height="${box[2]}"`));}
     }
   }
-  assert.equal(colors.size,5);assert.equal(factionAppearance('unknown').img,'systems/boltaction/assets/soldier.svg?v=12');
-  assert.equal(factionAppearance('germany','army').img,'systems/boltaction/assets/factions/germany/army.svg?v=12');
-  assert.equal(factionAppearance('germany','unit').tokenSrc,'systems/boltaction/assets/factions/germany/unit.svg?v=12');
+  assert.equal(colors.size,5);assert.equal(factionAppearance('unknown').img,'systems/boltaction/assets/soldier.svg?v=13');
+  assert.equal(factionAppearance('germany','army').img,'systems/boltaction/assets/factions/germany/army.svg?v=13');
+  assert.equal(factionAppearance('germany','unit').tokenSrc,'systems/boltaction/assets/factions/germany/unit.svg?v=13');
   assert.equal(isDefaultModelArt('custom/portrait.webp'),false);assert.equal(isDefaultModelArt('https://example.org/soldier.svg'),false);
   assert.equal(isDefaultModelArt('icons/svg/mystery-man.svg'),false);assert.equal(isDefaultModelArt('systems/boltaction/assets/unit.svg?v=old'),true);
 });

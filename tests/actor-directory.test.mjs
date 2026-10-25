@@ -244,9 +244,9 @@ test('group rows retain native drag/context listeners and faction color follows 
   renderActorDirectoryHierarchy({collection: game.actors}, f.root);
   for (const row of f.rows.slice(0, 2)) {
     const style = row.closest('.ba-group-heading').getAttribute('style');
-    assert.match(style, /--ba-group-color:#8b7958/);
-    assert.match(style, /background:color-mix\(in srgb,#8b7958 35%,transparent\)/);
-    assert.match(style, /border-inline-start:5px solid #8b7958/);
+    assert.match(style, /--ba-group-color:#c8494d/);
+    assert.match(style, /background:color-mix\(in srgb,#c8494d 35%,transparent\)/);
+    assert.match(style, /border-inline-start:5px solid #c8494d/);
   }
   await f.rows[0].fire('contextmenu');
   await f.rows[0].fire('dragstart');

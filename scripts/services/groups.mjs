@@ -1,3 +1,4 @@
+import {loadCatalogue,modelTemplate} from './catalogue.mjs';
 import {factionAppearance,isDefaultModelArt} from './faction-appearance.mjs';
 const MODELS = new Set(['model', 'modelStatic', 'modelVehicle']);
 const SQUAD_KINDS = new Set(['infantry', 'vehicleStatic']);
@@ -246,4 +247,23 @@ export async function deleteGroupActor(actor) {
   const parent=worldActor(actor.system[actor.type==='unit'?'armyUuid':'unitUuid']);
   if(parent?.isOwner){const field=actor.type==='unit'?'unitUuids':'modelUuids';await parent.update({['system.'+field]:(parent.system[field]??[]).filter(uuid=>uuid!==actor.uuid)});}
   return documents;
+}
+
+export async function setPins(parent,value){
+ squad(parent);if(!Number.isInteger(value)||value<0||value>100)throw new Error('Pins must be an integer from 0 to 100.');
+ await parent.update({'system.pins':value});return parent;
+}
+export async function addSquadMember(parent){
+ squad(parent);canCreate();
+ if(childActors(parent).length>=100)throw new Error('A squad may contain at most 100 model actors.');
+ const data=await loadCatalogue(),name=parent.getFlag?.('boltaction','sourceName')??parent.flags?.boltaction?.sourceName;
+ const row=data.units.find(row=>row.name===name);
+ let source=row?await modelTemplate(row):childActors(parent)[0]?.toObject();
+ if(!source)throw new Error('Import a squad template, or drop a model reference into this squad first.');
+ source=clone(source);delete source._id;delete source.folder;delete source._stats;
+ source.name=source.type==='model'?'Unnamed Soldier':source.type==='modelStatic'?'Unnamed Crew':'Unnamed Vehicle';
+ source.system={...source.system,unitUuid:'',dead:false,isNco:false,isLoader:false,isMedic:false,isObserver:false,role:source.type==='model'?'rifleman':source.type==='modelStatic'?'weapon':'vehicle',quality:parent.system.quality,vehicleStates:[]};
+ source.ownership=clone(parent.ownership??{});source.prototypeToken={...source.prototypeToken,actorLink:true,name:source.name};
+ for(const item of source.items??[])delete item._id;
+ const model=await actorClass().create(source);try{await linkGroupMember(parent,model);return model;}catch(error){await model.delete();throw error;}
 }

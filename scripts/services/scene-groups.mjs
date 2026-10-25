@@ -22,7 +22,7 @@ export function collectGroupModels(parent, actors = globalThis.game?.actors) {
 /** Managed default artwork always fills its token bounds; custom artwork is untouched. */
 export function centeredDefaultTokenTexture(texture = {}, preserveTransform = false) {
   if (!isDefaultModelArt(texture.src) || preserveTransform) return {...texture};
-  return {...texture,...(texture.src?{src:texture.src.split('?')[0]+'?v=12'}:{}),anchorX:.5,anchorY:.5,scaleX:1,scaleY:1,fit:'contain'};
+  return {...texture,...(texture.src?{src:texture.src.split('?')[0]+'?v=13'}:{}),anchorX:.5,anchorY:.5,scaleX:1,scaleY:1,fit:'contain'};
 }
 
 function hasManagedTokenArt(source) {
@@ -31,7 +31,7 @@ function hasManagedTokenArt(source) {
 }
 /** Managed SVGs already contain a base; a second dynamic ring must not rescale their subject. */
 export function centeredDefaultTokenData(source, type) {
-  const update = {lockRotation:type === 'model'};
+  const update = {lockRotation:false};
   if (!hasManagedTokenArt(source) || source.flags?.boltaction?.preserveTokenTransform === true) return update;
   update.texture = centeredDefaultTokenTexture(source.texture);
   update.ring = {...source.ring,enabled:false,subject:{...source.ring?.subject,scale:1}};
@@ -104,10 +104,11 @@ function removeNcoBadge(token) {
   if (!graphic) return;
   graphic.parent?.removeChild(graphic);if (!graphic.destroyed) graphic.destroy();ncoBadges.delete(token);
 }
-export function clearNcoBadges() {for (const token of [...ncoBadges.keys()]) removeNcoBadge(token);}
+export function clearNcoBadges() {for (const token of [...ncoBadges.keys()]) removeNcoBadge(token);for (const token of [...specialRoleBadges.keys()]) removeNodes(specialRoleBadges,token);}
 /** A separate scene overlay marks the NCO without replacing any portrait, texture or core filters. */
 export function refreshNcoBadge(token) {
   removeNcoBadge(token);
+  refreshSpecialRoleBadges(token);
   if (!token || token.destroyed || token.visible === false || !MODEL_TYPES.has(token.actor?.type)
     || !(token.actor.system?.isNco || String(token.actor.system?.role ?? '').trim().toLowerCase() === 'nco')) return;
   const group = squadUuid(token.actor,globalThis.game?.actors);
@@ -125,6 +126,57 @@ export function refreshNcoBadge(token) {
   else graphic.lineStyle(1.5,0x222222,.9).beginFill(0xf5d76e,.95).drawPolygon(points).endFill();
   token.addChild(graphic);ncoBadges.set(token,graphic);
 }
+const specialRoleBadges = new Map(), statusBadges = new Map();
+function removeNodes(map,token) {
+  for (const node of map.get(token) ?? []) {node.parent?.removeChild(node);if (!node.destroyed)node.destroy();}
+  map.delete(token);
+}
+function textLabel(token,text,{x,y,size=14,color=0xffffff}={}) {
+  const style={fontFamily:'Arial',fontSize:size,fontWeight:'bold',fill:color,stroke:0x111111,strokeThickness:3};
+  const node=Number.parseInt(PIXI.VERSION ?? '7',10)>=8?new PIXI.Text({text,style}):new PIXI.Text(text,style);
+  node.eventMode='none';node.interactive=false;node.x=x;node.y=y;token.addChild(node);return node;
+}
+function usableToken(token) {return token && !token.destroyed && token.visible!==false && MODEL_TYPES.has(token.actor?.type);}
+function hoveringSquad(token) {
+  if (!usableToken(hovered)) return false;
+  const group=squadUuid(token.actor,globalThis.game?.actors);
+  return hovered===token || group && group===squadUuid(hovered.actor,globalThis.game?.actors);
+}
+function refreshSpecialRoleBadges(token) {
+  removeNodes(specialRoleBadges,token);
+  if (!usableToken(token) || !hoveringSquad(token) || !PIXI.Text) return;
+  const system=token.actor.system,role=String(system.role ?? '').trim().toLowerCase();
+  const roles=[];
+  if (system.isMedic || role==='medic')roles.push({text:'+',color:0x9ee8a8});
+  if (system.isObserver || role==='observer')roles.push({text:'O',color:0xaadcf5});
+  if (system.isLoader || role==='loader')roles.push({text:'L',color:0xe5ddb7});
+  const size=Math.max(10,Math.min(token.w,token.h)*.18);
+  specialRoleBadges.set(token,roles.map((item,index)=>textLabel(token,item.text,{x:4+index*(size+5),y:3,size,color:item.color})));
+}
+/** Pins and damage state are presentation-only badges; no generic status data is altered. */
+export function tokenStateLabels(actor) {
+  const squad=actor?.type==='unit'?actor:actor?.unit;
+  const pins=Math.max(0,Math.trunc(Number(squad?.system?.pins ?? 0)));
+  const labels=[];if(pins)labels.push({text:`P:${pins}`,color:0xffcc78,kind:'pins'});
+  if(actor?.type!=='modelVehicle')return labels;
+  const system=actor.system ?? {},states=new Set(system.vehicleStates ?? []);
+  for(const key of ['immobilised','onFire','turretJammed','stunned','engineDamage','knockedOut'])if(system[key])states.add(key);
+  if(system.dead)states.add('knockedOut');
+  const names={immobilised:'IMM',onFire:'FIRE',turretJammed:'JAM',stunned:'STUN',engineDamage:'ENG',knockedOut:'KO'};
+  for(const [key,text]of Object.entries(names))if(states.has(key))labels.push({text,color:0xffb29e,kind:'vehicle'});
+  if(system.vehicleDamage && !Object.hasOwn(names,system.vehicleDamage))labels.push({text:'DMG',color:0xffb29e,kind:'vehicle'});
+  else if(system.vehicleDamage && !states.has(system.vehicleDamage))labels.push({text:names[system.vehicleDamage],color:0xffb29e,kind:'vehicle'});
+  return labels;
+}
+export function refreshTokenStateBadges(token) {
+  removeNodes(statusBadges,token);
+  if(!usableToken(token)||!PIXI.Text)return;
+  const labels=tokenStateLabels(token.actor);if(!labels.length)return;
+  const size=Math.max(10,Math.min(token.w,token.h)*.14);
+  statusBadges.set(token,labels.map((label,index)=>textLabel(token,label.text,{x:4,y:token.h-(labels.length-index)*(size+2)-3,size,color:label.color})));
+}
+export function clearTokenStateBadges(){for(const token of [...statusBadges.keys()])removeNodes(statusBadges,token);}
+function refreshAllStateBadges(){for(const token of globalThis.canvas?.tokens?.placeables??[])refreshTokenStateBadges(token);}
 function refreshNcoBadges() {for (const token of globalThis.canvas?.tokens?.placeables ?? []) refreshNcoBadge(token);}
 /** Repair earlier managed token defaults in the active scene, without touching custom artwork. */
 export async function normalizeSceneTokenDefaults(scene = globalThis.canvas?.scene) {
@@ -168,11 +220,23 @@ export function registerSceneGroups() {
   Hooks.on('hoverToken', (token, active) => {
     setSquadHover(token,active);
   });
-  Hooks.on('canvasTearDown', () => {hovered=null;clearSquadHighlight();clearNcoBadges();});
-  Hooks.on('canvasReady', () => {hovered=null;clearSquadHighlight();clearNcoBadges();refreshNcoBadges();normalizeActiveScene();});
+  Hooks.on('canvasTearDown', () => {hovered=null;clearSquadHighlight();clearNcoBadges();clearTokenStateBadges();});
+  Hooks.on('canvasReady', () => {hovered=null;clearSquadHighlight();clearNcoBadges();clearTokenStateBadges();refreshNcoBadges();refreshAllStateBadges();normalizeActiveScene();});
   Hooks.on('ready',normalizeActiveScene);
-  Hooks.on('deleteToken', document => {hovered=null;clearSquadHighlight();clearNcoBadges();});
-  for (const hook of ['drawToken','refreshToken']) Hooks.on(hook,refreshNcoBadge);
-  for (const hook of ['visibilityRefresh','updateActor']) Hooks.on(hook,refreshNcoBadges);
+  Hooks.on('renderTokenHUD',(hud,html)=>{
+    const token=hud.object,actor=token?.actor;if(!MODEL_TYPES.has(actor?.type))return;
+    const root=html?.querySelector?html:html?.[0]??hud.element;
+    if(!root?.querySelector)return;
+    for(const control of root.querySelectorAll('[data-action="effects"],[data-action="statusEffects"],[data-action="toggleStatusEffects"],.status-effects'))control.remove();
+    const column=root.querySelector('.col.right')??root;
+    for(const [key,label] of [['pins','Pins'],...(actor.type==='modelVehicle'?[['vehicle','Vehicle states']]:[])]){
+      if(root.querySelector('[data-ba-state="'+key+'"]'))continue;
+      const button=root.ownerDocument.createElement('button');button.type='button';button.dataset.baState=key;button.textContent=key==='pins'?'P: '+(actor.unit?.system.pins??0):'Vehicle';button.title=label+' — edit on squad';button.addEventListener('click',event=>{event.preventDefault();event.stopPropagation();(actor.unit??actor).sheet.render({force:true});});column.append(button);
+    }
+  });
+
+  Hooks.on('deleteToken', document => {hovered=null;clearSquadHighlight();clearNcoBadges();clearTokenStateBadges();});
+  for (const hook of ['drawToken','refreshToken']) {Hooks.on(hook,refreshNcoBadge);Hooks.on(hook,refreshTokenStateBadges);}
+  for (const hook of ['visibilityRefresh','updateActor']) {Hooks.on(hook,refreshNcoBadges);Hooks.on(hook,refreshAllStateBadges);}
   for (const hook of ['refreshToken','visibilityRefresh','updateActor']) Hooks.on(hook,redrawHighlight);
 }
