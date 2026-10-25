@@ -37,7 +37,7 @@ export class BoltActor extends foundry.documents.Actor {
   }
   get weapons() {
     const actors = this.type === "unit" ? [this, ...this.livingMembers] : [this];
-    return actors.filter(a => a.system.role !== 'loader' || !((this.getFlag?.('boltaction','upgrades') ?? []).some(u => u.loaderUuids?.includes(a.uuid) && u.modelUuids?.some(uuid => this.livingMembers.some(m=>m.uuid===uuid))))).flatMap(a => a.items.filter(i => i.type === "weapon"));
+    return actors.filter(a => !a.system.isLoader && a.system.role !== 'loader').flatMap(a => a.items.filter(i => i.type === 'weapon'));
   }
   get isDestroyed() {
     if (["model","modelStatic","modelVehicle"].includes(this.type)) return this.system.dead;

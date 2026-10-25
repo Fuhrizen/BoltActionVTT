@@ -96,6 +96,8 @@ export async function linkGroupMember(parent, child) {
       snapshots.push({actor: parent, data: {[`system.${fields.list}`]: previousList}});
       await parent.update({[`system.${fields.list}`]: [...new Set([...previousList, child.uuid])]});
       await setOwnership([child, ...descendants(child)], parent.ownership ?? {}, snapshots);
+      const army=parent.type==='army'?parent:worldActor(parent.system.armyUuid);
+      if(army?.system.factionUuid){const faction=await fromUuid(army.system.factionUuid);for(const member of [child,...descendants(child)]){const art=factionAppearance(faction?.system?.slug||faction?.getFlag?.('boltaction','catalogueSlug'),member.type),changes={};if(isDefaultModelArt(member.img))changes.img=art.img;if(isDefaultModelArt(member.prototypeToken?.texture?.src))changes['prototypeToken.texture.src']=art.tokenSrc;if(Object.keys(changes).length)await member.update(changes);}}
       return child;
     } catch (error) {await restore(snapshots); throw error;}
   });
@@ -129,7 +131,7 @@ export async function setTeamFaction(actor, factionUuid = '') {
   }
   await parent.update({'system.factionUuid': factionUuid});
   const faction=factionUuid?await fromUuid(factionUuid):null;
-  for(const model of descendants(parent).filter(a=>MODELS.has(a.type))) {
+  for(const model of [parent,...descendants(parent)]) {
     const art=factionAppearance(faction?.system?.slug || faction?.getFlag?.('boltaction','catalogueSlug'),model.type),changes={};
     if(isDefaultModelArt(model.img))changes.img=art.img;
     if(isDefaultModelArt(model.prototypeToken?.texture?.src))changes['prototypeToken.texture.src']=art.tokenSrc;

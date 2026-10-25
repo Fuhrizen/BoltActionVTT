@@ -13,12 +13,15 @@ async function factions() {
   return [...new Map(entries.map(i => [i.uuid, i])).values()];
 }
 export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
-  static DEFAULT_OPTIONS = {classes:['boltaction','ba-sheet','actor-sheet','group-sheet'],position:{width:760,height:700},form:{submitOnChange:true},actions:{openMember:this.openMember,removeMember:this.removeMember,createSquad:this.createSquad,chooseFaction:this.chooseFaction,prepareCatalogue:this.prepareCatalogue,openItem:this.openItem,removeItem:this.removeItem}};
+  static DEFAULT_OPTIONS = {classes:['boltaction','ba-sheet','actor-sheet','group-sheet'],position:{width:760,height:700},form:{submitOnChange:true},actions:{openMember:this.openMember,removeMember:this.removeMember,createSquad:this.createSquad,chooseFaction:this.chooseFaction,prepareCatalogue:this.prepareCatalogue,openItem:this.openItem,rollAttack:this.rollAttack}};
   static PARTS = {main:{template:'systems/boltaction/templates/actor-sheet.hbs'}};
   async _prepareContext(options) {
     const context = await super._prepareContext(options), actor = this.actor;
     const isTeam = actor.type === 'army', isSquad = actor.type === 'unit', isModel = modelTypes.includes(actor.type);
     const inherited = await globalThis.game?.boltaction?.profiles?.(actor);
+    const cost=await globalThis.game?.boltaction?.calculateCost?.(actor);
+    const ownTraits=new Set((actor.items??[]).filter(i=>i.type==='trait'));
+    const ruleProfiles=(inherited?.traits??[]).map(i=>({name:i.name,effect:i.system?.effect,notes:i.system?.notes,source:ownTraits.has(i)?'Owned':(actor.system.traitUuids??[]).includes(i.uuid)?'Profile':(inherited?.squad?.system.traitUuids??[]).includes(i.uuid)?'Inherited squad':'Inherited faction'}));
     const factionSlug=inherited?.faction?.system?.slug || inherited?.faction?.getFlag?.('boltaction','catalogueSlug') || actor.getFlag?.('boltaction','factionSlug');
     const factionColor=factionAppearance(factionSlug,actor.type).color;
     const summary = isTeam || isSquad ? await globalThis.game?.boltaction?.groupSummary?.(actor) : null;
@@ -30,9 +33,9 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
     for (const slot of primarySlots) if (!slot.choices.some(choice=>choice.selected)) slot.choices=[{id:'',label:'Choose a weapon',selected:true},...slot.choices];
     const squadKind = isSquad ? (game.boltaction.getSquadKind?.(actor) ?? actor.system.squadKind ?? 'infantry') : '';
     const incompatible = isSquad && (summary?.members ?? actor.members ?? []).some(m=>squadKind==='infantry'?m.type!=='model':!['modelStatic','modelVehicle'].includes(m.type));
-    return {...context,isNco:isNco(actor),squadIdentity:actor.system.identity || 'Unnamed Squad',factionColor,inheritedExperience:isModel&&Boolean(actor.unit),experienceLabel:actor.unit?.system?.quality || actor.system.quality,squadQualities:['inexperienced','regular','veteran'].map(value=>({value,label:value,selected:actor.system.quality===value})),profileName:actor.system.profileName || actor.getFlag?.('boltaction','sourceName') || actor.name,actor,system:actor.system,editable:actor.isOwner,isGM:globalThis.game?.user?.isGM ?? false,isTeam,isSquad,isModel,isStatic:actor.type==='modelStatic',isVehicle:actor.type==='modelVehicle',kindLabel:labels[actor.type] ?? actor.type,parent:parent?.visible===false?null:parent,members,
+    return {...context,cost,costUnknown:(cost?.unknown??[]).map(entry=>typeof entry==='string'?entry:entry.label??entry.message??entry.reason??entry.name??'Unresolved cost'),isInfantry:actor.type==='model',isLoader:Boolean(actor.system.isLoader || actor.system.role==='loader'),isNco:isNco(actor),squadIdentity:actor.system.identity || 'Unnamed Squad',factionColor,inheritedExperience:isModel&&Boolean(actor.unit),experienceLabel:actor.unit?.system?.quality || actor.system.quality,squadQualities:['inexperienced','regular','veteran'].map(value=>({value,label:value,selected:actor.system.quality===value})),profileName:actor.system.profileName || actor.getFlag?.('boltaction','sourceName') || actor.name,actor,system:actor.system,editable:actor.isOwner,isGM:globalThis.game?.user?.isGM ?? false,isTeam,isSquad,isModel,isStatic:actor.type==='modelStatic',isVehicle:actor.type==='modelVehicle',kindLabel:labels[actor.type] ?? actor.type,parent:parent?.visible===false?null:parent,members,
       modelCount:summary?.modelCount ?? (isSquad?members.length:0),squadCount:summary?.squadCount ?? (isTeam?members.length:0),
-      factionName:inherited?.faction?.name ?? 'Choose a faction',ruleProfiles:(inherited?.traits ?? []).map(i=>({name:i.name,effect:i.system.effect,notes:i.system.notes})),
+      factionName:inherited?.faction?.name ?? 'Choose a faction',ruleProfiles,
       qualities:choices?.experiences?.length?choices.experiences:['inexperienced','regular','veteran'].map(value=>({value,label:value,selected:actor.system.quality===value})),
       choices,primarySlots,optionalChoices:(choices?.equipment ?? []).filter(c=>c.kind!=='primary'),incompatible,
       squadKinds:[{value:'infantry',label:'Infantry squad',selected:squadKind==='infantry'},{value:'vehicleStatic',label:'Vehicle / static squad',selected:squadKind==='vehicleStatic'}],
@@ -50,7 +53,6 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
     }));
     change('[data-squad-kind]',input=>game.boltaction.setSquadKind(this.actor,input.value));
     change('[data-squad-experience]',input=>game.boltaction.setSquadExperience(this.actor,input.value));
-    change('[data-experience]',input=>game.boltaction.applyModelChoice(this.actor,{experience:input.value}));
     change('[data-primary-choice]',input=>game.boltaction.applyModelChoice(this.actor,{choiceId:input.value,enabled:true}));
     change('[data-model-choice]',input=>game.boltaction.applyModelChoice(this.actor,{choiceId:input.dataset.choiceId,enabled:input.checked}));
   }
@@ -71,5 +73,5 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
   static async chooseFaction(){return safely(async()=>{const entries=await factions();const values=await ask('Team faction',[{name:'uuid',label:'Faction',selected:this.actor.system.factionUuid,options:[{value:'',label:'No faction'},...entries.map(i=>({value:i.uuid,label:i.name}))]}],'This faction is inherited by every squad and model in the Army.');if(values)await game.boltaction.setTeamFaction(this.actor,values.uuid);});}
   static async prepareCatalogue(){return safely(()=>game.boltaction.prepareCatalogue());}
   static async openItem(_event,target){this.actor.items.get(target.dataset.id)?.sheet.render({force:true});}
-  static async removeItem(_event,target){return safely(async()=>{if(!this.actor.isOwner)throw new Error('You do not own this model.');await this.actor.deleteEmbeddedDocuments('Item',[target.dataset.id]);});}
+  static async rollAttack(){return safely(()=>game.boltaction.confirmShooting(this.actor));}
 }

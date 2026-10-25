@@ -45,8 +45,18 @@ const identity = slug => ({boltaction:{catalogueSlug:slug}});
 const findSlug = (collection, slug) => collection.find(document => document.getFlag?.('boltaction','catalogueSlug') === slug || document.flags?.boltaction?.catalogueSlug === slug);
 const itemData = row => ({name:row.name,type:row.type,system:structuredClone(row.system),flags:{boltaction:{catalogueSlug:row.slug,...(row.profile ? {profile:structuredClone(row.profile)} : {})}}});
 const defaultModelName = type => type === 'modelVehicle' ? 'Unnamed Vehicle' : type === 'modelStatic' ? 'Unnamed Crew' : 'Unnamed Soldier';
-export const modelProfileName = row => row.name.replace(/\b(inexperienced|regular|veteran)\b\s*/gi,'').replace(/\b(squad|section)\b/gi,'model').replace(/\s+/g,' ').trim().replace(/^./,letter=>letter.toUpperCase());
 const modelFamily = row => `${row.factionSlug ?? ''}:${row.slug.replace(/(?:^|-)(inexperienced|regular|veteran)(?=-|$)/g,'')}`;
+const relatedProfiles = (row, rows) => rows.filter(source=>modelFamily(source)===modelFamily(row));
+export function squadProfileName(row, rows = [row]) {
+  const genericFamily = relatedProfiles(row,rows).length > 1 && /\b(?:rifle|infantry)\s+(?:squad|section)\b/i.test(row.name);
+  return (genericFamily ? row.name.replace(/\b(inexperienced|regular|veteran)\b\s*/gi,'') : row.name).replace(/\s+/g,' ').trim().replace(/^./,letter=>letter.toUpperCase());
+}
+export const modelProfileName = (row,rows) => squadProfileName(row,rows).replace(/\b(squad|section)\b/gi,'model');
+const sourceProfiles = (row,rows) => relatedProfiles(row,rows).map(source=>({slug:source.slug,name:source.name,quality:source.system.quality,sourcePage:source.profile?.sourcePage ?? '',aliases:structuredClone(source.profile?.aliases ?? [])}));
+function sourceNotes(row,rows,extra = '') {
+  const aliases = relatedProfiles(row,rows).filter(source=>source.profile?.aliases?.length).map(source=>`Source-listed names for ${source.name}: ${source.profile.aliases.join(', ')}.`);
+  return [row.system.notes,extra,...aliases].filter(Boolean).join('\n\n');
+}
 export function preferredModelRows(rows) {
   const families = new Map(), rank = {regular:0,veteran:1,inexperienced:2};
   for (const row of rows) {
@@ -57,11 +67,13 @@ export function preferredModelRows(rows) {
 }
 /** Convert a source roster profile to one reusable individual model. */
 export async function modelTemplate(row, packed = new Map()) {
+  const catalogue = await loadCatalogue();
   const personal = row.composition?.find(entry => ['officer', 'observer', 'medic'].includes(entry.role));
   const individualComposition = row.composition?.some(entry => entry.role !== 'crew');
   const staticModel = row.system.kind === 'artillery' || row.system.kind !== 'vehicle' && !personal && !individualComposition && (Boolean(row.weaponLoadout?.length) || Boolean(row.weaponSlug && row.weaponSlug !== 'rifle'));
   const type = row.system.kind === 'vehicle' ? 'modelVehicle' : staticModel ? 'modelStatic' : 'model';
   const profile = structuredClone(row.profile ?? {});
+  profile.sourceName = row.name;
   const quality = row.system.quality ?? 'regular';
   const wholeCost = profile.pointsByQuality?.[quality] ?? profile.basePoints ?? row.system.points ?? 0;
   const basePoints = type === 'model' && !personal
@@ -88,12 +100,13 @@ export async function modelTemplate(row, packed = new Map()) {
   flags.boltaction.factionSlug = row.factionSlug ?? '';
   flags.boltaction.includedEquipment = true;
   flags.boltaction.modelTemplate = true;
-  const name = modelProfileName(row);
+  flags.boltaction.sourceProfiles = sourceProfiles(row,catalogue.units);
+  const name = modelProfileName(row,catalogue.units);
   const system = {
-    profileName:modelProfileName(row), unitUuid: '', quality, role: personal?.role ?? (type === 'model' ? 'rifleman' : type === 'modelStatic' ? 'weapon' : 'vehicle'),
+    profileName:name, unitUuid: '', quality, role: personal?.role ?? (type === 'model' ? 'rifleman' : type === 'modelStatic' ? 'weapon' : 'vehicle'),
     dead: false, basePoints, pointsAdjustment: 0, sourceFactionUuid,
     traitUuids: (row.traitSlugs ?? []).map(slug => packed.get(slug)?.uuid).filter(Boolean),
-    notes: type === 'modelStatic' ? `Includes the source profile's ${row.count ?? profile.baseModels ?? 1} crew and base equipment. Edit the crew as needed.` : '',
+    notes: sourceNotes(row,catalogue.units,type === 'modelStatic' ? `Includes the source profile's ${row.count ?? profile.baseModels ?? 1} crew and base equipment. Edit the crew as needed.` : ''),
     crew: type === 'modelStatic' ? row.count ?? profile.baseModels ?? 1 : 0,
     damageValue: row.system.damageValue ?? (quality === 'veteran' ? 5 : quality === 'inexperienced' ? 3 : 4),
     capacity: row.system.capacity ?? 0, moveAdvance: row.system.moveAdvance ?? 6, moveRun: row.system.moveRun ?? 12,
@@ -105,6 +118,7 @@ export async function modelTemplate(row, packed = new Map()) {
 
 /** Expand the recorded base composition; optional attendants, weapons and extra models remain optional. */
 export async function squadTemplate(row, packed = new Map()) {
+  const catalogue = await loadCatalogue();
   const base = await modelTemplate(row,packed);
   const count = row.profile?.baseModels ?? row.count ?? row.system.startingSize ?? 1;
   const composition = row.system.kind === 'vehicle' ? [{count:1,role:'vehicle'}]
@@ -133,11 +147,12 @@ export async function squadTemplate(row, packed = new Map()) {
     }
     memberTemplates.push(member);
   }
+  const appearance = factionAppearance(row.factionSlug,'unit');
   return {
-    name:row.name,type:'unit',img:'systems/boltaction/assets/unit.svg',
-    prototypeToken:{actorLink:true,texture:{src:'systems/boltaction/assets/unit.svg'}},
-    system:{...structuredClone(row.system),armyUuid:'',modelUuids:[],squadKind:base.type === 'model' ? 'infantry' : 'vehicleStatic',startingSize:memberTemplates.length,traitUuids:(row.traitSlugs ?? []).map(slug=>packed.get(slug)?.uuid).filter(Boolean)},
-    flags:{boltaction:{catalogueSlug:row.slug,sourceName:row.name,factionSlug:row.factionSlug ?? '',profile:structuredClone(row.profile ?? {}),composition:structuredClone(row.composition ?? []),squadTemplate:true,memberTemplates}}
+    name:squadProfileName(row,catalogue.units),type:'unit',img:appearance.img,
+    prototypeToken:{actorLink:true,texture:{src:appearance.tokenSrc}},
+    system:{...structuredClone(row.system),notes:sourceNotes(row,catalogue.units),armyUuid:'',modelUuids:[],squadKind:base.type === 'model' ? 'infantry' : 'vehicleStatic',startingSize:memberTemplates.length,traitUuids:(row.traitSlugs ?? []).map(slug=>packed.get(slug)?.uuid).filter(Boolean)},
+    flags:{boltaction:{catalogueSlug:row.slug,sourceName:row.name,factionSlug:row.factionSlug ?? '',profile:{...structuredClone(row.profile ?? {}),sourceName:row.name},sourceProfiles:sourceProfiles(row,catalogue.units),composition:structuredClone(row.composition ?? []),squadTemplate:true,memberTemplates}}
   };
 }
 
@@ -238,8 +253,12 @@ async function performImport() {
     } else {
       const updates = {};
       if (folderId(document.folder) !== folder) updates.folder = folder;
-      if (document.name !== modelProfileName(row)) updates.name = modelProfileName(row);
-      if (document.system.profileName !== modelProfileName(row)) updates['system.profileName'] = modelProfileName(row);
+      if (document.name !== modelProfileName(row,data.units)) updates.name = modelProfileName(row,data.units);
+      if (document.system.profileName !== modelProfileName(row,data.units)) updates['system.profileName'] = modelProfileName(row,data.units);
+      if (document.flags?.boltaction?.profile?.sourceName !== row.name) updates['flags.boltaction.profile.sourceName'] = row.name;
+      const provenance = sourceProfiles(row,data.units);
+      if (JSON.stringify(document.flags?.boltaction?.sourceProfiles) !== JSON.stringify(provenance)) updates['flags.boltaction.sourceProfiles'] = provenance;
+      if (!document.system.notes && sourceNotes(row,data.units)) updates['system.notes'] = sourceNotes(row,data.units);
       const appearance = factionAppearance(row.factionSlug,document.type);
       if (isDefaultModelArt(document.img) && document.img !== appearance.img) updates.img = appearance.img;
       if (isDefaultModelArt(document.prototypeToken?.texture?.src) && document.prototypeToken?.texture?.src !== appearance.tokenSrc) updates['prototypeToken.texture.src'] = appearance.tokenSrc;
@@ -253,15 +272,36 @@ async function performImport() {
   let squadPack = game.packs.find(pack=>pack.metadata?.name === 'boltaction-squads' && pack.metadata?.packageType === 'world');
   if (!squadPack) squadPack = await foundry.documents.collections.CompendiumCollection.createCompendium({name:'boltaction-squads',label:'Bolt Action: Squads',type:'Actor',package:'world'});
   const existingSquads = await squadPack.getDocuments(), squadFolders = Array.from(squadPack.folders ?? []);
-  for (const row of data.units.filter(row=>row.factionSlug && row.profile?.sourcePage)) {
+  const squadRows = preferredModelRows(data.units.filter(row=>row.factionSlug && row.profile?.sourcePage));
+  const preferredSquads = new Set(squadRows.map(row=>row.slug));
+  for (const document of existingSquads) {
+    const flags = document.flags?.boltaction;
+    if (flags?.squadTemplate && data.units.some(row=>row.slug===flags.catalogueSlug) && !preferredSquads.has(flags.catalogueSlug)) {
+      if (squadPack.locked) throw new Error('Unlock the Squads compendium to consolidate experience variants.');
+      await document.delete();
+    }
+  }
+  for (const row of squadRows) {
     const document = findSlug(existingSquads,row.slug);
     if (!document && squadPack.locked) throw new Error('Unlock the Squads compendium to add missing catalogue entries.');
     const source = await squadTemplate(row,packed);
     const folder = await modelFolder(squadPack,squadFolders,data,row,source.flags.boltaction.memberTemplates[0].type);
     if (!document) existingSquads.push(await Actor.create({...source,folder},{pack:squadPack.collection}));
-    else if (folderId(document.folder) !== folder) {
-      if (squadPack.locked) throw new Error('Unlock the Squads compendium to organize its catalogue entries.');
-      await document.update({folder});
+    else {
+      const updates = {};
+      if (folderId(document.folder) !== folder) updates.folder = folder;
+      if (document.name !== source.name) updates.name = source.name;
+      for (const key of ['profile','memberTemplates','sourceProfiles']) if (JSON.stringify(document.flags?.boltaction?.[key]) !== JSON.stringify(source.flags.boltaction[key])) updates[`flags.boltaction.${key}`] = source.flags.boltaction[key];
+      if (!document.system.notes || document.system.notes === row.system.notes) {
+        if (document.system.notes !== source.system.notes) updates['system.notes'] = source.system.notes;
+      }
+      const appearance = factionAppearance(row.factionSlug,'unit');
+      if (isDefaultModelArt(document.img) && document.img !== appearance.img) updates.img = appearance.img;
+      if (isDefaultModelArt(document.prototypeToken?.texture?.src) && document.prototypeToken?.texture?.src !== appearance.tokenSrc) updates['prototypeToken.texture.src'] = appearance.tokenSrc;
+      if (Object.keys(updates).length) {
+        if (squadPack.locked) throw new Error('Unlock the Squads compendium to organize its catalogue entries.');
+        await document.update(updates);
+      }
     }
   }
   packs.squads = squadPack;

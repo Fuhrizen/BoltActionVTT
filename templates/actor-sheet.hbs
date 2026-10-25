@@ -8,6 +8,8 @@
       {{#if parent}}<small>In {{parent.name}}</small>{{/if}}
     </div>
   </header>
+  {{#if cost}}<section class="ba-cost-card" style="display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:10px;border:1px solid color-mix(in srgb,var(--ba-faction-color) 45%,transparent);border-radius:6px;"><strong>{{cost.total}} points</strong><small>Base {{cost.base}} · Options {{cost.options}}</small>{{#if costUnknown}}<ul style="flex-basis:100%;margin:0;">{{#each costUnknown}}<li>{{this}}</li>{{/each}}</ul>{{/if}}</section>{{/if}}
+  {{#if isModel}}{{#if editable}}<button type="button" data-action="rollAttack"><i class="fa-solid fa-dice" aria-hidden="true"></i> Roll attack</button>{{/if}}{{/if}}
   {{#if isTeam}}
   <div class="ba-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">
     <div class="ba-detail"><label>Faction</label><strong>{{factionName}}</strong>{{#if editable}}<button type="button" data-action="chooseFaction">Choose faction</button>{{/if}}</div>
@@ -37,8 +39,8 @@
   {{/if}}
   {{#if isModel}}
   <div class="ba-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">
-    <label>Experience{{#if inheritedExperience}}<span>{{experienceLabel}} · inherited from squad</span>{{else}}<select data-experience {{#unless editable}}disabled{{/unless}}>{{#each qualities}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>{{/if}}</label>
-    <label>Role<input name="system.role" value="{{system.role}}" {{#unless editable}}disabled{{/unless}}></label>
+    {{#if isInfantry}}<label class="ba-checkbox" style="display:flex;flex-direction:row;align-items:center;gap:8px;min-height:32px;"><input type="checkbox" name="system.isNco" {{checked isNco}} {{#unless editable}}disabled{{/unless}}> NCO</label>
+    <label class="ba-checkbox" style="display:flex;flex-direction:row;align-items:center;gap:8px;min-height:32px;"><input type="checkbox" name="system.isLoader" {{checked isLoader}} {{#unless editable}}disabled{{/unless}}> Loader</label>{{/if}}
     <label class="ba-checkbox" style="display:flex;flex-direction:row;align-items:center;gap:8px;min-height:32px;"><input type="checkbox" name="system.dead" {{checked system.dead}} {{#unless editable}}disabled{{/unless}}> Casualty / destroyed</label>
   </div>
   {{#if primarySlots}}<section class="ba-card" style="display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid color-mix(in srgb,var(--ba-faction-color) 45%,transparent);border-radius:6px;background:color-mix(in srgb,var(--ba-faction-color) 6%,transparent);"><h2 style="font-size:1.1rem;line-height:1.3;margin:0;">Weapon choices</h2><div class="ba-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">{{#each primarySlots}}<label>{{label}}<select data-primary-choice {{#unless ../editable}}disabled{{/unless}}>{{#each choices}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>{{/each}}</div></section>{{/if}}
@@ -48,10 +50,10 @@
   {{#if isVehicle}}<section class="ba-card" style="display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid color-mix(in srgb,var(--ba-faction-color) 45%,transparent);border-radius:6px;background:color-mix(in srgb,var(--ba-faction-color) 6%,transparent);"><h2 style="font-size:1.1rem;line-height:1.3;margin:0;">Vehicle</h2><div class="ba-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;"><label>Damage value<input type="number" name="system.damageValue" value="{{system.damageValue}}" {{#unless editable}}disabled{{/unless}}></label><label>Transport capacity<input type="number" name="system.capacity" value="{{system.capacity}}" min="0" {{#unless editable}}disabled{{/unless}}></label><label>Advance distance<input type="number" name="system.moveAdvance" value="{{system.moveAdvance}}" min="0" {{#unless editable}}disabled{{/unless}}></label><label>Run distance<input type="number" name="system.moveRun" value="{{system.moveRun}}" min="0" {{#unless editable}}disabled{{/unless}}></label></div></section>{{/if}}
   <section class="ba-card" style="display:flex;flex-direction:column;gap:10px;padding:12px;border:1px solid color-mix(in srgb,var(--ba-faction-color) 45%,transparent);border-radius:6px;background:color-mix(in srgb,var(--ba-faction-color) 6%,transparent);">
     <div class="ba-section-heading" style="display:flex;align-items:center;justify-content:space-between;gap:12px;"><h2 style="font-size:1.1rem;line-height:1.3;margin:0;">Equipment</h2></div>
-    {{#each weapons}}<div class="ba-member-row" style="display:flex;align-items:center;gap:10px;min-width:0;"><button type="button" class="ba-member-name" style="flex:1;min-width:0;height:auto;white-space:normal;text-align:left;" data-action="openItem" data-id="{{id}}">{{name}}<small>{{range}}″ · {{shots}} shots · quantity {{quantity}}</small></button>{{#if ../editable}}<button type="button" class="ba-remove" style="flex:none;width:30px;" data-action="removeItem" data-id="{{id}}" aria-label="Remove {{name}}">×</button>{{/if}}</div>{{else}}<p>No weapons equipped.</p>{{/each}}
+    {{#each weapons}}<div class="ba-member-row" style="display:flex;align-items:center;gap:10px;min-width:0;"><button type="button" class="ba-member-name" style="flex:1;min-width:0;height:auto;white-space:normal;text-align:left;" data-action="openItem" data-id="{{id}}">{{name}}<small>{{range}}″ · {{shots}} shots · quantity {{quantity}}</small></button></div>{{else}}<p>No weapons equipped.</p>{{/each}}
 
   </section>
   {{/if}}
-  {{#if ruleProfiles}}<details><summary>Inherited faction and model traits</summary>{{#each ruleProfiles}}<article><h3>{{name}}</h3><p>{{effect}}</p><p>{{notes}}</p></article>{{/each}}</details>{{/if}}
+  {{#if ruleProfiles}}<section class="ba-traits-card" style="padding:12px;border:1px solid color-mix(in srgb,var(--ba-faction-color) 45%,transparent);border-radius:6px;"><h2 style="font-size:1.1rem;line-height:1.3;margin:0 0 8px;">Traits</h2><div class="ba-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;">{{#each ruleProfiles}}<article><h3 style="font-size:1rem;margin:0;">{{name}}</h3><small>{{source}}</small><p>{{effect}}</p>{{#if notes}}<p>{{notes}}</p>{{/if}}</article>{{/each}}</div></section>{{/if}}
   <label>Notes<textarea name="system.notes" rows="3" {{#unless editable}}disabled{{/unless}}>{{system.notes}}</textarea></label>
 </div>

@@ -210,6 +210,30 @@ test('folder heading and keyboard toggle expansion while the right icon opens th
   assert.deepEqual(f.expanded, [f.team.uuid]);
 });
 
+test('long group names retain a separate clickable sheet control including its icon subtree', async () => {
+  const f = fixture(), renders = [];
+  const longName = 'A very long Army name '.repeat(20);
+  f.team.name = longName;
+  f.team.sheet = {render: options => renders.push(options)};
+  const name = document.createElement('h4');
+  name.className = 'document-name'; name.textContent = longName;
+  f.rows[0].append(name);
+  renderActorDirectoryHierarchy({collection: game.actors}, f.root);
+  const heading = f.rows[0].closest('.ba-group-heading');
+  const sheet = heading.querySelector('.ba-group-sheet');
+  assert.match(heading.querySelector('.ba-group-document').getAttribute('style'), /flex:1 1 0/);
+  assert.match(heading.querySelector('.ba-group-document').getAttribute('style'), /min-width:0/);
+  assert.match(sheet.getAttribute('style'), /flex:0 0 2rem;width:2rem;min-width:32px/);
+  assert.match(sheet.getAttribute('style'), /z-index:2;pointer-events:auto/);
+  assert.equal(heading.childNodes.at(-1), sheet);
+  await sheet.querySelector('i').fire('click');
+  assert.deepEqual(renders, [{force: true}]);
+  assert.deepEqual(f.expanded, [], 'nested sheet icons bypass the capture expansion handler');
+  await name.fire('click');
+  assert.deepEqual(f.expanded, [f.team.uuid]);
+  assert.equal(f.team.name, longName);
+});
+
 test('group rows retain native drag/context listeners and faction color follows the Army', async () => {
   const f = fixture();
   f.team.system.factionUuid = 'Item.britain';

@@ -13,11 +13,12 @@ export function factionAppearance(factionSlug, actorType = 'model') {
   const slug = palette ? factionSlug : '';
   const directory = palette ? `${root}/factions/${slug}` : root;
   const vehicle = actorType === 'modelVehicle';
-  return {slug,color:palette?.color ?? '#758353',img:`${directory}/${vehicle?'vehicle-token':'soldier'}.svg`,tokenSrc:`${directory}/${vehicle?'vehicle-token':'model-token'}.svg`};
+  const group = ['army','unit'].includes(actorType) ? actorType : null;
+  return {slug,color:palette?.color ?? '#758353',img:`${directory}/${group ?? (vehicle?'vehicle-token':'soldier')}.svg?v=12`,tokenSrc:`${directory}/${group ?? (vehicle?'vehicle-token':'model-token')}.svg?v=12`};
 }
 
 /** Only system-provided defaults  are eligible for automatic recolouring. */
 export function isDefaultModelArt(path) {
   if (!path) return true;
-  return /^systems\/boltaction\/assets\/(?:factions\/(?:germany|united-states|great-britain|soviet-union|imperial-japan)\/)?(?:soldier|model-token|vehicle-token)\.svg$/.test(path);
+  return typeof path === 'string' && /^systems\/boltaction\/assets\/(?:factions\/(?:germany|united-states|great-britain|soviet-union|imperial-japan)\/)?(?:soldier|model-token|vehicle-token|army|unit)\.svg$/.test(path.split(/[?#]/)[0]);
 }

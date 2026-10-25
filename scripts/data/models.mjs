@@ -32,7 +32,7 @@ export class UnitData extends foundry.abstract.TypeDataModel {
 }
 export class ModelData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
-    return {profileName: text(), unitUuid: text(), dead: bool(), role: text("rifleman"), quality: quality(), sourceFactionUuid: text(), traitUuids: list(), basePoints: num(), pointsAdjustment: num(0,{min:-100000}), notes: text()};
+    return {isNco: bool(), isLoader: bool(), profileName: text(), unitUuid: text(), dead: bool(), role: text("rifleman"), quality: quality(), sourceFactionUuid: text(), traitUuids: list(), basePoints: num(), pointsAdjustment: num(0,{min:-100000}), notes: text()};
   }
 }
 export class StaticModelData extends ModelData {

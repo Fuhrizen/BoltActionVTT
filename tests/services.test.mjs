@@ -341,6 +341,7 @@ test('complete main module boots with V14 namespaces and registers schemas, shee
   }
   foundry.data = {fields: Object.fromEntries(['StringField', 'NumberField', 'BooleanField', 'ArrayField', 'SchemaField', 'ObjectField'].map(name => [name, Field]))};
   foundry.abstract = {TypeDataModel: class {}};
+  foundry.canvas={placeables:{Token:class {}}};CONFIG.Token={};
   foundry.documents.Actor = class {};
   foundry.documents.Combat = class {};
   foundry.documents.collections = {

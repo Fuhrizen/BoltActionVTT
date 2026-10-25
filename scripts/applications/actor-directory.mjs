@@ -175,7 +175,7 @@ export function renderActorDirectoryHierarchy(app, html) {
     if (tabIndex === null) row.setAttribute('tabindex', '0');
   }
   for (const actor of renderedActors) {
-    if (!MODEL_TYPES.has(actor.type) || String(actor.system?.role ?? '').trim().toLowerCase() !== 'nco') continue;
+    if (!MODEL_TYPES.has(actor.type) || !(actor.system?.isNco || String(actor.system?.role ?? '').trim().toLowerCase() === 'nco')) continue;
     const badge = document.createElement('span');
     badge.className = 'ba-nco-badge';
     badge.setAttribute('title', 'NCO — squad leader');
@@ -205,7 +205,7 @@ export function renderActorDirectoryHierarchy(app, html) {
     const heading = document.createElement('div');
     heading.className = 'folder-header flexrow ba-group-heading';
     const color = groupColor(actor, actors);
-    heading.setAttribute('style', `display:flex;flex-flow:row nowrap;align-items:center;gap:0;box-sizing:border-box;min-width:0;width:100%;min-height:2rem;--ba-group-color:${color};background:color-mix(in srgb,${color} 35%,transparent);border-inline-start:5px solid ${color};`);
+    heading.setAttribute('style', `display:flex;flex-flow:row nowrap;align-items:center;gap:0;box-sizing:border-box;min-width:0;width:100%;min-height:2rem;isolation:isolate;--ba-group-color:${color};background:color-mix(in srgb,${color} 35%,transparent);border-inline-start:5px solid ${color};`);
     heading.setAttribute('role', 'button');
     heading.setAttribute('tabindex', '0');
     heading.setAttribute('aria-label', `${actor.name}: expand or collapse`);
@@ -221,19 +221,20 @@ export function renderActorDirectoryHierarchy(app, html) {
     toggle.append(folderIcon);
     const nativeList = document.createElement('ol');
     nativeList.className = 'ba-group-document';
-    nativeList.setAttribute('style', 'display:flex;flex:1 1 0;align-self:stretch;box-sizing:border-box;min-width:0;list-style:none;margin:0;padding:0;');
+    nativeList.setAttribute('style', 'display:flex;flex:1 1 0;align-self:stretch;box-sizing:border-box;min-width:0;list-style:none;margin:0;padding:0;position:relative;z-index:0;');
     const childList = document.createElement('ol');
     childList.className = 'directory-list ba-group-children';
     childList.setAttribute('role', 'group');
     const sheetButton = document.createElement('button');
     sheetButton.type = 'button';
     sheetButton.className = 'ba-group-sheet';
-    sheetButton.setAttribute('style', 'flex:0 0 1.5rem;width:1.5rem;min-width:1.5rem;height:2rem;margin:0;padding:0;');
+    sheetButton.setAttribute('style', 'flex:0 0 2rem;width:2rem;min-width:32px;height:2rem;margin:0;padding:0;position:relative;z-index:2;pointer-events:auto;');
     sheetButton.setAttribute('title', `Open ${actor.name} sheet`);
     sheetButton.setAttribute('aria-label', `Open ${actor.name} sheet`);
     const sheetIcon = document.createElement('i');
     sheetIcon.className = 'fa-solid fa-file-lines fa-fw';
     sheetIcon.setAttribute('aria-hidden', 'true');
+    sheetIcon.setAttribute('style', 'pointer-events:none;');
     sheetButton.append(sheetIcon);
     row.parentNode.insertBefore(wrapper, row);
     nativeList.append(row);
@@ -259,7 +260,7 @@ export function renderActorDirectoryHierarchy(app, html) {
     // Capture before native Actor name listeners: folder headings expand, and
     // the separate sheet control is the explicit way to open the Actor sheet.
     heading.addEventListener('click', event => {
-      if (!event.target.closest('.ba-group-sheet')) toggleExpansion(event);
+      if (!sheetButton.contains(event.target)) toggleExpansion(event);
     }, {capture: true});
     heading.addEventListener('keydown', event => {
       if (event.target === heading && ['Enter', ' '].includes(event.key)) toggleExpansion(event);

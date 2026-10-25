@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {readCatalogue} from '../tools/catalogue.mjs';
-import {validateCatalogue,prepareCatalogue,importStarter,modelTemplate,modelProfileName,preferredModelRows} from '../scripts/services/catalogue.mjs';
+import {validateCatalogue,prepareCatalogue,importStarter,modelTemplate,modelProfileName,preferredModelRows,squadTemplate,squadProfileName} from '../scripts/services/catalogue.mjs';
 import {factionAppearance,isDefaultModelArt} from '../scripts/services/faction-appearance.mjs';
 test('catalogue preserves the complete weapon chart and reference integrity',async () => {
   const data = await readCatalogue();
@@ -26,7 +26,7 @@ test('GM preparation organizes profiles and refreshes defaults while preserving 
   globalThis.game={user:{isGM:true},actors,packs};
   const create=async(source,options={})=>{
     const pack=options.pack && packs.find(p=>p.collection===options.pack);
-    const doc={...structuredClone(source),uuid:`${pack?'Compendium.'+pack.collection:'Actor'}.${++sequence}`,getFlag(ns,key){return this.flags?.[ns]?.[key]},async update(data){assert.equal(pack.locked,false);for(const[key,value]of Object.entries(data)){const path=key.split('.'),last=path.pop();let target=this;for(const part of path)target=target[part]??={};target[last]=structuredClone(value);}return this;}};
+    const doc={...structuredClone(source),uuid:`${pack?'Compendium.'+pack.collection:'Actor'}.${++sequence}`,getFlag(ns,key){return this.flags?.[ns]?.[key]},async delete(){assert.equal(pack.locked,false);pack.documents.splice(pack.documents.indexOf(this),1);},async update(data){assert.equal(pack.locked,false);for(const[key,value]of Object.entries(data)){const path=key.split('.'),last=path.pop();let target=this;for(const part of path)target=target[part]??={};target[last]=structuredClone(value);}return this;}};
     (pack?pack.documents:actors).push(doc);return doc;
   };
   const createFolder=async(source,options)=>{
@@ -44,8 +44,8 @@ test('GM preparation organizes profiles and refreshes defaults while preserving 
   assert.ok(templates.every(t=>t.system.unitUuid==='' && !t.system.armyUuid && !t.system.modelUuids));
   for(const template of templates){
     const row=data.units.find(row=>row.slug===template.flags.boltaction.catalogueSlug);
-    assert.equal(template.system.profileName,modelProfileName(row));
-    assert.equal(template.name,modelProfileName(row));assert.doesNotMatch(template.name,/\b(inexperienced|regular|veteran)\b/i);
+    assert.equal(template.system.profileName,modelProfileName(row,data.units));
+    assert.equal(template.name,modelProfileName(row,data.units));assert.doesNotMatch(template.name,/\b(inexperienced|regular|veteran)\b/i);
     assert.equal(template.flags.boltaction.sourceName,row.name);
     const art=factionAppearance(row.factionSlug,template.type);assert.equal(template.img,art.img);assert.equal(template.prototypeToken.texture.src,art.tokenSrc);
   }
@@ -66,13 +66,14 @@ test('GM preparation organizes profiles and refreshes defaults while preserving 
   const modelPack=result.packs.models;
   assert.ok(templates.some(row=>row.flags.boltaction.catalogueSlug==='great-britain-regular-infantry'));
   assert.ok(!templates.some(row=>row.flags.boltaction.catalogueSlug==='great-britain-veteran-infantry'));
-  const squadPack=result.packs.squads;assert.equal(squadPack.documents.length,134);
-  for(const source of data.units.filter(row=>row.factionSlug&&row.profile?.sourcePage)){
+  const squadPack=result.packs.squads;assert.equal(squadPack.documents.length,126);
+  for(const source of preferredModelRows(data.units.filter(row=>row.factionSlug&&row.profile?.sourcePage))){
     const squad=squadPack.documents.find(row=>row.flags.boltaction.catalogueSlug===source.slug);assert.ok(squad,source.slug);
     const members=squad.flags.boltaction.memberTemplates;
     const expected=source.system.kind==='vehicle'?1:source.composition?.length?source.composition.reduce((sum,row)=>sum+row.count,0):source.profile?.baseModels??source.count;
     assert.equal(members.length,expected,source.slug);assert.equal(squad.system.startingSize,expected);
-    assert.equal(squad.system.quality,source.system.quality);assert.equal(squad.flags.boltaction.sourceName,source.name);assert.deepEqual(squad.flags.boltaction.profile,source.profile??{});
+    assert.equal(squad.system.quality,source.system.quality);assert.equal(squad.flags.boltaction.sourceName,source.name);assert.deepEqual(squad.flags.boltaction.profile,{...source.profile,sourceName:source.name});
+    assert.equal(squad.name,squadProfileName(source,data.units));assert.doesNotMatch(squad.name,/\b(inexperienced|regular|veteran)\b/i);
     assert.equal(squad.system.armyUuid,'');assert.deepEqual(squad.system.modelUuids,[]);
     assert.ok(members.every(member=>!member._id&&member.system.unitUuid===''&&member.name.startsWith('Unnamed ')));
     assert.ok(members.every(member=>squad.system.squadKind==='infantry'?member.type==='model':['modelStatic','modelVehicle'].includes(member.type)));
@@ -104,6 +105,10 @@ test('GM preparation organizes profiles and refreshes defaults while preserving 
   assert.equal(modelPack.folders.find(folder=>folder.id===crew.folder).name,'Machine-gun teams');
   const legacyVariantSource=data.units.find(row=>row.slug==='great-britain-veteran-infantry');
   const legacyVariant=await create(await modelTemplate(legacyVariantSource),{pack:modelPack.collection});legacyVariant.name=legacyVariantSource.name;
+  const legacySquadVariant=await create(await squadTemplate(legacyVariantSource),{pack:squadPack.collection});
+  const britishSquad=squadPack.documents.find(row=>row.flags.boltaction.catalogueSlug==='great-britain-regular-infantry');
+  assert.match(britishSquad.system.notes,/Commandos/);assert.ok(britishSquad.flags.boltaction.sourceProfiles.some(row=>row.aliases.includes('Commandos')));
+  britishSquad.img='custom/squad.webp';britishSquad.prototypeToken.texture.src='custom/squad-token.webp';
   const originalFolder=infantry.folder;infantry.folder=null;infantry.name='Old roster name';
   const originalSystem=structuredClone(infantry.system),originalItems=structuredClone(infantry.items);
   delete infantry.system.profileName;infantry.img='systems/boltaction/assets/soldier.svg';infantry.prototypeToken.texture.src='systems/boltaction/assets/model-token.svg';
@@ -112,7 +117,9 @@ test('GM preparation organizes profiles and refreshes defaults while preserving 
   const custom=await create({name:'My custom model',type:'model',system:{}},{pack:modelPack.collection});
   const foldersBefore=modelPack.folders.length;
   await prepareCatalogue();assert.equal(infantry.folder,originalFolder);assert.equal(custom.folder,undefined);
-  assert.ok(templates.includes(legacyVariant));assert.equal(legacyVariant.name,modelProfileName(legacyVariantSource));assert.equal(legacyVariant.flags.boltaction.sourceName,legacyVariantSource.name);
+  assert.ok(templates.includes(legacyVariant));assert.equal(legacyVariant.name,modelProfileName(legacyVariantSource,data.units));assert.equal(legacyVariant.flags.boltaction.sourceName,legacyVariantSource.name);
+  assert.ok(!squadPack.documents.includes(legacySquadVariant));assert.equal(squadPack.documents.length,126);
+  assert.equal(britishSquad.img,'custom/squad.webp');assert.equal(britishSquad.prototypeToken.texture.src,'custom/squad-token.webp');
   assert.equal(modelPack.folders.length,foldersBefore);assert.equal(infantry.name,infantry.system.profileName);assert.deepEqual(infantry.system,originalSystem);assert.deepEqual(infantry.items,originalItems);
   assert.equal(infantry.img,factionAppearance('germany').img);assert.equal(infantry.prototypeToken.texture.src,factionAppearance('germany').tokenSrc);
   assert.equal(officer.img,'custom/officer.webp');assert.equal(officer.prototypeToken.texture.src,'custom/officer-token.webp');
@@ -130,13 +137,20 @@ test('GM preparation organizes profiles and refreshes defaults while preserving 
 test('faction appearance resolves existing SVG assets and excludes custom artwork',async()=>{
   const data=await readCatalogue();const colors=new Set();
   for(const faction of data.factions){
-    for(const type of ['model','modelStatic','modelVehicle']){
+    for(const type of ['army','unit','model','modelStatic','modelVehicle']){
       const art=factionAppearance(faction.slug,type);colors.add(art.color);assert.equal(art.slug,faction.slug);
-      for(const path of [art.img,art.tokenSrc]){assert.equal(isDefaultModelArt(path),true);assert.match(await readFile(new URL(`../${path.replace('systems/boltaction/','')}`,import.meta.url),'utf8'),/^<svg/);}
+      for(const path of [art.img,art.tokenSrc]){assert.equal(isDefaultModelArt(path),true);assert.match(path,/\?v=12$/);const svg=await readFile(new URL(`../${path.split('?')[0].replace('systems/boltaction/','')}`,import.meta.url),'utf8');assert.match(svg,/^<svg/);const box=svg.match(/viewBox="0 0 (\d+) (\d+)"/);assert.match(svg,new RegExp(`width="${box[1]}" height="${box[2]}"`));}
     }
   }
-  assert.equal(colors.size,5);assert.equal(factionAppearance('unknown').img,'systems/boltaction/assets/soldier.svg');
+  assert.equal(colors.size,5);assert.equal(factionAppearance('unknown').img,'systems/boltaction/assets/soldier.svg?v=12');
+  assert.equal(factionAppearance('germany','army').img,'systems/boltaction/assets/factions/germany/army.svg?v=12');
+  assert.equal(factionAppearance('germany','unit').tokenSrc,'systems/boltaction/assets/factions/germany/unit.svg?v=12');
   assert.equal(isDefaultModelArt('custom/portrait.webp'),false);assert.equal(isDefaultModelArt('https://example.org/soldier.svg'),false);
+  assert.equal(isDefaultModelArt('icons/svg/mystery-man.svg'),false);assert.equal(isDefaultModelArt('systems/boltaction/assets/unit.svg?v=old'),true);
+});
+test('unique factual troop names keep their experience wording',()=>{
+  const source={slug:'germany-guard',factionSlug:'germany',name:'Veteran Guard',system:{quality:'veteran'}};
+  assert.equal(squadProfileName(source,[source]),'Veteran Guard');assert.equal(modelProfileName(source,[source]),'Veteran Guard');
 });
 
 // Audit index: printed army-list base entries, grouped by their printed page.
