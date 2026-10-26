@@ -89,3 +89,17 @@ test('Sherman gun conversion keeps other mounted weapons and restores its origin
 
 test('source equipment maxima reject over-purchasing before item mutation',async()=>{const actor=await model();actor.system.unitUuid='Actor.squad';const choice=(await getModelChoices(actor)).equipment.find(c=>c.weaponSlug==='lmg');globalThis.game={actors:[actor,{uuid:'Actor.peer',system:{unitUuid:'Actor.squad'},items:[{type:'weapon',flags:{boltaction:{modelChoiceId:choice.id,catalogueSlug:'lmg'}}}]}]};const before=actor.items.length;await assert.rejects(applyModelChoice(actor,{choiceId:choice.id}),/limited/);assert.equal(actor.items.length,before);});
 test('per-model-priced squad upgrades toggle every purchased model together',async()=>{const one=await model(),two=await model();one.uuid='Actor.one';two.uuid='Actor.two';const squad={uuid:'Actor.squad',type:'unit',isOwner:true,system:{modelUuids:[one.uuid,two.uuid]}};for(const member of [one,two]){member.unit=squad;member.system.unitUuid=squad.uuid;}globalThis.game={actors:[squad,one,two]};await choose(one,'anti-tank-grenades');assert.ok(one.items.some(i=>i.type==='trait'));assert.ok(two.items.some(i=>i.type==='trait'));await choose(two,'anti-tank-grenades',false);assert.ok([one,two].every(m=>!m.items.some(i=>i.type==='trait')));});
+
+test('vehicle variant choices apply priced loadouts reversibly without overwriting custom equipment',async()=>{
+ const actor=await model('germany-sdkfz234');const custom=item({name:'Custom gear',type:'weapon',system:{slug:'custom'}});actor.items.push(custom);
+ const before=actor.items.map(i=>i.id);const choice=(await getModelChoices(actor)).equipment.find(c=>c.label.toLowerCase()==='puma');assert.ok(choice);assert.equal(choice.cost,50);
+ await applyModelChoice(actor,{choiceId:choice.id});assert.ok(actor.items.some(i=>i.system.slug==='medium-at-gun'));assert.ok(actor.items.some(i=>i.id===custom.id));assert.ok((await getModelChoices(actor)).equipment.find(c=>c.id===choice.id).selected);
+ const {calculateCost}=await import('../scripts/services/costs.mjs');const cost=await calculateCost(actor);assert.equal(cost.options,50);
+ await applyModelChoice(actor,{choiceId:choice.id,enabled:false});assert.deepEqual(new Set(actor.items.map(i=>i.id)),new Set(before));
+});
+test('vehicle capacity conversions and dependent HMG upgrades are selectable rather than manual',async()=>{
+ const actor=await model('united-states-jeep');let config=await getModelChoices(actor);assert.equal(config.manualOptions.length,0);
+ const mmg=config.equipment.find(c=>c.weaponSlug==='mmg');await applyModelChoice(actor,{choiceId:mmg.id});
+ const hmg=(await getModelChoices(actor)).equipment.find(c=>c.weaponSlug==='hmg');await applyModelChoice(actor,{choiceId:hmg.id});assert.ok(actor.items.some(i=>i.system.slug==='hmg'));const {calculateCost}=await import('../scripts/services/costs.mjs');assert.equal((await calculateCost(actor)).options,25);await assert.rejects(applyModelChoice(actor,{choiceId:mmg.id,enabled:false}),/dependent upgrade/);await applyModelChoice(actor,{choiceId:hmg.id,enabled:false});
+ await applyModelChoice(actor,{choiceId:mmg.id,enabled:false});assert.equal(actor.items.some(i=>i.system.slug==='mmg'),false);
+});

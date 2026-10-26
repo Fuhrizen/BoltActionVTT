@@ -111,6 +111,7 @@ export async function unlinkGroupMember(parent, uuid) {
     const child = worldActor(uuid), previousList = [...parent.system[listField]], snapshots = [];
     if (child) owned(child);
     try {
+      if(child&&parent.type==='unit')await clearLoaderLinks(child,snapshots);
       if (child) {
         const fields = relationship(parent, child);
         if (child.system[fields.parent] === parent.uuid) {
@@ -187,7 +188,7 @@ export async function importModel(parent, documentOrUuid) {
   const data = clone(source.toObject());
   delete data._id; delete data.folder; delete data._stats;
   data.name=source.type==='model'?'Unnamed Soldier':source.type==='modelStatic'?'Unnamed Crew':'Unnamed Vehicle';
-  data.system ??= {}; data.system.unitUuid = '';
+  data.system ??= {}; data.system.unitUuid = ''; data.system.loaderForUuid='';
   delete data.system.armyUuid; delete data.system.modelUuids; delete data.system.unitUuids;
   data.ownership = clone(parent.ownership ?? {});
   const army=worldActor(parent.system.armyUuid),faction=army?.system.factionUuid?await fromUuid(army.system.factionUuid):null;
@@ -228,7 +229,7 @@ export async function importSquad(parent, sourceOrUuid) {
     const sourceSystem=clone(source.toObject?.().system ?? source.system);sourceSystem.profileName=source.system.profileName||source.flags?.boltaction?.sourceName||source.name;delete sourceSystem.identity;delete sourceSystem.armyUuid;delete sourceSystem.modelUuids;delete sourceSystem.transportUuid;delete sourceSystem.passengerUuids;
     await group.update({...Object.fromEntries(Object.entries(sourceSystem).map(([key,value])=>['system.'+key,value])),flags:{boltaction:{profile:clone(source.flags?.boltaction?.profile??{}),sourceName:source.flags?.boltaction?.sourceName??source.name,factionSlug:source.flags?.boltaction?.factionSlug??''}}});
     await setSquadExperience(group,source.system.quality||'regular');
-    for(const template of templates){const data=clone(template);delete data._id;data.system={...data.system,unitUuid:''};data.ownership=clone(parent.ownership??{});const model=await actorClass().create(data);created.push(model);await linkGroupMember(group,model);}
+    for(const template of templates){const data=clone(template);delete data._id;data.system={...data.system,unitUuid:'',loaderForUuid:''};data.ownership=clone(parent.ownership??{});const model=await actorClass().create(data);created.push(model);await linkGroupMember(group,model);}
     return group;
   }catch(error){for(const model of created.reverse())await model.delete();if(group){await unlinkGroupMember(parent,group.uuid);await group.delete();}throw error;}
 }
@@ -241,12 +242,43 @@ export async function deleteGroupActor(actor) {
   owned(actor);
   const members=['army','unit'].includes(actor.type)?descendants(actor).sort((a,b)=>Number(a.type==='unit')-Number(b.type==='unit')):[];
   for(const member of members)owned(member);
-  const documents=[...members,actor];
-  if(actorClass().deleteDocuments)await actorClass().deleteDocuments(documents.map(a=>a.id));
-  else for(const document of documents)await document.delete();
+  const documents=[...members,actor],pairSnapshots=[];
+  try{
+   if(MODELS.has(actor.type))await clearLoaderLinks(actor,pairSnapshots);
+   if(actorClass().deleteDocuments)await actorClass().deleteDocuments(documents.map(a=>a.id));
+   else for(const document of documents)await document.delete();
+  }catch(error){await restore(pairSnapshots);throw error;}
   const parent=worldActor(actor.system[actor.type==='unit'?'armyUuid':'unitUuid']);
   if(parent?.isOwner){const field=actor.type==='unit'?'unitUuids':'modelUuids';await parent.update({['system.'+field]:(parent.system[field]??[]).filter(uuid=>uuid!==actor.uuid)});}
   return documents;
+}
+
+/** Explicit assignment to an existing team-weapon operator, never an extra free model. */
+export function isTeamGunner(model) {
+ return MODELS.has(model?.type)&&model.type!=='modelVehicle'&&collectionValues(model.items).some(item=>item.type==='weapon'&&(['lmg','mmg','hmg'].includes(item.system?.slug)||(item.system?.traits??[]).includes('team')));
+}
+export function getLoaderPair(model) {
+ const parent=worldActor(model?.system?.unitUuid);if(!parent||parent.type!=='unit')return null;
+ const members=childActors(parent),gunners=members.filter(isTeamGunner);
+ const gunner=model.system.loaderForUuid?members.find(m=>m.uuid===model.system.loaderForUuid&&isTeamGunner(m)):isTeamGunner(model)?model:null;
+ if(!gunner)return null;
+ return {gunner,loaders:members.filter(m=>m.uuid!==gunner.uuid&&m.system.loaderForUuid===gunner.uuid),pairLabel:String(gunners.indexOf(gunner)+1)};
+}
+export async function setLoaderPair(loader,gunnerUuid='') {
+ owned(loader);if(!MODELS.has(loader.type)||loader.type==='modelVehicle')throw new Error('Choose an infantry or crew model as loader.');
+ const parent=worldActor(loader.system.unitUuid);squad(parent);const members=childActors(parent);
+ if(!members.includes(loader))throw new Error('Loader must belong to this squad.');
+ if(gunnerUuid){const gunner=members.find(m=>m.uuid===gunnerUuid);if(!gunner||gunner===loader||!isTeamGunner(gunner)||gunner.system.dead||loader.system.dead)throw new Error('Pair the loader with a living team-weapon gunner in the same squad.');owned(gunner);
+ if(gunner.system.isLoader||gunner.system.loaderForUuid)throw new Error('A loader cannot also be the paired gunner.');
+ if(members.some(m=>m!==loader&&m.system.loaderForUuid===gunnerUuid))throw new Error('This gunner already has a paired loader.');}
+ await loader.update({'system.loaderForUuid':gunnerUuid,'system.isLoader':Boolean(gunnerUuid)},{render:false});return loader;
+}
+async function clearLoaderLinks(actor,snapshots=[]){
+ const parent=worldActor(actor.system?.unitUuid),members=parent?childActors(parent):[];
+ const affected=members.filter(m=>m.uuid!==actor.uuid&&m.system.loaderForUuid===actor.uuid);
+ for(const member of affected)owned(member);
+ for(const member of affected){snapshots.push({actor:member,data:{'system.loaderForUuid':member.system.loaderForUuid,'system.isLoader':Boolean(member.system.isLoader)}});await member.update({'system.loaderForUuid':'','system.isLoader':false},{render:false});}
+ if(actor.system?.loaderForUuid){snapshots.push({actor,data:{'system.loaderForUuid':actor.system.loaderForUuid,'system.isLoader':Boolean(actor.system.isLoader)}});await actor.update({'system.loaderForUuid':'','system.isLoader':false},{render:false});}
 }
 
 export async function setPins(parent,value){
@@ -264,7 +296,7 @@ export async function addSquadMember(parent){
  if(!source)throw new Error('Import a squad template, or drop a model reference into this squad first.');
  source=clone(source);delete source._id;delete source.folder;delete source._stats;
  source.name=source.type==='model'?'Unnamed Soldier':source.type==='modelStatic'?'Unnamed Crew':'Unnamed Vehicle';
- source.system={...source.system,unitUuid:'',dead:false,isNco:false,isLoader:false,isMedic:false,isObserver:false,role:source.type==='model'?'rifleman':source.type==='modelStatic'?'weapon':'vehicle',quality:parent.system.quality,vehicleStates:[]};
+ source.system={...source.system,unitUuid:'',dead:false,isNco:false,loaderForUuid:'',isLoader:false,isMedic:false,isObserver:false,role:source.type==='model'?'rifleman':source.type==='modelStatic'?'weapon':'vehicle',quality:parent.system.quality,vehicleStates:[]};
  source.ownership=clone(parent.ownership??{});source.prototypeToken={...source.prototypeToken,actorLink:true,name:source.name};
  for(const item of source.items??[])delete item._id;
  const model=await actorClass().create(source);try{await linkGroupMember(parent,model);return model;}catch(error){await model.delete();throw error;}

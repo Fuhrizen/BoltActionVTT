@@ -253,7 +253,7 @@
         "Waffen-SS",
         "Fallschirmjaeger"
       ],
-      "entryName": "Waffen-SS, Fallschirmjäger or Veteran Infantry Squad"
+      "entryName": "Waffen-SS, Fallschirmj\u00e4ger or Veteran Infantry Squad"
     },
     "system": {
       "kind": "infantry",
@@ -7145,7 +7145,7 @@
         {
           "weaponSlug": "mmg",
           "cost": 30,
-          "quantity": 2,
+          "quantity": 1,
           "mounts": [
             "rear-left",
             "rear-right"
@@ -7801,7 +7801,7 @@
         {
           "weaponSlug": "mmg",
           "cost": 30,
-          "quantity": 2,
+          "quantity": 1,
           "mounts": [
             "rear-left",
             "rear-right"

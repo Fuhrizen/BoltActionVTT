@@ -39,6 +39,10 @@ async function definition(model) {
   };
   if (model.type === 'model') addWeapon(originals[0].weaponSlug, 'primary', 'primary', originals[0]);
   for (const option of profile.options ?? []) {
+    if(model.type==='modelVehicle'&&(option.variant||option.replaceAllWeapons||option.requiresOption||option.transportCapacity!==undefined||option.removeTrait)){
+      const index=profile.options.indexOf(option),slug=option.weaponSlug||option.weaponSlugs?.[0],weapon=data.weapons.find(w=>w.slug===slug),price=option.pointsByQuality?.[model.system.quality]??option.cost;
+      const choice={id:`vehicle:${index}`,kind:'vehicle',weaponSlug:slug,label:title(option.variant||weapon?.name||'Vehicle conversion'),cost:Number.isFinite(price)?price:null,costLabel:Number.isFinite(price)?`${price>=0?'+':''}${price} pts`:'Price requires confirmation',selected:items(model).some(i=>flag(i,'modelChoiceId')===`vehicle:${index}`)};Object.defineProperty(choice,'_option',{value:option});equipment.push(choice);continue;
+    }
     if (option.variant || option.replaceAllWeapons || option.removeTrait || option.requiresOption || option.transportCapacity !== undefined || ['additional-model','attendants','spotter','rifles'].includes(option.option)) {
       manualOptions.push({label:title(option.variant ?? option.option ?? option.weaponSlug ?? 'Conversion'), reason:'Configure this group or conversion manually.'});
       continue;
@@ -98,6 +102,8 @@ async function applySingleModelChoice(model, {experience, choiceId, enabled = tr
     if (experience !== undefined && !config.experiences.some(choice => choice.value === experience)) throw new Error('Unknown experience choice.');
     const choice = choiceId === undefined ? undefined : config.equipment.find(choice => choice.id === choiceId);
     if (choiceId !== undefined && !choice) throw new Error('Unknown equipment choice.');
+    if(choice&&choice.kind!=='vehicle'&&items(model).some(i=>flag(i,'vehicleOption')))throw new Error('Remove the vehicle conversion before changing other equipment.');
+    if(choice?.kind==='vehicle'){await applyVehicleOption(model,choice,config,enabled);return model;}
     if(choice?.kind==='primary'&&!enabled)throw new Error('Primary weapons must be swapped rather than removed.');
     if(choice&&enabled){const option=choice._option??{};if(option.ncoOnly&&!model.system.isNco&&model.system.role!=='nco')throw new Error('This option is reserved for the NCO.');if(Number.isFinite(option.max)&&model.system.unitUuid){const peers=Array.from(globalThis.game?.actors??[]).filter(a=>a.system?.unitUuid===model.system.unitUuid&&a.uuid!==model.uuid);const selected=peers.filter(a=>items(a).some(i=>flag(i,'modelChoiceId')===choice.id||choice.weaponSlug&&(flag(i,'catalogueSlug')===choice.weaponSlug||i.system?.slug===choice.weaponSlug))).length;if(selected>=option.max)throw new Error(`This squad option is limited to ${option.max} models.`);if(option.ncoAllowed&& !model.system.isNco&&model.system.role!=='nco'){const nonNcos=peers.filter(a=>!a.system.isNco&&a.system.role!=='nco'&&items(a).some(i=>flag(i,'modelChoiceId')===choice.id||choice.weaponSlug&&(flag(i,'catalogueSlug')===choice.weaponSlug||i.system?.slug===choice.weaponSlug))).length;if(nonNcos>=option.max-1)throw new Error(`Only ${option.max-1} non-NCO models may take this option.`);}}}
     snapshot = items(model).map(copy); quality = model.system.quality;
@@ -166,4 +172,36 @@ export async function applyModelChoice(model,options={}){
  try{for(const member of models)await applySingleModelChoice(member,options);return model;}
  catch(error){for(const snapshot of snapshots){const current=items(snapshot.member).filter(item=>matchesChoice(item,choice));if(current.length)await snapshot.member.deleteEmbeddedDocuments('Item',current.map(itemId));if(snapshot.items.length)await snapshot.member.createEmbeddedDocuments('Item',snapshot.items,{keepId:true});}throw error;}
  finally{updatingSquads.delete(squad);}
+}
+
+
+/** Complex source-listed vehicle conversions retain the exact replaced equipment for reversal. */
+async function applyVehicleOption(model,choice,config,enabled){
+ const markers=items(model).filter(i=>flag(i,'vehicleOption'));
+ const selected=markers.find(i=>flag(i,'modelChoiceId')===choice.id);
+ if(enabled&&selected||!enabled&&!selected)return;
+ if(markers.length&&enabled&&!choice._option.requiresOption)throw new Error('Remove the existing vehicle conversion before selecting another.');
+ if(!enabled){
+  if(markers.some(i=>i!==selected&&flag(i,'vehicleOption').removed.some(w=>flag(w,'vehicleOptionWeapon')===choice.id)))throw new Error('Remove the dependent upgrade first.');
+  const state=flag(selected,'vehicleOption');
+  const generated=items(model).filter(i=>flag(i,'vehicleOptionWeapon')===choice.id);
+  await model.createEmbeddedDocuments('Item',state.removed,{keepId:true});
+  await model.deleteEmbeddedDocuments('Item',[...generated.map(itemId),itemId(selected)]);
+  await model.update({'system.capacity':state.capacity,'system.openTopped':state.openTopped},{render:false});return;
+ }
+ const option=choice._option;
+ let removing=items(model).filter(i=>i.type==='weapon'&&(option.replaceAllWeapons?config.originals.some(w=>w.weaponSlug===(flag(i,'catalogueSlug')||i.system.slug)):(flag(i,'catalogueSlug')||i.system.slug)===option.replaceWeapon&&(!option.replaceMount||flag(i,'mount')===option.replaceMount)));
+ if(option.replaceWeapon&&removing.length!==1)throw new Error(option.requiresOption?'Select the required machine gun upgrade first.':'The source weapon for this conversion is missing or ambiguous.');
+ const sourceMount=option.mount??flag(removing[0]??{},'mount');
+ const created=[];
+ for(const slug of option.weaponSlugs??[option.weaponSlug]){
+  if(!slug)continue;const weapon=await resolveWeapon(slug,flag(model,'factionSlug'));delete weapon.system.cost;weapon.system.quantity=option.quantity??1;
+  weapon.flags={...weapon.flags,boltaction:{...weapon.flags?.boltaction,catalogueSlug:slug,vehicleOptionWeapon:choice.id,...(sourceMount?{mount:sourceMount}:{})}};created.push(weapon);
+ }
+ const dependency=option.requiresOption?(config.data.units.find(r=>r.slug===flag(model,'catalogueSlug'))?.profile?.options??[]).find(o=>o.weaponSlug===option.requiresOption&&!o.requiresOption):null;
+ const extra=removing.some(i=>flag(i,'vehicleOptionWeapon'))?0:dependency?.cost??0;
+ created.push({name:choice.label,type:'trait',system:{slug:choice.id,effect:'Source-listed vehicle conversion; weapon and capacity changes applied. Confirm variant-specific rules in the rulebook.'},flags:{boltaction:{modelChoiceId:choice.id,vehicleOption:{removed:removing.map(copy),capacity:model.system.capacity??0,openTopped:Boolean(model.system.openTopped),price:Number.isFinite(choice.cost)?choice.cost+extra:null}}}});
+ await model.createEmbeddedDocuments('Item',created);
+ if(removing.length)await model.deleteEmbeddedDocuments('Item',removing.map(itemId));
+ const changes={};if(option.transportCapacity!==undefined)changes['system.capacity']=option.transportCapacity;if(option.removeTrait==='open-topped')changes['system.openTopped']=false;if(Object.keys(changes).length)await model.update(changes,{render:false});
 }

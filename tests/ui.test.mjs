@@ -39,7 +39,7 @@ test('army imports compendium squads and links world squads',async()=>{setup();c
 
 test('squad identity stays separate from quality-prefixed name and NCO members are marked',async()=>{setup();const sheet=new BoltActorSheet();sheet.actor=actor('unit',{name:'Veteran Baker section',system:{quality:'veteran',identity:'Baker section',profileName:'British infantry section'},members:[actor('model',{system:{role:'nco'}})]});const c=await sheet._prepareContext({});assert.equal(c.squadIdentity,'Baker section');assert.equal(c.profileName,'British infantry section');assert.equal(c.members[0].isNco,true);sheet.actor=actor('model',{system:{role:'nco'}});assert.equal((await sheet._prepareContext({})).isNco,true);});
 
-test('model controls use NCO and loader flags, equipment swaps and a unified sourced traits panel',async()=>{setup();const own={name:'Own trait',type:'trait',system:{effect:'Own'}};game.boltaction.profiles=async()=>({traits:[own,{uuid:'Item.profile',name:'Profile',type:'trait',system:{}},{uuid:'Item.faction',name:'Faction',type:'trait',system:{}}]});game.boltaction.calculateCost=async()=>({total:17,base:10,options:7,unknown:['Custom option unpriced']});const sheet=new BoltActorSheet();sheet.actor=actor('model',{system:{isLoader:true,traitUuids:['Item.profile']},items:[own]});const c=await sheet._prepareContext({});assert.equal(c.cost.total,17);assert.equal(c.isLoader,true);assert.deepEqual(c.ruleProfiles.map(r=>r.source),['Owned','Profile','Inherited faction']);assert.deepEqual(c.costUnknown,['Custom option unpriced']);assert.equal(BoltActorSheet.DEFAULT_OPTIONS.actions.removeItem,undefined);const template=await readFile(new URL('../templates/actor-sheet.hbs',import.meta.url),'utf8');assert.ok(!template.includes('name="system.role"'));assert.ok(!template.includes('data-experience'));assert.ok(template.includes('data-model-flag="isNco"'));assert.ok(template.includes('data-model-flag="isLoader"'));assert.ok(!template.includes('data-action="removeItem"'));});
+test('model controls use NCO and loader flags, equipment swaps and a unified sourced traits panel',async()=>{setup();const own={name:'Own trait',type:'trait',system:{effect:'Own'}};game.boltaction.profiles=async()=>({traits:[own,{uuid:'Item.profile',name:'Profile',type:'trait',system:{}},{uuid:'Item.faction',name:'Faction',type:'trait',system:{}}]});game.boltaction.calculateCost=async()=>({total:17,base:10,options:7,unknown:['Custom option unpriced']});const sheet=new BoltActorSheet();sheet.actor=actor('model',{system:{isLoader:true,traitUuids:['Item.profile']},items:[own]});const c=await sheet._prepareContext({});assert.equal(c.cost.total,17);assert.equal(c.isLoader,true);assert.deepEqual(c.ruleProfiles.map(r=>r.source),['Owned','Profile','Inherited faction']);assert.deepEqual(c.costUnknown,['Custom option unpriced']);assert.equal(BoltActorSheet.DEFAULT_OPTIONS.actions.removeItem,undefined);const template=await readFile(new URL('../templates/actor-sheet.hbs',import.meta.url),'utf8');assert.ok(!template.includes('name="system.role"'));assert.ok(!template.includes('data-experience'));assert.ok(template.includes('data-model-flag="isNco"'));assert.ok(template.includes('data-loader-pair')); assert.ok(!template.includes('data-action="removeItem"'));});
 test('roll attack delegates to the shooting confirmation service',async()=>{setup();let passed;game.boltaction.confirmShooting=async actor=>{passed=actor;};const sheet=new BoltActorSheet();sheet.actor=actor('unit');await BoltActorSheet.rollAttack.call(sheet);assert.equal(passed,sheet.actor);});
 test('squad builder rejects edits to models outside reciprocal membership',async()=>{setup();const sheet=new BoltActorSheet();sheet.actor=actor('unit',{system:{modelUuids:['Actor.m']}});globalThis.fromUuid=async()=>({isOwner:true,system:{unitUuid:'Actor.other'}});await assert.rejects(sheet._rosterMember('Actor.m'),/member/);const template=await readFile(new URL('../templates/actor-sheet.hbs',import.meta.url),'utf8');assert.ok(template.includes('data-model-identity'));assert.ok(template.includes('data-vehicle-state'));assert.ok(template.includes('data-pins'));});
 
@@ -94,4 +94,26 @@ test('ORBAT builder shows platoon membership, selected strength and advisory fin
 });
 test('builder adds a selected faction profile to the chosen platoon and selects the created squad',async()=>{
  setup();let call;game.boltaction.addArmySquad=async(...args)=>{call=args;return {uuid:'Actor.newSquad'};};const app=new BoltArmyBuilder();app.actor=actor('army');app._selectedBuilderPlatoon='p2';app.refreshLive=async()=>{};await BoltActorSheet.addArmySquad.call(app,null,{dataset:{slug:'british-infantry'}});assert.deepEqual(call,[app.actor,'british-infantry',{platoonId:'p2'}]);assert.equal(app._selectedBuilderSquad,'Actor.newSquad');assert.equal(app._showBuilderCatalogue,false);
+});
+
+test('live morph retains Foundry part identity so later renders replace the original part',async()=>{
+ const {morphSheetNode}=await import('../scripts/applications/actor-sheet.mjs');
+ const root=new LayoutNode('div',{'data-application-part':'main','data-ba-sheet-root':'','class':'old'}),next=new LayoutNode('div',{'data-ba-sheet-root':'','class':'new'});
+ morphSheetNode(root,next);assert.equal(root.getAttribute('data-application-part'),'main');assert.equal(root.getAttribute('class'),'new');
+});
+test('army builder has no battle controls or empty squad creation and uses explicit paired loaders',async()=>{
+ const template=await readFile(new URL('../templates/actor-sheet.hbs',import.meta.url),'utf8');
+ const builder=template.slice(template.indexOf('{{#if isArmyBuilder}}'),template.indexOf('<h2>Army overview'));
+ assert.doesNotMatch(builder,/data-pins|data-action="(?:rollAttack|createSquad)"|>Open squad</);
+ assert.match(builder,/data-loader-pair/);assert.match(template,/data-ba-sheet-root/);
+});
+
+test('builder dynamically disables exhausted source allowances but keeps selected options editable',async()=>{
+ setup();const nco=actor('model',{uuid:'Actor.nco',system:{isNco:true,unitUuid:'Actor.s'},items:[]}),used=actor('model',{uuid:'Actor.used',system:{unitUuid:'Actor.s'},items:[{name:'SMG',type:'weapon',system:{slug:'smg'}}]}),other=actor('model',{uuid:'Actor.other',system:{unitUuid:'Actor.s'},items:[]});
+ const squad=actor('unit',{uuid:'Actor.s',members:[nco,used,other]});for(const m of squad.members)m.unit=squad;
+ game.boltaction.getModelChoices=async m=>({equipment:[{id:'smg',kind:'primary',weaponSlug:'smg',max:2,selected:m===used,_option:{ncoAllowed:true}}]});
+ const sheet=new BoltArmyBuilder();sheet.actor=actor('army',{members:[squad]});const c=await sheet._prepareContext({});const rows=c.armySquads[0].members;
+ assert.equal(rows.find(r=>r.uuid===other.uuid).primarySlots[0].choices.find(c=>c.id==='smg').disabled,true);
+ assert.equal(rows.find(r=>r.uuid===nco.uuid).primarySlots[0].choices.find(c=>c.id==='smg').disabled,false);
+ assert.equal(rows.find(r=>r.uuid===used.uuid).primarySlots[0].choices.find(c=>c.id==='smg').disabled,false);
 });

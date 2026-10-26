@@ -20,7 +20,7 @@ export async function addArmySquad(army,slug,{platoonId}={}){
  const proxy={...source,documentName:'Actor',pack:'boltaction-source',visible:true,toObject:()=>structuredClone(source)};
  const squad=await importSquad(army,proxy);
  const traits=(row.traitSlugs??[]).map(slug=>data.traits.find(trait=>trait.slug===slug)).filter(Boolean).map(trait=>({name:trait.name,type:'trait',system:structuredClone(trait.system),flags:{boltaction:{catalogueSlug:trait.slug,sourceName:row.name}}}));
- try{if(platoonId)await assignSquadPlatoon(army,squad,platoonId);if(traits.length&&squad.createEmbeddedDocuments)await squad.createEmbeddedDocuments('Item',traits);}catch(error){await deleteGroupActor(squad);throw error;}
+ try{if(row.system.kind==='vehicle'&&(!squad.system.identity||squad.system.identity==='Unnamed Squad'))await squad.update({'system.identity':row.name},{render:false});if(platoonId)await assignSquadPlatoon(army,squad,platoonId);if(traits.length&&squad.createEmbeddedDocuments)await squad.createEmbeddedDocuments('Item',traits);}catch(error){await deleteGroupActor(squad);throw error;}
  return squad;
 }
 

@@ -213,3 +213,13 @@ test('army Delete All deletes nested reciprocal descendants and preserves unrela
 test('army Delete All validates descendant ownership before any deletion',async()=>{
  setup();const army=await groups.createTeam(),squad=await groups.createGroup(army),model=actor();await groups.linkGroupMember(squad,model);game.user={id:'player',isGM:false};army.ownership={player:3};squad.ownership={player:3};model.ownership={other:3};await assert.rejects(groups.deleteGroupActor(army),/own/);for(const a of [army,squad,model])assert.ok(actors.includes(a));
 });
+
+test('loader pairing requires a living reciprocal team gunner and yields matching pair identity',async()=>{
+ setup();const squad=actor({type:'unit'}),gunner=actor({items:[{type:'weapon',system:{slug:'lmg'}}]}),loader=actor(),stranger=actor({items:[{type:'weapon',system:{slug:'lmg'}}]});await groups.linkGroupMember(squad,gunner);await groups.linkGroupMember(squad,loader);
+ await groups.setLoaderPair(loader,gunner.uuid);assert.equal(loader.system.isLoader,true);assert.equal(loader.system.loaderForUuid,gunner.uuid);assert.equal(groups.getLoaderPair(loader).gunner,gunner);assert.deepEqual(groups.getLoaderPair(gunner).loaders,[loader]);assert.equal(groups.getLoaderPair(loader).pairLabel,groups.getLoaderPair(gunner).pairLabel);
+ await assert.rejects(groups.setLoaderPair(loader,stranger.uuid),/same squad/);await assert.rejects(groups.setLoaderPair(loader,loader.uuid),/same squad/);gunner.system.dead=true;await assert.rejects(groups.setLoaderPair(loader,gunner.uuid),/living/);gunner.system.dead=false;
+ await groups.unlinkGroupMember(squad,gunner.uuid);assert.equal(loader.system.loaderForUuid,'');assert.equal(loader.system.isLoader,false);
+});
+test('deleting a paired gunner clears surviving loader assignment',async()=>{
+ setup();const squad=actor({type:'unit'}),gunner=actor({items:[{type:'weapon',system:{slug:'lmg'}}]}),loader=actor();await groups.linkGroupMember(squad,gunner);await groups.linkGroupMember(squad,loader);await groups.setLoaderPair(loader,gunner.uuid);await groups.deleteGroupActor(gunner);assert.equal(loader.system.loaderForUuid,'');assert.equal(loader.system.isLoader,false);assert.ok(actors.includes(loader));
+});

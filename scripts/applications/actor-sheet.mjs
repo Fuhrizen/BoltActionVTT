@@ -36,7 +36,7 @@ export function morphSheetNode(current,next,active=current.ownerDocument?.active
   const preserveOpen=current.tagName==='DETAILS'?current.open:null;
   const preserveValue=current===active&&['INPUT','SELECT','TEXTAREA'].includes(current.tagName)?current.value:null;
   const preserveSearch=(current.hasAttribute('data-catalogue-search')||current.hasAttribute('data-catalogue-category'))?current.value:null;
-  for(const name of current.getAttributeNames())if(!next.hasAttribute(name)&&!(name==='open'&&preserveOpen!==null))current.removeAttribute(name);
+  for(const name of current.getAttributeNames())if(!next.hasAttribute(name)&&name!=='data-application-part'&&!(name==='open'&&preserveOpen!==null))current.removeAttribute(name);
   for(const name of next.getAttributeNames())if(!(name==='open'&&preserveOpen!==null)&&current.getAttribute(name)!==next.getAttribute(name))current.setAttribute(name,next.getAttribute(name));
   if(current===active&&current.tagName==='SELECT')return;
   const keyed=new Map(Array.from(current.childNodes).map(n=>[nodeKey(n),n]).filter(([key])=>key));
@@ -99,7 +99,16 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
     const describeChoice=choice=>{const base=catalogueData.weapons.find(w=>w.slug===choice.weaponSlug);return {...choice,label:base?`${factionWeaponName(choice.weaponSlug,factionSlug,base.name)} (${base.name})`:readable(choice.label),referenceUuid:references.get(`boltaction-${base?'weapons':'traits'}:${choice.weaponSlug||choice.traitSlug}`),costLabel:priceLabel(choice),limitLabel:[choice.ncoOnly?'NCO only':'',Number.isFinite(choice.max)?`Maximum ${choice.max} per squad`:'',choice.loaderEach?`${choice.loaderEach} loader per weapon`:''].filter(Boolean).join(' · ')};};
     const memberContext=async m=>{
       const gear=modelTypes.includes(m.type)?await game.boltaction.getModelChoices?.(m):null;
-      return {uuid:m.uuid,name:m.name,img:m.img,type:labels[m.type]??m.type,dead:Boolean(m.system?.dead),isNco:isNco(m),isLoader:Boolean(m.system?.isLoader||m.system?.role==='loader'),isMedic:Boolean(m.system?.isMedic||m.system?.role==='medic'),isInfantry:m.type==='model',isVehicle:m.type==='modelVehicle',count:m.members?.filter(c=>c.visible!==false).length??0,primarySlots:equipmentSlots(gear?{...gear,equipment:gear.equipment.map(describeChoice)}:gear),optionalChoices:(gear?.equipment??[]).filter(c=>c.kind!=='primary').map(describeChoice),manualOptions:gear?.manualOptions??[],weapons:(m.items??[]).filter(i=>i.type==='weapon').map(weaponLabel).join(', '),weaponReferences:(m.items??[]).filter(i=>i.type==='weapon').map(i=>({name:weaponLabel(i),uuid:references.get(`boltaction-weapons:${i.system?.slug||i.flags?.boltaction?.catalogueSlug}`)||i.uuid,range:i.system.range,shots:i.system.shots,penetration:i.system.penetration,traits:(i.system.traits??[]).map(readable).join(', ')})),vehicleStates:['immobilised','onFire','turretJammed','stunned','engineDamage','knockedOut'].map(value=>({value,label:value.replace(/([A-Z])/g,' $1').toLowerCase(),selected:(m.system?.vehicleStates??[]).includes(value)}))};
+      const peers=m.unit?.members??(m.system?.unitUuid?(rosterActors.find(s=>s.uuid===m.system.unitUuid)?.members??[]):[]);
+      for(const choice of gear?.equipment??[]){
+        const used=peers.filter(peer=>peer.uuid!==m.uuid&&(peer.items??[]).some(item=>item.flags?.boltaction?.modelChoiceId===choice.id||choice.weaponSlug&&(item.system?.slug===choice.weaponSlug||item.flags?.boltaction?.catalogueSlug===choice.weaponSlug))).length;
+        const nonNcoLimit=choice._option?.ncoAllowed&&Number.isFinite(choice.max)?choice.max-1:null;
+        const nonNcos=peers.filter(peer=>peer.uuid!==m.uuid&&!isNco(peer)&&(peer.items??[]).some(item=>item.flags?.boltaction?.modelChoiceId===choice.id||choice.weaponSlug&&(item.system?.slug===choice.weaponSlug||item.flags?.boltaction?.catalogueSlug===choice.weaponSlug))).length;
+        choice.disabled=!choice.selected&&((choice.ncoOnly&&!isNco(m))||(Number.isFinite(choice.max)&&used>=choice.max)||(nonNcoLimit!==null&&!isNco(m)&&nonNcos>=nonNcoLimit));
+        if(choice.disabled)choice.costLabel=`${priceLabel(choice)} · ${choice.ncoOnly&&!isNco(m)?'NCO only':'Squad limit reached'}`;
+      }
+      const loaderChoices=peers.filter(peer=>peer.uuid!==m.uuid&&(peer.items??[]).some(item=>item.type==='weapon'&&(['lmg','mmg','hmg'].includes(item.system?.slug)||(item.system?.traits??[]).includes('team')))).map(peer=>({uuid:peer.uuid,name:peer.name,selected:m.system.loaderForUuid===peer.uuid}));
+      return {loaderChoices,loaderForUuid:m.system?.loaderForUuid,uuid:m.uuid,name:m.name,img:m.img,type:labels[m.type]??m.type,dead:Boolean(m.system?.dead),isNco:isNco(m),isLoader:Boolean(m.system?.isLoader||m.system?.role==='loader'),isMedic:Boolean(m.system?.isMedic||m.system?.role==='medic'),isInfantry:m.type==='model',isVehicle:m.type==='modelVehicle',count:m.members?.filter(c=>c.visible!==false).length??0,primarySlots:equipmentSlots(gear?{...gear,equipment:gear.equipment.map(describeChoice)}:gear),optionalChoices:(gear?.equipment??[]).filter(c=>c.kind!=='primary').map(describeChoice),manualOptions:gear?.manualOptions??[],weapons:(m.items??[]).filter(i=>i.type==='weapon').map(weaponLabel).join(', '),weaponReferences:(m.items??[]).filter(i=>i.type==='weapon').map(i=>({name:weaponLabel(i),uuid:references.get(`boltaction-weapons:${i.system?.slug||i.flags?.boltaction?.catalogueSlug}`)||i.uuid,range:i.system.range,shots:i.system.shots,penetration:i.system.penetration,traits:(i.system.traits??[]).map(readable).join(', ')})),vehicleStates:['immobilised','onFire','turretJammed','stunned','engineDamage','knockedOut'].map(value=>({value,label:value.replace(/([A-Z])/g,' $1').toLowerCase(),selected:(m.system?.vehicleStates??[]).includes(value)}))};
 
     };
     const members=await Promise.all(rosterActors.filter(m=>m.visible!==false).map(memberContext));
@@ -137,6 +146,8 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
   }
   async _onRender(context, options) {
     await super._onRender(context, options);
+    const roots=[...this.element.querySelectorAll('[data-ba-sheet-root]')];
+    for(const stale of roots.slice(0,-1))stale.remove();
     this._bindControls(context);
   }
   _bindControls(context) {
@@ -144,13 +155,14 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
     if (!context.editable) return;
     this._builderListeners=new AbortController();
     const signal=this._builderListeners.signal;
-    const content = this.element.querySelector('.ba-sheet');
+    const content = this.element.querySelector('[data-ba-sheet-root]');
     content?.addEventListener('dragover', event => event.preventDefault(),{signal});
     content?.addEventListener('drop', event => {event.preventDefault();void safely(()=>this._handleDrop(event));},{signal});
     const change = (selector, callback) => content?.querySelectorAll(selector).forEach(input=>input.addEventListener('change',event=>{
       event.stopPropagation();
       void safely(()=>callback(input));
     },{signal}));
+    change('[data-loader-pair]',async input=>game.boltaction.setLoaderPair(await this._rosterMember(input.dataset.modelUuid),input.value));
     change('[data-builder-platoon]',async input=>game.boltaction.assignSquadPlatoon(this.actor,await this._builderSquad(input.dataset.squadUuid),input.value));
     change('[data-squad-kind]',input=>game.boltaction.setSquadKind(this.actor,input.value));
     change('[data-squad-experience]',input=>game.boltaction.setSquadExperience(this.actor,input.value));
@@ -168,7 +180,7 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
     this._liveRefresh=(async()=>{
       do {
         this._liveRefreshAgain=false;
-        const root=this.element?.querySelector('.ba-sheet');if(!root)return;
+        const root=this.element?.querySelector('[data-ba-sheet-root]');if(!root)return;
         const context=await this._prepareContext({});
         const html=await foundry.applications.handlebars.renderTemplate(BoltActorSheet.PARTS.main.template,context);
         const template=root.ownerDocument.createElement('template');template.innerHTML=html.trim();

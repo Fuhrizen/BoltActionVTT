@@ -8,6 +8,14 @@ function center(token, canvas) {
   if (!Number.isFinite(point.x) || !Number.isFinite(point.y)) throw new Error('A scene token has no valid position.');
   return {x:point.x,y:point.y,elevation:Number(doc.elevation ?? 0)};
 }
+/** V14 polygons require a Level document, never the token's persisted level ID. */
+function tokenLevel(token,canvas) {
+  const value=token.document?.level;
+  if(!value)return null;
+  const level=typeof value==='string'?canvas.scene.levels?.get?.(value):value;
+  if(!level||level.parent!==canvas.scene)throw new Error('The firing token scene level is unavailable. Reopen the scene before attacking.');
+  return level;
+}
 /** A center-to-center sight-wall test; range, cover and weapon rules are resolved separately. */
 export function squadLineOfSight(squad, targetToken, {canvas = globalThis.canvas} = {}) {
   if (!squad || squad.type !== 'unit' || squad.pack || !squad.isOwner) throw new Error('You must own the firing squad.');
@@ -30,7 +38,8 @@ export function squadLineOfSight(squad, targetToken, {canvas = globalThis.canvas
     if (model.system.isLoader || String(model.system.role ?? '').trim().toLowerCase()==='loader') return {...row,reason:'Assigned as a loader.'};
     if (token === target) return {...row,reason:'A model cannot fire at itself.'};
     if (token.document?.level && target.document?.level && token.document.level !== target.document.level) return {...row,reason:'Target is on a different scene level.'};
-    const blocked = Boolean(backend.testCollision(center(token,canvas),destination,{type:'sight',mode:'any',...(token.vision?{source:token.vision}:{}),...(token.document?.level?{level:token.document.level}:{})}));
+    const level=tokenLevel(token,canvas);
+    const blocked = Boolean(backend.testCollision(center(token,canvas),destination,{type:'sight',mode:'any',...(token.vision?{source:token.vision}:{}),...(level?{level}:{})}));
     return {...row,blocked,visible:!blocked,eligible:!blocked,reason:blocked?'Sight is blocked by scene walls.':'Clear line of sight.'};
   });
 }

@@ -1,3 +1,4 @@
+import {getLoaderPair} from './groups.mjs';
 import {DEFAULT_TOKEN_FOOTPRINTS,tokenFootprint,preservesTokenSize} from './token-sizing.mjs';
 import {BoltToken} from '../documents/token.mjs';
 import {isDefaultModelArt} from './faction-appearance.mjs';
@@ -118,7 +119,7 @@ export function clearNcoBadges() {roleSignatures.clear();for (const token of [..
 /** A separate scene overlay marks the NCO without replacing any portrait, texture or core filters. */
 export function refreshNcoBadge(token) {
   const system=token?.actor?.system ?? {};
-  const signature=JSON.stringify([usableToken(token),usableToken(token)&&hoveringSquad(token),token?.w,token?.h,system.role,system.isNco,system.isMedic,system.isObserver,system.isLoader]);
+  const signature=JSON.stringify([usableToken(token),usableToken(token)&&hoveringSquad(token),token?.w,token?.h,system.role,system.isNco,system.isMedic,system.isObserver,system.isLoader,system.loaderForUuid,getLoaderPair(token?.actor)?.pairLabel,getLoaderPair(token?.actor)?.loaders.map(m=>m.uuid)]);
   if (roleSignatures.get(token)===signature)return;
   roleSignatures.set(token,signature);
   removeNcoBadge(token);
@@ -163,7 +164,9 @@ function refreshSpecialRoleBadges(token) {
   const roles=[];
   if (system.isMedic || role==='medic')roles.push({text:'+',color:0x9ee8a8});
   if (system.isObserver || role==='observer')roles.push({text:'O',color:0xaadcf5});
-  if (system.isLoader || role==='loader')roles.push({text:'L',color:0xe5ddb7});
+  const pair=getLoaderPair(token.actor);
+  if (system.isLoader || role==='loader')roles.push({text:pair?'L'+pair.pairLabel+'↔':'L?',color:0xe5ddb7});
+  else if(pair?.loaders.length)roles.push({text:'MG'+pair.pairLabel+'↔',color:0xe5ddb7});
   const size=Math.max(10,Math.min(token.w,token.h)*.18);
   specialRoleBadges.set(token,roles.map((item,index)=>textLabel(token,item.text,{x:4+index*(size+5),y:3,size,color:item.color})));
 }

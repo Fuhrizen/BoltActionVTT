@@ -46,6 +46,8 @@ function equipmentCosts(actor,row,profile,quality,data){
  let cost=0;const unknown=[],seen=new Set();
  for(const item of values(actor.items)){
   if(!['weapon','trait'].includes(item.type))continue;
+  if(flag(item,'vehicleOptionWeapon'))continue;
+  if(flag(item,'vehicleOption')){const price=flag(item,'vehicleOption').price;if(number(price))cost+=price;else unknown.push(`${actor.name}: conversion price requires confirmation`);continue;}
   const choice=flag(item,'modelChoiceId'),slug=flag(item,'catalogueSlug')??item.system?.slug;
   const isDefault= !choice && ((item.type==='weapon'&&(row?.weaponSlug===slug||row?.weaponLoadout?.some(w=>w.weaponSlug===slug)||[row?.weaponSlug,...(row?.weaponLoadout??[]).map(w=>w.weaponSlug)].some(s=>data.weapons.find(w=>w.slug===s)?.name===item.name))) || item.type==='trait'&&row?.traitSlugs?.includes(slug));
   if(isDefault)continue;
