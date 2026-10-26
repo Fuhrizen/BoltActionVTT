@@ -1,3 +1,4 @@
+import {factionWeaponName} from './faction-weapons.mjs';
 import {loadCatalogue, resolveWeapon} from './catalogue.mjs';
 
 const qualities = ['inexperienced', 'regular', 'veteran'];
@@ -31,7 +32,8 @@ async function definition(model) {
     if (!weapon) return;
     const id = `${kind}:${slot ?? option.mount ?? 'equipment'}:${slug}`;
     if (equipment.some(choice => choice.id === id)) return;
-    const choice = {id, label: weapon.name, kind, weaponSlug: slug, ...(slot ? {slot} : {}), ...(option.mount ? {mount:option.mount} : {})};
+    const price=option.pointsByQuality?.[model.system.quality]??option.costEach??option.costPerModel??option.cost??0;
+    const choice = {id, label: factionWeaponName(slug,flag(model,'factionSlug')??source?.factionSlug,weapon.name), cost:Number.isFinite(price)?price:null,costBasis:option.costPerModel!==undefined?'per model':'each',costLabel:Number.isFinite(price)?`${price>=0?'+':''}${price} pts ${option.costPerModel!==undefined?'per model':'each'}`:'Price requires confirmation',max:option.max,ncoOnly:Boolean(option.ncoOnly),loaderEach:option.loaderEach??0,kind, weaponSlug: slug, ...(slot ? {slot} : {}), ...(option.mount ? {mount:option.mount} : {})};
     Object.defineProperty(choice, '_option', {value:option});
     equipment.push(choice);
   };
@@ -60,8 +62,8 @@ async function definition(model) {
     } else if (option.option) {
       const slug = option.trait ?? option.option;
       const trait = data.traits.find(row => row.slug === slug);
-      const choice = {id:`trait:${slug}`, label:trait?.name ?? title(option.option), kind:'trait', traitSlug:slug};
-      Object.defineProperty(choice, '_trait', {value:trait});
+      const choice = {cost:option.pointsByQuality?.[model.system.quality]??option.costPerModel??option.costEach??option.cost??null,costBasis:option.costPerModel!==undefined?'per model':'per option',id:`trait:${slug}`, label:trait?.name ?? title(option.option), kind:'trait', traitSlug:slug};
+      Object.defineProperty(choice, '_trait', {value:trait});Object.defineProperty(choice,'_option',{value:option});
       equipment.push(choice);
     }
   }
@@ -85,7 +87,7 @@ function assertEditable(model) {
 }
 
 /** Apply one experience or equipment selection, preserving unrelated embedded equipment. */
-export async function applyModelChoice(model, {experience, choiceId, enabled = true} = {}) {
+async function applySingleModelChoice(model, {experience, choiceId, enabled = true} = {}) {
   assertEditable(model);
   if(experience!==undefined && model.system.unitUuid)throw new Error('Set experience on the squad sheet.');
   if (busy.has(model)) throw new Error('This model is already being customized.');
@@ -96,6 +98,8 @@ export async function applyModelChoice(model, {experience, choiceId, enabled = t
     if (experience !== undefined && !config.experiences.some(choice => choice.value === experience)) throw new Error('Unknown experience choice.');
     const choice = choiceId === undefined ? undefined : config.equipment.find(choice => choice.id === choiceId);
     if (choiceId !== undefined && !choice) throw new Error('Unknown equipment choice.');
+    if(choice?.kind==='primary'&&!enabled)throw new Error('Primary weapons must be swapped rather than removed.');
+    if(choice&&enabled){const option=choice._option??{};if(option.ncoOnly&&!model.system.isNco&&model.system.role!=='nco')throw new Error('This option is reserved for the NCO.');if(Number.isFinite(option.max)&&model.system.unitUuid){const peers=Array.from(globalThis.game?.actors??[]).filter(a=>a.system?.unitUuid===model.system.unitUuid&&a.uuid!==model.uuid);const selected=peers.filter(a=>items(a).some(i=>flag(i,'modelChoiceId')===choice.id||choice.weaponSlug&&(flag(i,'catalogueSlug')===choice.weaponSlug||i.system?.slug===choice.weaponSlug))).length;if(selected>=option.max)throw new Error(`This squad option is limited to ${option.max} models.`);if(option.ncoAllowed&& !model.system.isNco&&model.system.role!=='nco'){const nonNcos=peers.filter(a=>!a.system.isNco&&a.system.role!=='nco'&&items(a).some(i=>flag(i,'modelChoiceId')===choice.id||choice.weaponSlug&&(flag(i,'catalogueSlug')===choice.weaponSlug||i.system?.slug===choice.weaponSlug))).length;if(nonNcos>=option.max-1)throw new Error(`Only ${option.max-1} non-NCO models may take this option.`);}}}
     snapshot = items(model).map(copy); quality = model.system.quality;
     if (experience !== undefined && experience !== quality) await model.update({'system.quality':experience});
     if (!choice) return model;
@@ -120,12 +124,12 @@ export async function applyModelChoice(model, {experience, choiceId, enabled = t
     if (choice.kind === 'trait') {
       source = choice._trait ? {name:choice._trait.name,type:'trait',system:structuredClone(choice._trait.system)} : {name:choice.label,type:'trait',system:{slug:choice.traitSlug,effect:'Source-listed optional equipment. Resolve its effects manually.',notes:'Optional equipment selected on the model sheet.'}};
     } else {
-      source = await resolveWeapon(choice.weaponSlug);
+      source = await resolveWeapon(choice.weaponSlug,flag(model,'factionSlug'));
       delete source.system.cost;
       source.system.quantity = choice._option.quantity ?? 1;
       for (const key of ['heDiameter','penetration']) if (Number.isFinite(choice._option[key])) source.system[key] = choice._option[key];
     }
-    source.flags = {boltaction:{catalogueSlug:choice.weaponSlug ?? choice.traitSlug,modelChoiceId:choice.id,...(choice.slot ? {modelChoiceSlot:choice.slot} : {}),...(choice.mount ? {mount:choice.mount} : {})}};
+    source.flags = {...source.flags,boltaction:{...source.flags?.boltaction,catalogueSlug:choice.weaponSlug ?? choice.traitSlug,modelChoiceId:choice.id,...(choice.slot ? {modelChoiceSlot:choice.slot} : {}),...(choice.mount ? {mount:choice.mount} : {})}};
     await model.createEmbeddedDocuments('Item', [source]);
     if (removing.length) await model.deleteEmbeddedDocuments('Item', removing.map(itemId));
     return model;
@@ -143,4 +147,23 @@ export async function applyModelChoice(model, {experience, choiceId, enabled = t
     }
     throw error;
   } finally { busy.delete(model); }
+}
+
+const updatingSquads=new WeakSet();
+/** Per-model-priced unit upgrades are purchased and removed for the entire squad. */
+export async function applyModelChoice(model,options={}){
+ assertEditable(model);
+ if(!options.choiceId)return applySingleModelChoice(model,options);
+ const config=await definition(model),choice=config.equipment.find(row=>row.id===options.choiceId);
+ if(!choice)throw new Error('Unknown equipment choice.');
+ const squad=model.unit??Array.from(globalThis.game?.actors??[]).find(actor=>actor.uuid===model.system.unitUuid&&actor.type==='unit');
+ if(choice.kind!=='trait'||choice._option?.costPerModel===undefined||!squad)return applySingleModelChoice(model,options);
+ if(!squad.isOwner||updatingSquads.has(squad))throw new Error('Own this squad and wait for its current option change.');
+ const models=Array.from(globalThis.game?.actors??[]).filter(actor=>(squad.system.modelUuids??[]).includes(actor.uuid)&&actor.system.unitUuid===squad.uuid);
+ for(const member of models)assertEditable(member);
+ const snapshots=models.map(member=>({member,items:items(member).filter(item=>matchesChoice(item,choice)).map(copy)}));
+ updatingSquads.add(squad);
+ try{for(const member of models)await applySingleModelChoice(member,options);return model;}
+ catch(error){for(const snapshot of snapshots){const current=items(snapshot.member).filter(item=>matchesChoice(item,choice));if(current.length)await snapshot.member.deleteEmbeddedDocuments('Item',current.map(itemId));if(snapshot.items.length)await snapshot.member.createEmbeddedDocuments('Item',snapshot.items,{keepId:true});}throw error;}
+ finally{updatingSquads.delete(squad);}
 }

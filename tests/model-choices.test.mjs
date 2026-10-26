@@ -25,11 +25,11 @@ async function choose(model,slug,enabled=true) {
   await applyModelChoice(model,{choiceId:choice.id,enabled});
 }
 
-test('actual British infantry has experience and equipment choices without point fields',async()=>{
+test('actual British infantry has experience and equipment choices with source option prices',async()=>{
   const actor=await model();const choices=await getModelChoices(actor);
   assert.deepEqual(choices.experiences.map(row=>row.value),['inexperienced','regular','veteran']);
   for(const slug of ['rifle','smg','lmg','anti-tank-grenades'])assert.ok(choices.equipment.some(row=>(row.weaponSlug??row.traitSlug)===slug));
-  assert.doesNotMatch(JSON.stringify(choices),/cost|points|max|nco/i);
+  assert.equal(choices.equipment.find(row=>row.weaponSlug==='lmg').cost,20);assert.equal(choices.equipment.find(row=>row.weaponSlug==='lmg').loaderEach,1);
   await applyModelChoice(actor,{experience:'inexperienced'});assert.equal(actor.system.quality,'inexperienced');
   assert.ok((await getModelChoices(actor)).equipment.some(row=>row.weaponSlug==='lmg'));
 });
@@ -39,7 +39,7 @@ test('primary switches preserve custom gear and repeated switches do not duplica
   await choose(actor,'smg');await choose(actor,'smg');assert.equal(actor.items.length,2);
   await choose(actor,'lmg');assert.equal(actor.items.length,2);
   await choose(actor,'rifle');assert.equal(actor.items.length,2);assert.ok(actor.items.some(item=>item.id===custom));
-  assert.equal(actor.items.find(item=>item.flags?.boltaction?.modelChoiceSlot==='primary').name,'Rifle');
+  assert.equal(actor.items.find(item=>item.flags?.boltaction?.modelChoiceSlot==='primary').flags.boltaction.catalogueSlug,'rifle');
   assert.equal(actor.items.find(item=>item.flags?.boltaction?.modelChoiceSlot==='primary').system.cost,undefined);
 });
 test('optional trait toggles are idempotent and leave actor data unchanged',async()=>{
@@ -86,3 +86,6 @@ test('Sherman gun conversion keeps other mounted weapons and restores its origin
   await choose(actor,'medium-at-gun');assert.equal(actor.items.length,3);
   for(const id of others)assert.ok(actor.items.some(item=>item.id===id));
 });
+
+test('source equipment maxima reject over-purchasing before item mutation',async()=>{const actor=await model();actor.system.unitUuid='Actor.squad';const choice=(await getModelChoices(actor)).equipment.find(c=>c.weaponSlug==='lmg');globalThis.game={actors:[actor,{uuid:'Actor.peer',system:{unitUuid:'Actor.squad'},items:[{type:'weapon',flags:{boltaction:{modelChoiceId:choice.id,catalogueSlug:'lmg'}}}]}]};const before=actor.items.length;await assert.rejects(applyModelChoice(actor,{choiceId:choice.id}),/limited/);assert.equal(actor.items.length,before);});
+test('per-model-priced squad upgrades toggle every purchased model together',async()=>{const one=await model(),two=await model();one.uuid='Actor.one';two.uuid='Actor.two';const squad={uuid:'Actor.squad',type:'unit',isOwner:true,system:{modelUuids:[one.uuid,two.uuid]}};for(const member of [one,two]){member.unit=squad;member.system.unitUuid=squad.uuid;}globalThis.game={actors:[squad,one,two]};await choose(one,'anti-tank-grenades');assert.ok(one.items.some(i=>i.type==='trait'));assert.ok(two.items.some(i=>i.type==='trait'));await choose(two,'anti-tank-grenades',false);assert.ok([one,two].every(m=>!m.items.some(i=>i.type==='trait')));});

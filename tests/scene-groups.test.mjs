@@ -67,3 +67,13 @@ test('system token rightclick HUD is suppressed and native effect icons are repl
  const token=new BoltToken();token.actor={type:'model'};token.effects={visible:true};assert.equal(token._onClickRight({}),undefined);assert.equal(token._onClickRight2({}),undefined);token._refreshEffects();assert.equal(token.effects.visible,false);
  token.actor.type='other';assert.equal(token._onClickRight({}),'native-hud');assert.equal(token._onClickRight2({}),'native-config');
 });
+
+test('managed deployed footprints respect profile overrides and avoid overlapping large vehicle bases',async()=>{
+ const {a,m,v}=setup();v.system.damageValue=10;v.flags={boltaction:{profile:{tokenSize:{width:3,height:4}}}};
+ for(const model of [m,v])model.getTokenDocument=async()=>({toObject:()=>({width:1,height:1,texture:{src:'systems/boltaction/assets/model-token.svg'}})});
+ const canvas={ready:true,scene:{grid:{size:100},createEmbeddedDocuments:async(_type,rows)=>rows}};
+ const rows=await deployGroup(a,{canvas,x:0,y:0});assert.deepEqual(rows.map(row=>[row.width,row.height]),[[1,1],[3,4]]);assert.ok(rows[1].x>=300);
+ const preserved=centeredDefaultTokenData({width:5,height:6,texture:{src:'systems/boltaction/assets/model-token.svg'},flags:{boltaction:{preserveTokenSize:true}}},m);
+ assert.equal(preserved.width,undefined);assert.equal(preserved.height,undefined);
+ const custom=centeredDefaultTokenData({width:5,height:6,texture:{src:'my-art.webp'}},v);assert.equal(custom.width,undefined);
+});

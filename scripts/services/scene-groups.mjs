@@ -1,3 +1,4 @@
+import {DEFAULT_TOKEN_FOOTPRINTS,tokenFootprint,preservesTokenSize} from './token-sizing.mjs';
 import {BoltToken} from '../documents/token.mjs';
 import {isDefaultModelArt} from './faction-appearance.mjs';
 const MODEL_TYPES = new Set(['model', 'modelStatic', 'modelVehicle']);
@@ -30,8 +31,10 @@ function hasManagedTokenArt(source) {
   return isDefaultModelArt(source.texture?.src) && (!subject || isDefaultModelArt(subject));
 }
 /** Managed SVGs already contain a base; a second dynamic ring must not rescale their subject. */
-export function centeredDefaultTokenData(source, type) {
+export function centeredDefaultTokenData(source, actorOrType) {
+  const actor=typeof actorOrType==='string'?{type:actorOrType,system:{}}:actorOrType;
   const update = {lockRotation:false};
+  if(hasManagedTokenArt(source)&&!preservesTokenSize(source))Object.assign(update,tokenFootprint(actor));
   if (!hasManagedTokenArt(source) || source.flags?.boltaction?.preserveTokenTransform === true) return update;
   update.texture = centeredDefaultTokenTexture(source.texture);
   update.ring = {...source.ring,enabled:false,subject:{...source.ring?.subject,scale:1}};
@@ -54,7 +57,7 @@ export async function deployGroup(parent, {canvas = globalThis.canvas, x, y} = {
   const data = documents.map((doc, index) => {
     const source = doc.toObject();delete source._id;
     source.actorId = models[index].id;source.actorLink = true;
-    Object.assign(source,centeredDefaultTokenData(source,models[index].type));
+    Object.assign(source,centeredDefaultTokenData(source,models[index]));
     return source;
   });
   const columns = Math.ceil(Math.sqrt(data.length));
@@ -169,6 +172,8 @@ export function tokenStateLabels(actor) {
   const squad=actor?.type==='unit'?actor:actor?.unit;
   const pins=Math.max(0,Math.trunc(Number(squad?.system?.pins ?? 0)));
   const labels=[];if(actor?.system?.dead)labels.push({text:'☠',color:0xffffff,kind:'dead'});if(pins)labels.push({text:`P:${pins}`,color:0xffcc78,kind:'pins'});
+  const order=String(squad?.system?.order ?? '').toLowerCase();
+  if(['fire','advance','run','ambush','rally','down'].includes(order))labels.push({text:order.toUpperCase(),color:0xb9dcff,kind:'order'});
   if(actor?.type!=='modelVehicle')return labels;
   const system=actor.system ?? {},states=new Set(system.vehicleStates ?? []);
   for(const key of ['immobilised','onFire','turretJammed','stunned','engineDamage','knockedOut'])if(system[key])states.add(key);
@@ -194,9 +199,9 @@ function refreshNcoBadges() {for (const token of globalThis.canvas?.tokens?.plac
 export async function normalizeSceneTokenDefaults(scene = globalThis.canvas?.scene) {
   if (!scene) return [];
   const updates = values(scene.tokens).filter(token => MODEL_TYPES.has(token.actor?.type)).flatMap(token => {
-    const source = token.toObject?.() ?? {texture:token.texture?.toObject?.() ?? token.texture,ring:token.ring,flags:token.flags,lockRotation:token.lockRotation};
-    const fixed = centeredDefaultTokenData(source,token.actor.type);
-    const changed = fixed.lockRotation !== source.lockRotation || fixed.texture &&
+    const source = token.toObject?.() ?? {texture:token.texture?.toObject?.() ?? token.texture,ring:token.ring,flags:token.flags,lockRotation:token.lockRotation,width:token.width,height:token.height};
+    const fixed = centeredDefaultTokenData(source,token.actor);
+    const changed = fixed.width!==undefined && (fixed.width!==source.width || fixed.height!==source.height) || fixed.lockRotation !== source.lockRotation || fixed.texture &&
       ['src','anchorX','anchorY','scaleX','scaleY','fit'].some(key=>source.texture?.[key]!==fixed.texture[key]) ||
       fixed.ring && (source.ring?.enabled !== false || source.ring?.subject?.scale !== 1);
     return changed ? [{_id:token.id,...fixed}] : [];
@@ -217,10 +222,11 @@ export function setSquadHover(token,active) {
 export function registerSceneGroups() {
   if (registered) return;registered = true;
   CONFIG.Token.objectClass = BoltToken;
+  for(const [kind,footprint]of Object.entries(DEFAULT_TOKEN_FOOTPRINTS))for(const dimension of ['width','height'])game.settings?.register('boltaction',`tokenSize_${kind}_${dimension}`,{name:`${kind.replace(/([A-Z])/g,' $1')} token ${dimension}`,hint:'Grid spaces; a configurable tabletop footprint, not a historical scale measurement.',scope:'world',config:true,type:Number,default:footprint[dimension],range:{min:.25,max:10,step:.25}});
   Hooks.on('preCreateToken', (token, source) => {
     const actor = token.actor ?? game.actors?.get?.(source.actorId) ?? values(game.actors).find(actor=>actor.id===source.actorId);
     if (!MODEL_TYPES.has(actor?.type)) return;
-    token.updateSource(centeredDefaultTokenData({...source,texture:source.texture ?? token.texture ?? {}},actor.type));
+    token.updateSource(centeredDefaultTokenData({...source,texture:source.texture ?? token.texture ?? {}},actor));
   });
   Hooks.on('dropCanvasData', (canvas, data) => {
     if (data.type !== 'Actor' || typeof data.uuid !== 'string' || !data.uuid.startsWith('Actor.')) return;

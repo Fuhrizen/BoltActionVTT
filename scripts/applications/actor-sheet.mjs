@@ -4,8 +4,9 @@ const {HandlebarsApplicationMixin} = foundry.applications.api;
 const modelTypes = ['model', 'modelStatic', 'modelVehicle'];
 const isNco = actor => Boolean(actor.system?.isNco || actor.system?.role === 'nco' || actor.getFlag?.('boltaction','isNco') || actor.flags?.boltaction?.isNco || actor.flags?.boltaction?.nco);
 const labels = {army:'Army',unit:'Squad',model:'Infantry model',modelStatic:'Static model',modelVehicle:'Vehicle model'};
+const priceLabel = choice => choice.costLabel ?? (Number.isFinite(choice.cost)?`${choice.cost>=0?'+':''}${choice.cost} pts`:'Cost unverified');
 function equipmentSlots(choices) {
-  const primary=(choices?.equipment??[]).filter(c=>c.kind==='primary');
+  const primary=(choices?.equipment??[]).filter(c=>c.kind==='primary').map(c=>({...c,label:`${c.label} · ${priceLabel(c)}`}));
   return [...new Set(primary.map(c=>c.slot||'primary'))].map(slot=>{const entries=primary.filter(c=>(c.slot||'primary')===slot);return {label:slot==='primary'?'Weapon':slot.replace('mount:','').replaceAll('-',' '),choices:entries.some(c=>c.selected)?entries:[{id:'',label:'Choose a weapon',selected:true},...entries]};});
 }
 const nodeKey = node => node.nodeType===1 ? node.getAttribute('data-roster-card') || node.getAttribute('data-builder-squad') || (node.hasAttribute('data-model-uuid') ? `${node.tagName}:${node.getAttribute('data-model-uuid')}:${node.getAttribute('data-model-flag')||node.getAttribute('data-choice-id')||node.getAttribute('data-vehicle-state')||node.getAttribute('data-roster-primary')||'identity'}` : null) : null;
@@ -46,15 +47,28 @@ async function factions() {
   return [...new Map(entries.map(i => [i.uuid, i])).values()];
 }
 export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
-  static DEFAULT_OPTIONS = {classes:['boltaction','ba-sheet','actor-sheet','group-sheet'],position:{width:760,height:700},form:{submitOnChange:true},actions:{openMember:this.openMember,removeMember:this.removeMember,createSquad:this.createSquad,chooseFaction:this.chooseFaction,prepareCatalogue:this.prepareCatalogue,openItem:this.openItem,rollAttack:this.rollAttack,openSquad:this.openSquad,addModel:this.addModel,deleteModel:this.deleteModel,addArmySquad:this.addArmySquad}};
+  static DEFAULT_OPTIONS = {classes:['boltaction','ba-sheet','actor-sheet','group-sheet'],position:{width:760,height:700},form:{submitOnChange:true},actions:{openMember:this.openMember,removeMember:this.removeMember,createSquad:this.createSquad,chooseFaction:this.chooseFaction,prepareCatalogue:this.prepareCatalogue,openItem:this.openItem,rollAttack:this.rollAttack,openSquad:this.openSquad,addModel:this.addModel,deleteModel:this.deleteModel,addArmySquad:this.addArmySquad,openArmyBuilder:this.openArmyBuilder,nextBattleRound:this.nextBattleRound,markMovement:this.markMovement,resetAction:this.resetAction,checkMorale:this.checkMorale,issueOrder:this.issueOrder}};
   static PARTS = {main:{template:'systems/boltaction/templates/actor-sheet.hbs'}};
+  get isArmyBuilder(){return false;}
   async _prepareContext(options) {
     const context = await super._prepareContext(options), actor = this.actor;
     const isTeam = actor.type === 'army', isSquad = actor.type === 'unit', isModel = modelTypes.includes(actor.type);
     const inherited = await globalThis.game?.boltaction?.profiles?.(actor);
     const cost=await globalThis.game?.boltaction?.calculateCost?.(actor);
+    const legality=isTeam?await game.boltaction.validateArmy?.(actor):null;
+    const reportMessage=entry=>typeof entry==='string'?entry:entry.message??entry.label??entry.reason??entry.name??'Review this entry';
+    const legalityErrors=(legality?.errors??[]).map(reportMessage),legalityWarnings=(legality?.warnings??[]).map(reportMessage);
+    const legalityPassed=Boolean(legality?.valid&&!legalityErrors.length&&!(cost?.unknown??[]).length);
+    const orders=['fire','advance','run','ambush','rally','down'].map(value=>({value,label:value[0].toUpperCase()+value.slice(1),selected:actor.system.order===value}));
     const ownTraits=new Set((actor.items??[]).filter(i=>i.type==='trait'));
     const ruleProfiles=(inherited?.traits??[]).map(i=>({name:i.name,effect:i.system?.effect,notes:i.system?.notes,source:ownTraits.has(i)?'Owned':(actor.system.traitUuids??[]).includes(i.uuid)?'Profile':(inherited?.squad?.system.traitUuids??[]).includes(i.uuid)?'Inherited squad':'Inherited faction'}));
+    const weaponActors=isSquad?[actor,...(actor.members??[]).filter(m=>m.visible!==false)]:isModel?[actor,...(actor.unit?[actor.unit]:[])]:[actor];
+    const seenWeaponTraits=new Set();
+    for(const owner of weaponActors)for(const weapon of (owner.items??[]).filter(item=>item.type==='weapon'))for(const slug of weapon.system?.traits??[]){
+      const key=`${weapon.uuid??weapon.id??weapon.name}:${slug}`;if(seenWeaponTraits.has(key))continue;seenWeaponTraits.add(key);
+      const reference=(game.items??[]).find(item=>item.type==='trait'&&(item.system?.slug===slug||item.flags?.boltaction?.catalogueSlug===slug));
+      ruleProfiles.push({name:reference?.name??String(slug).replaceAll('-',' '),effect:reference?.system?.effect??'Resolve this weapon trait using the rulebook.',notes:reference?.system?.notes??'',source:`${owner===actor?'Weapon':'Inherited weapon'}: ${weapon.name}${owner!==actor?` · ${owner.name}`:''}`});
+    }
     const factionSlug=inherited?.faction?.system?.slug || inherited?.faction?.getFlag?.('boltaction','catalogueSlug') || actor.getFlag?.('boltaction','factionSlug');
     const factionColor=factionAppearance(factionSlug,actor.type).color;
     const summary = isTeam || isSquad ? await globalThis.game?.boltaction?.groupSummary?.(actor) : null;
@@ -63,13 +77,13 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
     const rosterActors=actor.pack&&isSquad?(actor.getFlag?.('boltaction','memberTemplates')??actor.flags?.boltaction?.memberTemplates??[]):(summary?.members??actor.members??[]);
     const memberContext=async m=>{
       const gear=modelTypes.includes(m.type)?await game.boltaction.getModelChoices?.(m):null;
-      return {uuid:m.uuid,name:m.name,img:m.img,type:labels[m.type]??m.type,dead:Boolean(m.system?.dead),isNco:isNco(m),isLoader:Boolean(m.system?.isLoader||m.system?.role==='loader'),isMedic:Boolean(m.system?.isMedic||m.system?.role==='medic'),isInfantry:m.type==='model',isVehicle:m.type==='modelVehicle',count:m.members?.filter(c=>c.visible!==false).length??0,primarySlots:equipmentSlots(gear),optionalChoices:(gear?.equipment??[]).filter(c=>c.kind!=='primary'),manualOptions:gear?.manualOptions??[],weapons:(m.items??[]).filter(i=>i.type==='weapon').map(i=>i.name).join(', '),vehicleStates:['immobilised','onFire','turretJammed','stunned','engineDamage','knockedOut'].map(value=>({value,label:value.replace(/([A-Z])/g,' $1').toLowerCase(),selected:(m.system?.vehicleStates??[]).includes(value)}))};
+      return {uuid:m.uuid,name:m.name,img:m.img,type:labels[m.type]??m.type,dead:Boolean(m.system?.dead),isNco:isNco(m),isLoader:Boolean(m.system?.isLoader||m.system?.role==='loader'),isMedic:Boolean(m.system?.isMedic||m.system?.role==='medic'),isInfantry:m.type==='model',isVehicle:m.type==='modelVehicle',count:m.members?.filter(c=>c.visible!==false).length??0,primarySlots:equipmentSlots(gear),optionalChoices:(gear?.equipment??[]).filter(c=>c.kind!=='primary').map(c=>({...c,costLabel:priceLabel(c)})),manualOptions:gear?.manualOptions??[],weapons:(m.items??[]).filter(i=>i.type==='weapon').map(i=>i.name).join(', '),vehicleStates:['immobilised','onFire','turretJammed','stunned','engineDamage','knockedOut'].map(value=>({value,label:value.replace(/([A-Z])/g,' $1').toLowerCase(),selected:(m.system?.vehicleStates??[]).includes(value)}))};
 
     };
     const members=await Promise.all(rosterActors.filter(m=>m.visible!==false).map(memberContext));
-    const armyCatalogue=isTeam?await game.boltaction.armyBuilderCatalogue?.(actor)??[]:[];
+    const armyCatalogue=isTeam&&this.isArmyBuilder&&actor.isOwner&&!actor.pack?await game.boltaction.armyBuilderCatalogue?.(actor)??[]:[];
     const catalogueGroups=[...new Set(armyCatalogue.map(row=>row.kind))].map(kind=>({label:kind,entries:armyCatalogue.filter(row=>row.kind===kind)}));
-    const armySquads=isTeam?await Promise.all(rosterActors.filter(s=>s.visible!==false&&s.type==='unit').map(async squad=>({uuid:squad.uuid,name:squad.name,identity:squad.system.identity||'Unnamed Squad',pins:squad.system.pins??0,editable:editable&&squad.isOwner,cost:await game.boltaction.calculateCost?.(squad),qualities:['inexperienced','regular','veteran'].map(value=>({value,label:value,selected:squad.system.quality===value})),members:await Promise.all((squad.members??[]).filter(m=>m.visible!==false).map(memberContext))}))):[];
+    const armySquads=isTeam&&this.isArmyBuilder?await Promise.all(rosterActors.filter(s=>s.visible!==false&&s.type==='unit').map(async squad=>({uuid:squad.uuid,name:squad.name,identity:squad.system.identity||'Unnamed Squad',nationalAllowance:Boolean(squad.system.nationalAllowance),extraModelCost:(await game.boltaction.squadBuilderLimits?.(squad))?.extraModelCost??(squad.getFlag?.('boltaction','profile')??squad.flags?.boltaction?.profile)?.extraModelPoints,pins:squad.system.pins??0,editable:editable&&squad.isOwner,cost:await game.boltaction.calculateCost?.(squad),qualities:['inexperienced','regular','veteran'].map(value=>({value,label:value,selected:squad.system.quality===value})),members:await Promise.all((squad.members??[]).filter(m=>m.visible!==false).map(memberContext))}))):[];
     const sourceProfile=actor.getFlag?.('boltaction','profile')??actor.flags?.boltaction?.profile??{};
     const sourceOptions=(sourceProfile.options??[]).map(o=>({label:o.label??o.name??(o.weaponSlug??o.option??o.variant??'Profile option').replaceAll('-',' ')}));
     const choices = isModel ? await globalThis.game?.boltaction?.getModelChoices?.(actor) : null;
@@ -78,7 +92,7 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
     for (const slot of primarySlots) if (!slot.choices.some(choice=>choice.selected)) slot.choices=[{id:'',label:'Choose a weapon',selected:true},...slot.choices];
     const squadKind = isSquad ? (game.boltaction.getSquadKind?.(actor) ?? actor.system.squadKind ?? 'infantry') : '';
     const incompatible = isSquad && (summary?.members ?? actor.members ?? []).some(m=>squadKind==='infantry'?m.type!=='model':!['modelStatic','modelVehicle'].includes(m.type));
-    return {...context,armySquads,catalogueGroups,sourceProfile,sourceOptions,editable,cost,costUnknown:(cost?.unknown??[]).map(entry=>typeof entry==='string'?entry:entry.label??entry.message??entry.reason??entry.name??'Unresolved cost'),isInfantry:actor.type==='model',isLoader:Boolean(actor.system.isLoader || actor.system.role==='loader'),isNco:isNco(actor),squadIdentity:actor.system.identity || 'Unnamed Squad',factionColor,inheritedExperience:isModel&&Boolean(actor.unit),experienceLabel:actor.unit?.system?.quality || actor.system.quality,squadQualities:['inexperienced','regular','veteran'].map(value=>({value,label:value,selected:actor.system.quality===value})),profileName:actor.system.profileName || actor.getFlag?.('boltaction','sourceName') || actor.name,actor,system:actor.system,isGM:globalThis.game?.user?.isGM ?? false,isTeam,isSquad,isModel,isStatic:actor.type==='modelStatic',isVehicle:actor.type==='modelVehicle',kindLabel:labels[actor.type] ?? actor.type,parent:parent?.visible===false?null:parent,members,
+    return {...context,extraModelCost:isSquad?(await game.boltaction.squadBuilderLimits?.(actor))?.extraModelCost:null,isArmyBuilder:this.isArmyBuilder,legality,legalityPassed,legalityErrors,legalityWarnings,orders,actionState:actor.system.actionState||actor.system.order||'Awaiting order',armySquads,catalogueGroups,sourceProfile,sourceOptions,editable,cost,costUnknown:(cost?.unknown??[]).map(entry=>typeof entry==='string'?entry:entry.label??entry.message??entry.reason??entry.name??'Unresolved cost'),isInfantry:actor.type==='model',isLoader:Boolean(actor.system.isLoader || actor.system.role==='loader'),isNco:isNco(actor),squadIdentity:actor.system.identity || 'Unnamed Squad',factionColor,inheritedExperience:isModel&&Boolean(actor.unit),experienceLabel:actor.unit?.system?.quality || actor.system.quality,squadQualities:['inexperienced','regular','veteran'].map(value=>({value,label:value,selected:actor.system.quality===value})),profileName:actor.system.profileName || actor.getFlag?.('boltaction','sourceName') || actor.name,actor,system:actor.system,isGM:globalThis.game?.user?.isGM ?? false,isTeam,isSquad,isModel,isStatic:actor.type==='modelStatic',isVehicle:actor.type==='modelVehicle',kindLabel:labels[actor.type] ?? actor.type,parent:parent?.visible===false?null:parent,members,
       modelCount:actor.pack&&isSquad?members.length:summary?.modelCount ?? (isSquad?members.length:0),squadCount:summary?.squadCount ?? (isTeam?members.length:0),
       factionName:inherited?.faction?.name ?? 'Choose a faction',ruleProfiles,
       qualities:choices?.experiences?.length?choices.experiences:['inexperienced','regular','veteran'].map(value=>({value,label:value,selected:actor.system.quality===value})),
@@ -105,6 +119,7 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
     change('[data-squad-kind]',input=>game.boltaction.setSquadKind(this.actor,input.value));
     change('[data-squad-experience]',input=>game.boltaction.setSquadExperience(this.actor,input.value));
     change('[data-pins]',async input=>game.boltaction.setPins(await this._builderSquad(input.dataset.squadUuid),Number(input.value)));
+    change('[data-national-allowance]',async input=>(await this._builderSquad(input.dataset.squadUuid)).update({'system.nationalAllowance':input.checked},{render:false}));
     change('[data-builder-quality]',async input=>game.boltaction.setSquadExperience(await this._builderSquad(input.dataset.squadUuid),input.value));
     change('[data-builder-identity]',async input=>(await this._builderSquad(input.dataset.squadUuid)).update({'system.identity':input.value.trim()||'Unnamed Squad'},{render:false}));
     content?.querySelector('[data-catalogue-search]')?.addEventListener('input',event=>{const query=event.target.value.toLowerCase().trim();content.querySelectorAll('[data-catalogue-entry]').forEach(row=>{row.hidden=!row.textContent.toLowerCase().includes(query);});},{signal});
@@ -175,8 +190,32 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
   static async prepareCatalogue(){return safely(()=>game.boltaction.prepareCatalogue());}
   static async openItem(_event,target){this.actor.items.get(target.dataset.id)?.sheet.render({force:true});}
   static async rollAttack(_event,target){return safely(async()=>game.boltaction.confirmShooting(await this._builderSquad(target?.dataset?.squadUuid)));}
+  static async openArmyBuilder(){return openArmyBuilder(this.actor);}
+  static async nextBattleRound(){return safely(()=>game.boltaction.nextBattleRound());}
+  static async markMovement(){return safely(()=>game.boltaction.recordMovement(this.actor));}
+  static async resetAction(){return safely(()=>game.boltaction.resetSquadAction(this.actor));}
+  static async checkMorale(){return safely(()=>game.boltaction.checkSquadMorale(this.actor));}
+  static async issueOrder(_event,target){return safely(async()=>{
+    const squad=await this._builderSquad(target.dataset.squadUuid);
+    const action=game.boltaction.actions?.issueOrder??game.boltaction.issueOrder;
+    if(!action)throw new Error('Order actions are unavailable.');
+    return action(squad,target.dataset.order);
+  });}
   static async openSquad(){return this.actor.unit?.sheet.render({force:true});}
   static async addModel(_event,target){return safely(async()=>game.boltaction.addSquadMember(await this._builderSquad(target?.dataset?.squadUuid)));}
   static async addArmySquad(_event,target){return safely(()=>game.boltaction.addArmySquad(this.actor,target.dataset.slug));}
-  static async deleteModel(_event,target){return safely(async()=>game.boltaction.deleteGroupActor(await this._rosterMember(target.dataset.uuid)));}
+  static async deleteModel(_event,target){return safely(async()=>{const model=await this._rosterMember(target.dataset.uuid);const squad=await fromUuid(model.system.unitUuid);await game.boltaction.validateSquadRemoval(squad,model);return game.boltaction.deleteGroupActor(model);});}
+}
+
+/** A separate document window keeps roster construction out of the Army summary sheet. */
+export class BoltArmyBuilder extends BoltActorSheet {
+  static DEFAULT_OPTIONS={...BoltActorSheet.DEFAULT_OPTIONS,id:'boltaction-army-builder-{id}',position:{width:1060,height:820},window:{title:'Army Builder'}};
+  get isArmyBuilder(){return true;}
+  get title(){return `${this.actor?.name??'Army'} — Army Builder`;}
+}
+export async function openArmyBuilder(army) {
+  if(army?.type!=='army'||army.visible===false)throw new Error('Choose an available Army.');
+  const existing=Object.values(army.apps??{}).find(app=>app instanceof BoltArmyBuilder);
+  const builder=existing??new BoltArmyBuilder({document:army,id:`boltaction-army-builder-${army.id}`});
+  return builder.render({force:true});
 }

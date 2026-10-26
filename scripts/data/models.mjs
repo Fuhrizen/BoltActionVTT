@@ -14,11 +14,11 @@ export class ArmyData extends foundry.abstract.TypeDataModel {
 export class UnitData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     return {
-      identity: text("Unnamed Squad"), profileName: text(), squadKind: text("", {choices: ["", "infantry", "vehicleStatic"]}),
+      nationalAllowance: bool(), identity: text("Unnamed Squad"), profileName: text(), squadKind: text("", {choices: ["", "infantry", "vehicleStatic"]}),
       armyUuid: text(), factionUuid: text(), modelUuids: list(), side: text("allies"),
       kind: text("infantry", {choices: ["infantry", "artillery", "vehicle"]}), battlefieldRole: text("infantry"),
       quality: quality(), pins: int(), order: text("", {choices: ["", "fire", "advance", "run", "ambush", "rally", "down"]}),
-      activated: bool(), destroyed: bool(), ncoAlive: bool(true), moraleBonus: int(0, {min: -10, max: 10}),
+      actionState: text("ready",{choices:["ready","ordered","attacked","complete"]}), attackReservation: text(), movementTaken: bool(), actionLog: new f.ArrayField(new f.ObjectField(),{initial:[]}), activated: bool(), destroyed: bool(), ncoAlive: bool(true), moraleBonus: int(0, {min: -10, max: 10}),
       startingSize: int(5, {min: 1, max: 100}), maxSize: int(10, {min: 1, max: 100}), fullStrength: bool(),
       damageValue: int(4, {min: 3, max: 11}), moveAdvance: num(6), moveRun: num(12), points: int(),
       reserve: bool(), deployment: text("field", {choices: ["field", "reserve", "outflank"]}), arrivalRound: int(),

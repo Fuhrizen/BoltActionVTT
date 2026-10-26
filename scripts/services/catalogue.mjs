@@ -1,3 +1,4 @@
+import {applyFactionWeaponAlias} from './faction-weapons.mjs';
 import {factionAppearance,isDefaultModelArt} from './faction-appearance.mjs';
 
 export const CATALOGUE_FILES = ['weapons','traits','factions','units'];
@@ -37,10 +38,10 @@ export function validateCatalogue(data) {
   }
   return data;
 }
-export async function resolveWeapon(slug) {
+export async function resolveWeapon(slug, factionSlug = '') {
   const row = (await loadCatalogue()).weapons.find(row => row.slug === slug);
   if (!row) throw new Error(`Unknown weapon: ${slug}`);
-  return structuredClone({name: row.name,type:'weapon',system:{...row.system,cost:row.system.cost ?? 0}});
+  return applyFactionWeaponAlias({name: row.name,type:'weapon',system:{...row.system,cost:row.system.cost ?? 0}},factionSlug);
 }
 const identity = slug => ({boltaction:{catalogueSlug:slug}});
 const findSlug = (collection, slug) => collection.find(document => document.getFlag?.('boltaction','catalogueSlug') === slug || document.flags?.boltaction?.catalogueSlug === slug);
@@ -86,12 +87,12 @@ export async function modelTemplate(row, packed = new Map()) {
   const items = [];
   for (const entry of entries) {
     if (!entry.weaponSlug) continue;
-    const weapon = await resolveWeapon(entry.weaponSlug);
+    const weapon = await resolveWeapon(entry.weaponSlug,row.factionSlug);
     weapon.system.quantity = entry.quantity ?? 1;
     weapon.system.cost = 0;
     if (entry.heDiameter) weapon.system.heDiameter = entry.heDiameter;
     if (Number.isFinite(entry.penetration)) weapon.system.penetration = entry.penetration;
-    if (entry.mount) weapon.flags = {boltaction: {mount: entry.mount}};
+    if (entry.mount) weapon.flags = {...weapon.flags,boltaction: {...weapon.flags?.boltaction,mount: entry.mount}};
     items.push(weapon);
   }
   const sourceFactionUuid = row.factionSlug ? packed.get(row.factionSlug)?.uuid ?? '' : '';
@@ -137,7 +138,7 @@ export async function squadTemplate(row, packed = new Map()) {
       if (entry.weaponSlug !== undefined) {
         member.items = [];
         if (entry.weaponSlug) {
-          const weapon = await resolveWeapon(entry.weaponSlug);weapon.system.quantity=1;weapon.system.cost=0;
+          const weapon = await resolveWeapon(entry.weaponSlug,row.factionSlug);weapon.system.quantity=1;weapon.system.cost=0;
           member.items.push(weapon);
         }
       }

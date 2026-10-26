@@ -257,7 +257,9 @@ export async function addSquadMember(parent){
  squad(parent);canCreate();
  if(childActors(parent).length>=100)throw new Error('A squad may contain at most 100 model actors.');
  const data=await loadCatalogue(),name=parent.getFlag?.('boltaction','sourceName')??parent.flags?.boltaction?.sourceName;
- const row=data.units.find(row=>row.name===name);
+ const faction=parent.getFlag?.('boltaction','factionSlug')??parent.flags?.boltaction?.factionSlug;
+ const row=data.units.find(row=>row.name===name&&(!faction||row.factionSlug===faction));
+ if(row){const {squadModelLimit}=await import('./army-builder.mjs');const limit=squadModelLimit(row,parent.system.quality);if(childActors(parent).length>=limit.max)throw new Error('This source profile has reached its maximum model count.');}
  let source=row?await modelTemplate(row):childActors(parent)[0]?.toObject();
  if(!source)throw new Error('Import a squad template, or drop a model reference into this squad first.');
  source=clone(source);delete source._id;delete source.folder;delete source._stats;
@@ -266,4 +268,12 @@ export async function addSquadMember(parent){
  source.ownership=clone(parent.ownership??{});source.prototypeToken={...source.prototypeToken,actorLink:true,name:source.name};
  for(const item of source.items??[])delete item._id;
  const model=await actorClass().create(source);try{await linkGroupMember(parent,model);return model;}catch(error){await model.delete();throw error;}
+}
+
+export async function validateSquadRemoval(parent,member){
+ squad(parent);owned(member);if(member.system.unitUuid!==parent.uuid)throw new Error('This model is not in the squad.');
+ const data=await loadCatalogue(),faction=parent.flags?.boltaction?.factionSlug,name=parent.flags?.boltaction?.sourceName;
+ const row=data.units.find(row=>row.name===name&&(!faction||row.factionSlug===faction));
+ if(row){const {squadModelLimit}=await import('./army-builder.mjs');if(childActors(parent).length<=squadModelLimit(row,parent.system.quality).min)throw new Error('This is a required base model; mark casualties instead or delete the squad.');}
+ return true;
 }
