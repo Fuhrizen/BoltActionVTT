@@ -4,9 +4,9 @@ import {factionAppearance,isDefaultModelArt} from './faction-appearance.mjs';
 export const CATALOGUE_FILES = ['weapons','traits','factions','units'];
 export const BUILDER_TEMPLATE_VERSION = 1;
 let cached;
-export async function loadCatalogue() {
+export async function loadCatalogue({baseUrl} = {}) {
   if (!cached) cached = Promise.all(CATALOGUE_FILES.map(async key => {
-    const response = await fetch(`systems/boltaction/compendiums/${key}.json`);
+    const response = await fetch(baseUrl ? new URL(`${key}.json`,baseUrl) : `systems/boltaction/compendiums/${key}.json`);
     if (!response.ok) throw new Error(`Cannot load ${key} catalogue (${response.status}).`);
     return [key, await response.json()];
   })).then(entries => validateCatalogue(Object.fromEntries(entries))).catch(error => { cached = undefined; throw error; });

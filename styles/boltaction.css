@@ -118,3 +118,10 @@
 .boltaction.ba-sheet.standard-form {display:block !important;height:auto;max-height:none;overflow:visible;}
 .boltaction.ba-sheet.standard-form>* {margin-block:0 12px;}
 .boltaction.ba-sheet.standard-form>.ba-builder-workspace {height:auto;min-height:max-content;flex:none;}
+
+.ba-sheet .ba-army-transfer {display:flex;gap:8px;flex-wrap:wrap;}.ba-sheet .ba-army-transfer button {width:auto;flex:0 1 auto;}
+.ba-sheet .ba-squad-play-bar {display:grid;grid-template-columns:minmax(80px,100px) minmax(0,1fr) minmax(100px,auto);align-items:center;gap:12px;padding:12px;border:1px solid var(--color-border-light-primary,#8886);border-radius:6px;}
+.ba-sheet .ba-squad-play-bar small {display:block;margin-top:5px;}.ba-sheet .ba-action-state summary {cursor:pointer;font-weight:600;padding:8px 0;}.ba-sheet .ba-action-state>button {display:inline-flex;width:auto;margin-right:8px;}
+
+.ba-sheet .ba-squad-play-bar>button:last-child:nth-of-type(2) {grid-column:2/-1;justify-self:end;width:auto;}.ba-sheet .ba-squad-models>summary {font-weight:600;cursor:pointer;padding:10px 0;}
+@media(max-width:600px){.ba-sheet .ba-squad-play-bar {grid-template-columns:90px minmax(0,1fr);}.ba-sheet .ba-squad-play-bar>button {grid-column:1/-1;}}

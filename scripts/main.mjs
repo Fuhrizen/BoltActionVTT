@@ -11,6 +11,7 @@ import * as costs from './services/costs.mjs';
 import * as lineOfSight from './services/line-of-sight.mjs';
 import * as rolls from './services/rolls.mjs';
 import * as manualRolls from './services/manual-rolls.mjs';
+import * as rosterTransfer from './services/roster-transfer.mjs';
 import {registerTokenArt} from './services/token-art.mjs';
 import * as groups from './services/groups.mjs';
 import * as modelChoices from './services/model-choices.mjs';
@@ -31,7 +32,7 @@ Hooks.once('init',()=>{
  Object.assign(CONFIG.Item.dataModels,{weapon:WeaponData,trait:TraitData,faction:FactionData,selector:SelectorData});
  foundry.documents.collections.Actors.registerSheet(SID,BoltActorSheet,{types:['army','unit',...modelTypes],makeDefault:true,label:'Team, squad and model sheets'});
  foundry.documents.collections.Items.registerSheet(SID,BoltItemSheet,{types:['weapon','trait','faction','selector'],makeDefault:true,label:'Bolt Action profile'});
- game.boltaction={apiVersion:1,actions,openArmyBuilder,...actions,prepareMacros,...groups,...modelChoices,...armyBuilder,...costs,...rolls,...manualRolls,...lineOfSight,profiles,prepareCatalogue,importStarter:prepareCatalogue};
+ game.boltaction={apiVersion:1,actions,openArmyBuilder,...actions,prepareMacros,...groups,...modelChoices,...armyBuilder,...costs,...rolls,...manualRolls,...rosterTransfer,...lineOfSight,profiles,prepareCatalogue,importStarter:prepareCatalogue};
 });
 Hooks.once('ready',async()=>{
  if(activeGM())for(const squad of game.actors)if(squad.type==='unit')await groups.ensureInfantryLeader(squad);

@@ -24,7 +24,7 @@ export function collectGroupModels(parent, actors = globalThis.game?.actors) {
 /** Managed default artwork always fills its token bounds; custom artwork is untouched. */
 export function centeredDefaultTokenTexture(texture = {}, preserveTransform = false) {
   if (!isDefaultModelArt(texture.src) || preserveTransform) return {...texture};
-  return {...texture,...(texture.src?{src:isGeneratedTokenArt(texture.src)?texture.src:texture.src.split('?')[0]+'?v=13'}:{}),anchorX:.5,anchorY:.5,scaleX:1,scaleY:isGeneratedTokenArt(texture.src)?1:-1,fit:'contain'};
+  return {...texture,...(texture.src?{src:isGeneratedTokenArt(texture.src)?texture.src:texture.src.split('?')[0]+'?v=13'}:{}),anchorX:.5,anchorY:.5,scaleX:1,scaleY:-1,fit:'contain'};
 }
 
 function hasManagedTokenArt(source) {

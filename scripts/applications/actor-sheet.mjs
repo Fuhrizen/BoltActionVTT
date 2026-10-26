@@ -75,7 +75,7 @@ async function factions() {
   return [...new Map(entries.map(i => [i.uuid, i])).values()];
 }
 export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
-  static DEFAULT_OPTIONS = {classes:['boltaction','ba-sheet','actor-sheet','group-sheet'],position:{width:760,height:700},form:{submitOnChange:true},actions:{openMember:this.openMember,removeMember:this.removeMember,createSquad:this.createSquad,chooseFaction:this.chooseFaction,prepareCatalogue:this.prepareCatalogue,openItem:this.openItem,openReference:this.openReference,rollAttack:this.rollAttack,openSquad:this.openSquad,addModel:this.addModel,deleteModel:this.deleteModel,addArmySquad:this.addArmySquad,openArmyBuilder:this.openArmyBuilder,selectBuilderSquad:this.selectBuilderSquad,browseProfiles:this.browseProfiles,addPlatoon:this.addPlatoon,finishBuilder:this.finishBuilder,removeLastModel:this.removeLastModel,nextBattleRound:this.nextBattleRound,markMovement:this.markMovement,resetAction:this.resetAction,checkMorale:this.checkMorale,issueOrder:this.issueOrder}};
+  static DEFAULT_OPTIONS = {classes:['boltaction','ba-sheet','actor-sheet','group-sheet'],position:{width:760,height:700},form:{submitOnChange:true},actions:{exportArmy:this.exportArmy,importArmy:this.importArmy,openMember:this.openMember,removeMember:this.removeMember,createSquad:this.createSquad,chooseFaction:this.chooseFaction,prepareCatalogue:this.prepareCatalogue,openItem:this.openItem,openReference:this.openReference,rollAttack:this.rollAttack,openSquad:this.openSquad,addModel:this.addModel,deleteModel:this.deleteModel,addArmySquad:this.addArmySquad,openArmyBuilder:this.openArmyBuilder,selectBuilderSquad:this.selectBuilderSquad,browseProfiles:this.browseProfiles,addPlatoon:this.addPlatoon,finishBuilder:this.finishBuilder,removeLastModel:this.removeLastModel,nextBattleRound:this.nextBattleRound,markMovement:this.markMovement,resetAction:this.resetAction,checkMorale:this.checkMorale,issueOrder:this.issueOrder}};
   static PARTS = {main:{template:'systems/boltaction/templates/actor-sheet.hbs'}};
   get isArmyBuilder(){return false;}
   async _prepareContext(options) {
@@ -251,7 +251,18 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
   static async openReference(_event,target){return safely(async()=>{const document=await fromUuid(target.dataset.uuid);if(!document||document.visible===false)throw new Error('This reference is unavailable. Prepare the catalogue as GM.');await document.sheet.render({force:true});});}
   static async openItem(_event,target){this.actor.items.get(target.dataset.id)?.sheet.render({force:true});}
   static async rollAttack(_event,target){return safely(async()=>game.boltaction.confirmManualRoll(await this._builderSquad(target?.dataset?.squadUuid)));}
-  static async openArmyBuilder(){return openArmyBuilder(this.actor);}
+  static async exportArmy(){return safely(async()=>{
+    const roster=await game.boltaction.exportArmyRoster(this.actor);
+    const blob=new Blob([JSON.stringify(roster,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');
+    link.href=url;link.download=(this.actor.name||'army').replace(/[^a-z0-9_-]+/gi,'-')+'.boltaction.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
+  });}
+  static async importArmy(){return safely(async()=>{
+    if(!game.user.isGM)throw new Error('The GM imports armies.');
+    const input=await foundry.applications.api.DialogV2.wait({window:{title:'Import army'},position:{width:560},content:'<div class="standard-form"><p>Import an army exported by the web builder or Foundry. This creates a new Army; existing armies are unchanged.</p><label>Army JSON file<input type="file" name="armyFile" accept=".json,application/json"></label><label>Or paste army JSON<textarea name="armyJson" rows="8" maxlength="2000000"></textarea></label></div>',buttons:[{action:'import',label:'Import new Army',default:true,callback:async(_event,_button,dialog)=>{const file=dialog.element.querySelector('[name="armyFile"]').files?.[0];if(file&&file.size>2000000)throw new Error('Army file exceeds 2 MB.');return file?file.text():dialog.element.querySelector('[name="armyJson"]').value;}},{action:'cancel',label:'Cancel',callback:()=>null}],rejectClose:false});
+    if(!input)return;
+    const army=await game.boltaction.importArmyRoster(JSON.parse(input));await openArmyBuilder(army);
+  });}
+  static async openArmyBuilder(){return openArmyBuilder(this.actor.type==='army'?this.actor:this.actor.army);}
   static async nextBattleRound(){return safely(()=>game.boltaction.nextBattleRound());}
   static async markMovement(){return safely(()=>game.boltaction.recordMovement(this.actor));}
   static async resetAction(){return safely(()=>game.boltaction.resetSquadAction(this.actor));}

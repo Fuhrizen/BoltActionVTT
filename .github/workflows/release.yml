@@ -20,6 +20,7 @@ jobs:
       - run: npm run check
       - run: npm test
       - run: npm run build
+      - run: npm run build:web
       - name: Publish versioned assets and latest manifest
         env:
           GH_TOKEN: ${{ github.token }}
@@ -30,4 +31,4 @@ jobs:
             echo "Version already published; bump system.json for a new release."
             exit 0
           fi
-          gh release create "$TAG" dist/boltaction.zip dist/system.json --target "$GITHUB_SHA" --latest --title "$TAG" --notes "Unofficial Bolt Action 2e alpha for Foundry V14. Live Foundry validation remains pending; specialist rules require manual adjudication."
+          gh release create "$TAG" dist/boltaction.zip dist/system.json dist/web-builder.zip --target "$GITHUB_SHA" --latest --title "$TAG" --notes "Unofficial Bolt Action 2e alpha for Foundry V14. Live Foundry validation remains pending; specialist rules require manual adjudication."

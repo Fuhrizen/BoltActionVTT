@@ -37,10 +37,10 @@ export async function synchronizeModelArt(actor){
  const src=modelTokenArt(actor,await factionFor(actor)),update={};
  if(isDefaultModelArt(actor.img)&&actor.img!==src)update.img=src;
  const texture=actor.prototypeToken?.texture;
- if(isDefaultModelArt(texture?.src)&&texture?.src!==src){update['prototypeToken.texture.src']=src;if(!actor.flags?.boltaction?.preserveTokenTransform)update['prototypeToken.texture.scaleY']=1;}
+ if(isDefaultModelArt(texture?.src)){if(texture?.src!==src)update['prototypeToken.texture.src']=src;if(!actor.flags?.boltaction?.preserveTokenTransform&&!actor.prototypeToken?.flags?.boltaction?.preserveTokenTransform&&texture?.scaleY!==-1)update['prototypeToken.texture.scaleY']=-1;}
  if(Object.keys(update).length)await actor.update(update,{boltactionArt:true,render:false});
  for(const scene of values(game.scenes)){
-  const changed=values(scene.tokens).filter(token=>token.actorId===actor.id&&token.actorLink!==false&&isDefaultModelArt(token.texture?.src)&&token.texture?.src!==src).map(token=>({_id:token.id,'texture.src':src,...(!token.flags?.boltaction?.preserveTokenTransform?{'texture.scaleY':1}: {})}));
+  const changed=values(scene.tokens).filter(token=>token.actorId===actor.id&&token.actorLink!==false&&isDefaultModelArt(token.texture?.src)&&(token.texture?.src!==src||!token.flags?.boltaction?.preserveTokenTransform&&token.texture?.scaleY!==-1)).map(token=>({_id:token.id,...(token.texture?.src!==src?{'texture.src':src}:{}),...(!token.flags?.boltaction?.preserveTokenTransform?{'texture.scaleY':-1}: {})}));
   if(changed.length&&scene.updateEmbeddedDocuments)await scene.updateEmbeddedDocuments('Token',changed,{boltactionArt:true});
  }
 }
