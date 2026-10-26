@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as r from '../scripts/rules/index.mjs';
+import * as r from '../fvtt/scripts/rules/index.mjs';
 
 test('morale clamps and NCO/pin modifiers combine', () => {
   assert.equal(r.moraleValue({quality:'veteran',pins:1,ncoAlive:false}),8);

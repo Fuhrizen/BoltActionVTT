@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {buildActorTree, renderActorDirectoryHierarchy, registerActorDirectoryHierarchy, syncActorGroupFolder, actorDirectoryNeedsRefresh, groupDeletionContextOptions} from '../scripts/applications/actor-directory.mjs';
+import {buildActorTree, renderActorDirectoryHierarchy, registerActorDirectoryHierarchy, syncActorGroupFolder, actorDirectoryNeedsRefresh, groupDeletionContextOptions} from '../fvtt/scripts/applications/actor-directory.mjs';
 
 const actor = (id, type, system = {}, extra = {}) => ({id, uuid: `Actor.${id}`, name: id, type,
   documentName: 'Actor', visible: true, isOwner: true, system, ...extra});

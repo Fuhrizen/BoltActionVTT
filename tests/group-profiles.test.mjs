@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {profiles} from '../scripts/services/group-profiles.mjs';
+import {profiles} from '../fvtt/scripts/services/group-profiles.mjs';
 test('all three models inherit their assigned team faction, overriding source references without copying',async()=>{
  const traitA={uuid:'Item.ruleA',type:'trait',system:{slug:'a'}},traitB={uuid:'Item.ruleB',type:'trait',system:{slug:'b'}},personal={uuid:'Item.personal',type:'trait',system:{slug:'personal'}};
  const a={uuid:'Item.factionA',type:'faction',system:{traitUuids:[traitA.uuid]}},b={uuid:'Item.factionB',type:'faction',system:{traitUuids:[traitB.uuid]}};

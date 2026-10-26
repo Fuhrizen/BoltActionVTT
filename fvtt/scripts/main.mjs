@@ -1,6 +1,6 @@
 import {ArmyData,UnitData,ModelData,StaticModelData,VehicleModelData,WeaponData,TraitData,FactionData,SelectorData} from './data/models.mjs';
 import {BoltActor} from './documents/actor.mjs';
-import {BoltActorSheet,openArmyBuilder} from './applications/actor-sheet.mjs';
+import {BoltActorSheet} from './applications/actor-sheet.mjs';
 import {BoltItemSheet} from './applications/item-sheet.mjs';
 import {registerSceneGroups} from './services/scene-groups.mjs';
 import {prepareMacros} from './services/macros.mjs';
@@ -32,7 +32,7 @@ Hooks.once('init',()=>{
  Object.assign(CONFIG.Item.dataModels,{weapon:WeaponData,trait:TraitData,faction:FactionData,selector:SelectorData});
  foundry.documents.collections.Actors.registerSheet(SID,BoltActorSheet,{types:['army','unit',...modelTypes],makeDefault:true,label:'Team, squad and model sheets'});
  foundry.documents.collections.Items.registerSheet(SID,BoltItemSheet,{types:['weapon','trait','faction','selector'],makeDefault:true,label:'Bolt Action profile'});
- game.boltaction={apiVersion:1,actions,openArmyBuilder,...actions,prepareMacros,...groups,...modelChoices,...armyBuilder,...costs,...rolls,...manualRolls,...rosterTransfer,...lineOfSight,profiles,prepareCatalogue,importStarter:prepareCatalogue};
+ game.boltaction={apiVersion:1,actions,...actions,prepareMacros,...groups,...modelChoices,...armyBuilder,...costs,...rolls,...manualRolls,...rosterTransfer,...lineOfSight,profiles,prepareCatalogue,importStarter:prepareCatalogue};
 });
 Hooks.once('ready',async()=>{
  if(activeGM())for(const squad of game.actors)if(squad.type==='unit')await groups.ensureInfantryLeader(squad);

@@ -1,5 +1,5 @@
 import test from 'node:test';import assert from 'node:assert/strict';
-import {applyFactionWeaponAlias,factionWeaponName} from '../scripts/services/faction-weapons.mjs';
+import {applyFactionWeaponAlias,factionWeaponName} from '../fvtt/scripts/services/faction-weapons.mjs';
 test('faction weapon names preserve canonical class statistics and custom flags',()=>{
  const source={name:'Light machine gun',type:'weapon',system:{slug:'lmg',range:36,shots:4,penetration:0,traits:['team']},flags:{boltaction:{mount:'coaxial'},custom:{value:1}}};
  const before=structuredClone(source),weapon=applyFactionWeaponAlias(source,'germany');

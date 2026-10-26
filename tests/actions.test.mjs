@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as actions from '../scripts/services/actions.mjs';
+import * as actions from '../fvtt/scripts/services/actions.mjs';
 let nextId=0,queue,messages,round;
 function update(data){for(const [path,value]of Object.entries(data)){const parts=path.split('.');let object=this;for(const key of parts.slice(0,-1))object=object[key]??={};object[parts.at(-1)]=structuredClone(value);}return Promise.resolve(this);}
 function squad(extra={}){const id=++nextId;const actor={uuid:`Actor.s${id}`,name:`Section ${id}`,type:'unit',isOwner:true,system:{quality:'regular',kind:'infantry',pins:0,order:'',activated:false,actionState:'ready',attackReservation:'',actionLog:[],...extra},items:[],members:[],update};actor.members=Array.from({length:3},(_,i)=>({uuid:`Actor.s${id}m${i}`,type:'model',isOwner:true,system:{unitUuid:actor.uuid,dead:false,isNco:i===0},update}));return actor;}

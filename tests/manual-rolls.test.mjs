@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {manualRollInput,resolveManualPool,manualRollCard,genericRoll,confirmManualRoll,squadShotOptions,selectedShotCount} from '../scripts/services/manual-rolls.mjs';
+import {manualRollInput,resolveManualPool,manualRollCard,genericRoll,confirmManualRoll,squadShotOptions,selectedShotCount} from '../fvtt/scripts/services/manual-rolls.mjs';
 
 test('manual pool is rules-neutral and optional threshold does not count successes',()=>{
  const result=resolveManualPool([1,3,6],{count:3,target:'',modifier:0});
@@ -38,7 +38,7 @@ test('shot assistant groups actual living weapons and excludes loaders, casualti
  assert.throws(()=>selectedShotCount([{enabled:true,count:-1,shots:4}]));
 });
 test('shot assistant recalculates dice and can be disabled for a manual count',async()=>{
- const {bindManualShotControls}=await import('../scripts/services/manual-rolls.mjs');
+ const {bindManualShotControls}=await import('../fvtt/scripts/services/manual-rolls.mjs');
  const fields={assist:{checked:true},count:{value:1},weapon0:{checked:true},weapons0:{value:2},shots0:{value:4}};let listener;
  const controls=[fields.weapon0,fields.weapons0,fields.shots0];
  const root={querySelector:selector=>selector==='.ba-manual-dialog'?{addEventListener:(_name,callback)=>listener=callback}:fields[selector.match(/name="([^"]+)"/)[1]],querySelectorAll:()=>controls};

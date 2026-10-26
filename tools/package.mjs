@@ -3,13 +3,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const root = fileURLToPath(new URL('../', import.meta.url));
+export const systemRoot = path.join(root,'fvtt');
 const directories = ['scripts', 'templates', 'styles', 'assets', 'lang', 'compendiums'];
 const allowed = {
   scripts: /\.mjs$/i, templates: /\.hbs$/i, styles: /\.css$/i,
   assets: /\.(svg|png|jpe?g|webp|gif|avif|ogg|mp3|wav|woff2?)$/i,
   lang: /\.json$/i, compendiums: /\.json$/i
 };
-export async function releaseFiles(base = root) {
+export async function releaseFiles(base = systemRoot) {
   const files = ['README.md', 'system.json'];
   async function walk(dir) {
     for (const entry of await readdir(path.join(base, dir), { withFileTypes: true })) {
@@ -66,8 +67,8 @@ export function zip(entries) {
 }
 
 export async function build() {
-  const manifest = JSON.parse(await readFile(path.join(root, 'system.json'), 'utf8'));
-  const entries = await Promise.all((await releaseFiles()).map(async name => ({ name: `boltaction/${name}`, data: await readFile(path.join(root, name)) })));
+  const manifest = JSON.parse(await readFile(path.join(systemRoot, 'system.json'), 'utf8'));
+  const entries = await Promise.all((await releaseFiles()).map(async name => ({ name: `boltaction/${name}`, data: await readFile(path.join(systemRoot, name)) })));
   await mkdir(path.join(root, 'dist'), { recursive: true });
   await writeFile(path.join(root, 'dist/boltaction.zip'), zip(entries));
   await writeFile(path.join(root, 'dist/system.json'), `${JSON.stringify(manifest, null, 2)}\n`);

@@ -1,11 +1,13 @@
 # BoltActionVTT
 
-Unofficial Bolt Action Second Edition for Foundry VTT V14. Armies contain platoons and squads; squads retain individual model actors, native ownership and source-based equipment choices. The original rulebook is required. Not affiliated with Warlord Games, Osprey Publishing or Foundry Gaming.
+Unofficial Bolt Action Second Edition for Foundry VTT V14. Requires the original rulebook. Not affiliated with Warlord Games, Osprey Publishing or Foundry Gaming.
 
-The Army sheet opens the integrated builder. Composition and points checks are advisory. The squad play bar provides pins, order state and a manual dice roller with optional weapon-count assistance. Detailed orders and model configuration remain expandable. Drag an army or squad onto a scene to deploy its models.
+`fvtt/` contains the installable Foundry system: import an army JSON as GM, then manage squads, individual models, pins, casualties and manual rolls. Army construction lives in `web/`; Foundry has no integrated army builder. Imported armies receive independent actors and native ownership. Custom artwork is preserved.
 
-A separate self-hostable builder lives in `web/`. Download `web-builder.zip` from the release, extract it onto a static HTTP(S) host and open its root URL. It keeps drafts locally and exports a versioned `.boltaction.json` file. In Foundry, use **Import army** on an Army sheet as GM to create a new army from the file; existing armies remain unchanged. Foundry can export the same format back to the web builder. Keep `web/`, `scripts/`, `compendiums/` and `assets/` together when hosting; opening HTML directly as a local file is unsupported.
+For quick self-hosting, run `docker compose up --build -d` from the repository root and open **http://localhost:8080**. Set `WEB_PORT` to change the port. The stateless web service saves drafts in each browser; export JSON to retain or transfer an army. Use **Import army** in Foundry to create a new army without changing existing ones.
 
-`npm test`, `npm run check` and `npm run build` validate and package the Foundry system. `npm run build:web` packages the static builder. `npm run tokens` regenerates the checked-in SVG assets without LFS or image generation. Custom artwork is preserved.
+Alternatively, extract the release's `web-builder.zip` onto a static HTTP(S) host and open its root URL. Keep its `web/` and `fvtt/` directories together. Opening HTML directly as a local file is unsupported.
 
-This is an alpha. Specialist combat rules and source-specific conversions can require manual adjudication. Live Foundry verification is incomplete.
+`npm test`, `npm run check` and `npm run build` validate and package Foundry; its release ZIP has `system.json` at the ZIP root. `npm run build:web` packages the static builder. `npm run tokens` regenerates checked-in SVGs without LFS or image generation.
+
+This is an alpha. Composition checks are advisory; complex vehicle conversions and specialist combat rules can require manual review. Live Foundry verification remains incomplete.

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {squadLineOfSight} from '../scripts/services/line-of-sight.mjs';
+import {squadLineOfSight} from '../fvtt/scripts/services/line-of-sight.mjs';
 function setup(){
  const squad={id:'s',uuid:'Actor.s',type:'unit',isOwner:true,system:{modelUuids:['Actor.a','Actor.b','Actor.dead','Actor.loader','Actor.stale','Actor.absent']}};
  const model=(id,system={})=>({id,uuid:`Actor.${id}`,type:'model',isOwner:true,visible:true,system:{unitUuid:squad.uuid,...system}});

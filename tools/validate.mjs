@@ -1,7 +1,7 @@
 import { readFile, readdir, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
-import { root, releaseFiles } from './package.mjs';
+import { root, systemRoot, releaseFiles } from './package.mjs';
 
 const failures = [];
 const check = (condition, message) => { if (!condition) failures.push(message); };
@@ -33,10 +33,10 @@ for (const name of files) {
       const resolved = path.resolve(path.dirname(full), specifier);
       check(resolved.startsWith(root), `${name}: import escapes repository`);
       check(await stat(resolved).then(s => s.isFile()).catch(() => false), `${name}: missing import ${specifier}`);
-    } else check(!name.startsWith('scripts') || specifier.startsWith('node:') === false && specifier.startsWith('systems/'), `${name}: external runtime import ${specifier}`);
+    } else check(!name.startsWith('fvtt/scripts') || specifier.startsWith('node:') === false && specifier.startsWith('systems/'), `${name}: external runtime import ${specifier}`);
   }
 }
-const manifest = JSON.parse(await readFile(path.join(root, 'system.json'), 'utf8'));
+const manifest = JSON.parse(await readFile(path.join(systemRoot, 'system.json'), 'utf8'));
 check(manifest.id === 'boltaction', 'Manifest ID must be boltaction');
 check(/^\d+\.\d+\.\d+(?:-[\w.-]+)?$/.test(manifest.version), 'Manifest version must be semantic');
 check(String(manifest.compatibility?.minimum) === '14', 'Foundry minimum must be 14');
@@ -52,7 +52,7 @@ if (tag) check(tag === `v${manifest.version}`, `Release tag ${tag} does not matc
 const release = await releaseFiles();
 for (const name of [...(manifest.esmodules ?? []), ...(manifest.styles ?? []).map(style => typeof style === 'string' ? style : style.src), ...(manifest.languages ?? []).map(language => language.path)]) check(release.includes(name), `Missing manifest asset ${name}`);
 for (const name of release.filter(name => name.endsWith('.hbs'))) {
-  const source = await readFile(path.join(root, name), 'utf8');
+  const source = await readFile(path.join(systemRoot, name), 'utf8');
   check(!source.includes('{{{'), `${name}: unescaped triple braces forbidden`);
   const blocks = [];
   for (const match of source.matchAll(/{{\s*([#/])\s*([\w.]+)/g)) {

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {vehicleAssault} from '../scripts/services/vehicle-assault.mjs';
+import {vehicleAssault} from '../fvtt/scripts/services/vehicle-assault.mjs';
 let queued, messages;
 function doc(name,kind,damageValue,side){return {name,uuid:`Actor.${name}`,type:'unit',isOwner:true,effectiveSide:side,damageValue,livingMembers:Array(5).fill({}),system:{kind,order:'run',moveRun:12,quality:'regular',pins:0,ncoAlive:true,moraleBonus:0},flags:{},getFlag(namespace,key){return this.flags[namespace]?.[key];},async update(data){for(const [key,value]of Object.entries(data)){const fields=key.split('.');let at=this;for(const f of fields.slice(0,-1))at=at[f]??={};at[fields.at(-1)]=value;}}};}
 function setup(attackerKind='infantry',targetKind='vehicle',attackerArmour=4,targetArmour=8){

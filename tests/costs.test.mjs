@@ -1,9 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {calculateCost} from '../scripts/services/costs.mjs';
-import {loadCatalogue,modelTemplate,squadTemplate} from '../scripts/services/catalogue.mjs';
-globalThis.fetch=async url=>({ok:true,json:async()=>JSON.parse(await readFile(new URL('../'+url.replace('systems/boltaction/',''),import.meta.url),'utf8'))});
+import {calculateCost} from '../fvtt/scripts/services/costs.mjs';
+import {loadCatalogue,modelTemplate,squadTemplate} from '../fvtt/scripts/services/catalogue.mjs';
+globalThis.fetch=async url=>({ok:true,json:async()=>JSON.parse(await readFile(new URL('../fvtt/'+url.replace('systems/boltaction/',''),import.meta.url),'utf8'))});
 let id=0;
 function actor(source){const doc={...structuredClone(source),id:String(++id),uuid:'Actor.'+id,visible:true};doc.items??=[];return doc;}
 async function template(slug){const data=await loadCatalogue();return modelTemplate(data.units.find(row=>row.slug===slug));}

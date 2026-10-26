@@ -2,8 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
 import {readCatalogue} from '../tools/catalogue.mjs';
-import {validateCatalogue,prepareCatalogue,importStarter,modelTemplate,modelProfileName,preferredModelRows,squadTemplate,squadProfileName} from '../scripts/services/catalogue.mjs';
-import {factionAppearance,isDefaultModelArt} from '../scripts/services/faction-appearance.mjs';
+import {validateCatalogue,prepareCatalogue,importStarter,modelTemplate,modelProfileName,preferredModelRows,squadTemplate,squadProfileName} from '../fvtt/scripts/services/catalogue.mjs';
+import {factionAppearance,isDefaultModelArt} from '../fvtt/scripts/services/faction-appearance.mjs';
 test('catalogue preserves the complete weapon chart and reference integrity',async () => {
   const data = await readCatalogue();
   assert.equal(data.weapons.length,27);
@@ -139,7 +139,7 @@ test('faction appearance resolves existing SVG assets and excludes custom artwor
   for(const faction of data.factions){
     for(const type of ['army','unit','model','modelStatic','modelVehicle']){
       const art=factionAppearance(faction.slug,type);colors.add(art.color);assert.equal(art.slug,faction.slug);
-      for(const path of [art.img,art.tokenSrc]){assert.equal(isDefaultModelArt(path),true);assert.match(path,/\?v=13$/);const svg=await readFile(new URL(`../${path.split('?')[0].replace('systems/boltaction/','')}`,import.meta.url),'utf8');assert.match(svg,/^<svg/);const box=svg.match(/viewBox="0 0 (\d+) (\d+)"/);assert.match(svg,new RegExp(`width="${box[1]}" height="${box[2]}"`));}
+      for(const path of [art.img,art.tokenSrc]){assert.equal(isDefaultModelArt(path),true);assert.match(path,/\?v=13$/);const svg=await readFile(new URL(`../fvtt/${path.split('?')[0].replace('systems/boltaction/','')}`,import.meta.url),'utf8');assert.match(svg,/^<svg/);const box=svg.match(/viewBox="0 0 (\d+) (\d+)"/);assert.match(svg,new RegExp(`width="${box[1]}" height="${box[2]}"`));}
     }
   }
   assert.equal(colors.size,5);assert.equal(factionAppearance('unknown').img,'systems/boltaction/assets/soldier.svg?v=13');
@@ -413,6 +413,6 @@ test('every audited five-faction army-list base entry has its verified source pa
 });
 
 test('every infantry source group has exactly one leader and statics and vehicles have none',async()=>{
- const data=await readCatalogue();globalThis.fetch=async url=>({ok:true,json:async()=>JSON.parse(await readFile(new URL('../'+url.replace('systems/boltaction/',''),import.meta.url),'utf8'))});
+ const data=await readCatalogue();globalThis.fetch=async url=>({ok:true,json:async()=>JSON.parse(await readFile(new URL('../fvtt/'+url.replace('systems/boltaction/',''),import.meta.url),'utf8'))});
  for(const row of data.units){const template=await squadTemplate(row),members=template.flags.boltaction.memberTemplates;if(members.some(m=>m.type==='model')){assert.equal(members.filter(m=>m.system.isNco).length,1,row.slug);const officer=members.find(m=>m.system.role==='officer');if(officer)assert.equal(officer.system.isNco,true,row.slug);}else assert.equal(members.filter(m=>m.system.isNco).length,0,row.slug);}
 });

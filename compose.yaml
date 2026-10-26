@@ -1,0 +1,8 @@
+services:
+  army-builder:
+    build:
+      context: .
+      dockerfile: web/Dockerfile
+    ports:
+      - "${WEB_PORT:-8080}:80"
+    restart: unless-stopped

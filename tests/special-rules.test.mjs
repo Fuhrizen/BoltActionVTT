@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as r from '../scripts/rules/index.mjs';
+import * as r from '../fvtt/scripts/rules/index.mjs';
 
 test('HE profiles, one pin batch, Down rounding and building collapse',()=>{
   assert.deepEqual([1,2,3,4].map(n=>r.heProfile(n).pinSides),[2,3,3,6]);

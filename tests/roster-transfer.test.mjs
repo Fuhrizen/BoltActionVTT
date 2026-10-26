@@ -1,6 +1,6 @@
 import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';
-import {validateRoster} from '../scripts/roster/format.mjs';
-import {importArmyRoster,exportArmyRoster} from '../scripts/services/roster-transfer.mjs';
+import {validateRoster} from '../fvtt/scripts/roster/format.mjs';
+import {importArmyRoster,exportArmyRoster} from '../fvtt/scripts/services/roster-transfer.mjs';
 const draft=()=>({format:'boltaction-army',version:1,name:'Test force',faction:'great-britain',pointsLimit:500,platoons:[{id:'p1',name:'First'}],squads:[{id:'s1',profileSlug:'great-britain-regular-infantry',platoonId:'p1',identity:'Baker',quality:'regular',models:Array.from({length:5},(_,i)=>({id:'m'+i,customName:i===1?'Smith':'',isNco:i===0,choices:['primary:primary:rifle']}))}]});
 test('portable roster schema rejects unknown payload fields, world IDs and dangling links',()=>{
  const data=draft();assert.equal(validateRoster(JSON.stringify(data)).squads[0].models[1].customName,'Smith');
@@ -12,7 +12,7 @@ function setup(){
  const actors=[];let n=0;const faction={uuid:'Item.british',documentName:'Item',type:'faction',system:{slug:'great-britain'}};
  const put=(obj,key,value)=>{const p=key.split('.');let at=obj;for(const k of p.slice(0,-1))at=at[k]??={};at[p.at(-1)]=structuredClone(value);};
  const make=source=>{const a={id:'a'+(++n),uuid:'Actor.a'+n,documentName:'Actor',isOwner:true,visible:true,...structuredClone(source),items:(source.items??[]).map((i,j)=>({...structuredClone(i),id:'i'+j})),ownership:source.ownership??{},system:source.system??{},flags:source.flags??{},getFlag(scope,key){return this.flags?.[scope]?.[key];},toObject(){return {name:this.name,type:this.type,img:this.img,prototypeToken:this.prototypeToken,system:structuredClone(this.system),flags:structuredClone(this.flags),items:structuredClone(this.items),ownership:structuredClone(this.ownership)};},async update(data){for(const [k,v]of Object.entries(data))put(this,k,v);return this;},async delete(){actors.splice(actors.indexOf(this),1);},async createEmbeddedDocuments(_type,rows){const made=rows.map(row=>({...structuredClone(row),id:'i'+(++n)}));this.items.push(...made);return made;},async deleteEmbeddedDocuments(_type,ids){this.items=this.items.filter(i=>!ids.includes(i.id));}};Object.defineProperty(a,'members',{get(){const uuids=this.system[this.type==='army'?'unitUuids':'modelUuids']??[];return actors.filter(m=>uuids.includes(m.uuid));}});actors.push(a);return a;};
- globalThis.fetch=async path=>({ok:true,json:async()=>JSON.parse(await readFile(new URL('../'+path.replace('systems/boltaction/',''),import.meta.url),'utf8'))});
+ globalThis.fetch=async path=>({ok:true,json:async()=>JSON.parse(await readFile(new URL('../fvtt/'+path.replace('systems/boltaction/',''),import.meta.url),'utf8'))});
  globalThis.game={user:{id:'gm',isGM:true,can:()=>true},users:[],actors,items:[faction],packs:[]};globalThis.CONFIG={Actor:{documentClass:{create:async data=>make(data),deleteDocuments:async ids=>{for(const id of ids){const i=actors.findIndex(a=>a.id===id);if(i>=0)actors.splice(i,1);}}}}};globalThis.fromUuid=async uuid=>uuid===faction.uuid?faction:actors.find(a=>a.uuid===uuid);
  return actors;
 }

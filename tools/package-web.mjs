@@ -1,7 +1,7 @@
 import {readFile,writeFile,mkdir,readdir} from 'node:fs/promises';
 import path from 'node:path';
 import {root,releaseFiles,zip} from './package.mjs';
-const files=(await releaseFiles()).filter(p=>/^(scripts|compendiums|assets)\//.test(p));
+const files=(await releaseFiles()).filter(p=>/^(scripts|compendiums|assets)\//.test(p)).map(p=>'fvtt/'+p);
 async function walk(dir){for(const entry of await readdir(path.join(root,dir),{withFileTypes:true})){const name=dir+'/'+entry.name;if(entry.isSymbolicLink())throw Error('Web symlinks forbidden');if(entry.isDirectory())await walk(name);else if(/\.(html|mjs|js|css)$/.test(name))files.push(name);}}
 await walk('web');
 const entries=await Promise.all(files.sort().map(async name=>({name,data:await readFile(path.join(root,name))})));

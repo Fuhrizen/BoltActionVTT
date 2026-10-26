@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {checkCard,diceAudit} from '../scripts/services/chat-cards.mjs';
-import {chatCard} from '../scripts/services/rolls.mjs';
+import {checkCard,diceAudit} from '../fvtt/scripts/services/chat-cards.mjs';
+import {chatCard} from '../fvtt/scripts/services/rolls.mjs';
 test('check audit makes the final threshold, failure margin and actual dice inspectable',()=>{
  const html=checkCard({name:'<script>Squad</script>'},'Morale','Squad destroyed', [{formula:'2d6',dice:[{results:[{result:5},{result:6}]}]}],{passed:false,total:11,target:7},{quality:'regular',pins:2,ncoAlive:false,moraleBonus:1,modifier:0});
  assert.match(html,/Failed by 4/);assert.match(html,/11 rolled · 7 or less needed/);assert.match(html,/Missing \(−1 morale\)/);assert.match(html,/Inspect dice and modifiers/);assert.ok(!html.includes('<script>'));assert.match(html,/Die 2: 6/);

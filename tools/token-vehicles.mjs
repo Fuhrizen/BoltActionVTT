@@ -1,10 +1,10 @@
 /** Rebuild tracked SVG vehicle profiles and their source upgrade layers. */
 import {readFile,mkdir,writeFile} from 'node:fs/promises';
 import {fileURLToPath} from 'node:url';
-import {renderVehicle} from '../scripts/token-art/vehicles.mjs';
-import {vehicleVisualKey,vehicleVisualLabels} from '../scripts/token-art/asset-keys.mjs';
-import {palettes} from '../scripts/services/faction-appearance.mjs';
-const root=new URL('../',import.meta.url);
+import {renderVehicle} from '../fvtt/scripts/token-art/vehicles.mjs';
+import {vehicleVisualKey,vehicleVisualLabels} from '../fvtt/scripts/token-art/asset-keys.mjs';
+import {palettes} from '../fvtt/scripts/services/faction-appearance.mjs';
+const root=new URL('../fvtt/',import.meta.url);
 export async function generateVehicles(){
  const rows=JSON.parse(await readFile(new URL('compendiums/units.json',root),'utf8')).filter(row=>row.system?.kind==='vehicle');
  const manifest={},variants={};let count=0;

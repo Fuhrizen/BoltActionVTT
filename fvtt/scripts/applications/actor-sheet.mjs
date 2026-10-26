@@ -75,7 +75,7 @@ async function factions() {
   return [...new Map(entries.map(i => [i.uuid, i])).values()];
 }
 export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applications.sheets.ActorSheetV2) {
-  static DEFAULT_OPTIONS = {classes:['boltaction','ba-sheet','actor-sheet','group-sheet'],position:{width:760,height:700},form:{submitOnChange:true},actions:{exportArmy:this.exportArmy,importArmy:this.importArmy,openMember:this.openMember,removeMember:this.removeMember,createSquad:this.createSquad,chooseFaction:this.chooseFaction,prepareCatalogue:this.prepareCatalogue,openItem:this.openItem,openReference:this.openReference,rollAttack:this.rollAttack,openSquad:this.openSquad,addModel:this.addModel,deleteModel:this.deleteModel,addArmySquad:this.addArmySquad,openArmyBuilder:this.openArmyBuilder,selectBuilderSquad:this.selectBuilderSquad,browseProfiles:this.browseProfiles,addPlatoon:this.addPlatoon,finishBuilder:this.finishBuilder,removeLastModel:this.removeLastModel,nextBattleRound:this.nextBattleRound,markMovement:this.markMovement,resetAction:this.resetAction,checkMorale:this.checkMorale,issueOrder:this.issueOrder}};
+  static DEFAULT_OPTIONS = {classes:['boltaction','ba-sheet','actor-sheet','group-sheet'],position:{width:760,height:700},form:{submitOnChange:true},actions:{importArmy:this.importArmy,openMember:this.openMember,openItem:this.openItem,openReference:this.openReference,rollAttack:this.rollAttack,openSquad:this.openSquad,nextBattleRound:this.nextBattleRound,markMovement:this.markMovement,resetAction:this.resetAction,checkMorale:this.checkMorale,issueOrder:this.issueOrder}};
   static PARTS = {main:{template:'systems/boltaction/templates/actor-sheet.hbs'}};
   get isArmyBuilder(){return false;}
   async _prepareContext(options) {
@@ -245,24 +245,16 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
 
   static async openMember(_event,target){return safely(async()=>{const actor=await fromUuid(target.dataset.uuid);if(actor?.visible!==false)await actor?.sheet.render({force:true});});}
   static async removeMember(event,target){return safely(async()=>{if(!this.actor.isOwner)throw new Error('You do not own this group.');if(event.shiftKey){const member=await fromUuid(target.dataset.uuid);if(!member?.isOwner||member.pack)throw new Error('You do not own this model.');await game.boltaction.deleteGroupActor(member);}else await game.boltaction.unlinkGroupMember(this.actor,target.dataset.uuid);});}
-  static async createSquad(){return safely(async()=>{const values=await ask('Create a squad',[{name:'name',label:'Squad name',value:'Unnamed Squad'},{name:'squadKind',label:'Squad type',options:[{value:'infantry',label:'Infantry squad'},{value:'vehicleStatic',label:'Vehicle / static squad'}]}]);if(values){const squad=await game.boltaction.createGroup(this.actor,values);squad.sheet.render({force:true});}});}
-  static async chooseFaction(){return safely(async()=>{const entries=await factions();const values=await ask('Army faction',[{name:'uuid',label:'Faction',selected:this.actor.system.factionUuid,options:[{value:'',label:'No faction'},...entries.map(i=>({value:i.uuid,label:i.name}))]}],'This faction is inherited by every squad and model in the Army.');if(values)await game.boltaction.setTeamFaction(this.actor,values.uuid);});}
-  static async prepareCatalogue(){return safely(()=>game.boltaction.prepareCatalogue());}
   static async openReference(_event,target){return safely(async()=>{const document=await fromUuid(target.dataset.uuid);if(!document||document.visible===false)throw new Error('This reference is unavailable. Prepare the catalogue as GM.');await document.sheet.render({force:true});});}
   static async openItem(_event,target){this.actor.items.get(target.dataset.id)?.sheet.render({force:true});}
   static async rollAttack(_event,target){return safely(async()=>game.boltaction.confirmManualRoll(await this._builderSquad(target?.dataset?.squadUuid)));}
-  static async exportArmy(){return safely(async()=>{
-    const roster=await game.boltaction.exportArmyRoster(this.actor);
-    const blob=new Blob([JSON.stringify(roster,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),link=document.createElement('a');
-    link.href=url;link.download=(this.actor.name||'army').replace(/[^a-z0-9_-]+/gi,'-')+'.boltaction.json';link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
-  });}
   static async importArmy(){return safely(async()=>{
     if(!game.user.isGM)throw new Error('The GM imports armies.');
     const input=await foundry.applications.api.DialogV2.wait({window:{title:'Import army'},position:{width:560},content:'<div class="standard-form"><p>Import an army exported by the web builder or Foundry. This creates a new Army; existing armies are unchanged.</p><label>Army JSON file<input type="file" name="armyFile" accept=".json,application/json"></label><label>Or paste army JSON<textarea name="armyJson" rows="8" maxlength="2000000"></textarea></label></div>',buttons:[{action:'import',label:'Import new Army',default:true,callback:async(_event,_button,dialog)=>{const file=dialog.element.querySelector('[name="armyFile"]').files?.[0];if(file&&file.size>2000000)throw new Error('Army file exceeds 2 MB.');return file?file.text():dialog.element.querySelector('[name="armyJson"]').value;}},{action:'cancel',label:'Cancel',callback:()=>null}],rejectClose:false});
     if(!input)return;
-    const army=await game.boltaction.importArmyRoster(JSON.parse(input));await openArmyBuilder(army);
+    const army=await game.boltaction.importArmyRoster(JSON.parse(input));await army.sheet.render({force:true});
   });}
-  static async openArmyBuilder(){return openArmyBuilder(this.actor.type==='army'?this.actor:this.actor.army);}
+
   static async nextBattleRound(){return safely(()=>game.boltaction.nextBattleRound());}
   static async markMovement(){return safely(()=>game.boltaction.recordMovement(this.actor));}
   static async resetAction(){return safely(()=>game.boltaction.resetSquadAction(this.actor));}
@@ -274,29 +266,7 @@ export class BoltActorSheet extends HandlebarsApplicationMixin(foundry.applicati
     return action(squad,target.dataset.order);
   });}
   static async openSquad(){return this.actor.unit?.sheet.render({force:true});}
-  static async addModel(_event,target){return safely(async()=>game.boltaction.addSquadMember(await this._builderSquad(target?.dataset?.squadUuid)));}
-  static async removeLastModel(_event,target){return safely(async()=>{
-    const squad=await this._builderSquad(target.dataset.squadUuid),members=[...(squad.members??[])].filter(m=>!isNco(m)&&!m.system.customName&&!m.system.isLoader&&!m.system.isMedic&&!m.system.isObserver);
-    const model=members.at(-1);if(!model)throw new Error('Choose an individual model to remove: remaining models have assigned identities or special roles.');
-    await game.boltaction.validateSquadRemoval(squad,model);const yes=await ask('Remove purchased model',[],`Remove ${model.name}? Any equipment on this model will also be removed.`);if(yes)await game.boltaction.deleteGroupActor(model);
-  });}
-  static async finishBuilder(){await this.actor.sheet.render({force:true});await this.close();}
-  static async selectBuilderSquad(_event,target){this._selectedBuilderSquad=target.dataset.uuid;this._showBuilderCatalogue=false;await this.refreshLive();}
-  static async browseProfiles(_event,target){this._selectedBuilderPlatoon=target?.dataset?.platoonId||this._selectedBuilderPlatoon;this._showBuilderCatalogue=true;await this.refreshLive();}
-  static async addPlatoon(){return safely(async()=>{await game.boltaction.createArmyPlatoon?.(this.actor);await this.refreshLive();});}
-  static async addArmySquad(_event,target){return safely(async()=>{const squad=await game.boltaction.addArmySquad(this.actor,target.dataset.slug,{platoonId:this._selectedBuilderPlatoon});if(squad){this._selectedBuilderSquad=squad.uuid;this._showBuilderCatalogue=false;}await this.refreshLive();});}
-  static async deleteModel(_event,target){return safely(async()=>{const model=await this._rosterMember(target.dataset.uuid);const squad=await fromUuid(model.system.unitUuid);await game.boltaction.validateSquadRemoval(squad,model);return game.boltaction.deleteGroupActor(model);});}
+
 }
 
-/** A separate document window keeps roster construction out of the Army summary sheet. */
-export class BoltArmyBuilder extends BoltActorSheet {
-  static DEFAULT_OPTIONS={...BoltActorSheet.DEFAULT_OPTIONS,id:'boltaction-army-builder-{id}',position:{width:1680,height:1000},window:{title:'Army Builder'}};
-  get isArmyBuilder(){return true;}
-  get title(){return `${this.actor?.name??'Army'} — Army Builder`;}
-}
-export async function openArmyBuilder(army) {
-  if(army?.type!=='army'||army.visible===false)throw new Error('Choose an available Army.');
-  const existing=Object.values(army.apps??{}).find(app=>app instanceof BoltArmyBuilder);
-  const builder=existing??new BoltArmyBuilder({document:army,id:`boltaction-army-builder-${army.id}`});
-  return builder.render({force:true});
-}
+

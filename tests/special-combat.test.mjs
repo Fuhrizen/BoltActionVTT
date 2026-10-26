@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {specialistAttack} from '../scripts/services/special-combat.mjs';
+import {specialistAttack} from '../fvtt/scripts/services/special-combat.mjs';
 let queued=[],reports=[];
 globalThis.Roll=class {constructor(formula){this.count=Number(formula.split('d')[0]);}async evaluate(){const values=queued.shift();assert.equal(values.length,this.count,'dice count matches planned roll');this.dice=[{results:values.map(result=>({result}))}];return this;}};
 function doc(value){return {...value,async update(data){for(const [key,val]of Object.entries(data)){const parts=key.split('.');let at=this;for(const p of parts.slice(0,-1))at=at[p];at[parts.at(-1)]=val;}return this;}};}
@@ -14,7 +14,7 @@ test('first special pin batch replaces an existing basic pin rather than stackin
 test('one-shot direct fire persists expended ammunition and resolves exceptional damage',async()=>{const {unit,weapon,options}=setup({mode:'direct',traits:['one-shot'],heDiameter:0});queued=[[6],[6],[6]];const result=await specialistAttack(unit,options);assert.equal(weapon.system.ammoUsed,true);assert.equal(result.damage.exceptional.length,1);});
 test('actual mortar catalogue profile uses its indirect-only range and minimum',async()=>{
  const {readFile}=await import('node:fs/promises');
- const mortar=JSON.parse(await readFile(new URL('../compendiums/weapons.json',import.meta.url),'utf8')).find(w=>w.slug==='medium-mortar');
+ const mortar=JSON.parse(await readFile(new URL('../fvtt/compendiums/weapons.json',import.meta.url),'utf8')).find(w=>w.slug==='medium-mortar');
  const {unit,weapon,options}=setup({mode:'indirect'});Object.assign(weapon.system,mortar.system,{indirectRange:0,indirectMinRange:0});
  queued=[];await assert.rejects(specialistAttack(unit,{...options,range:6,fixedArcConfirmed:true}),/Illegal indirect/);
  queued=[[1]];const result=await specialistAttack(unit,{...options,range:24,fixedArcConfirmed:true});assert.equal(result.hit,false);assert.equal(weapon.system.indirectTargetUuid,'Actor.target');

@@ -1,11 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {loadCatalogue} from '../scripts/services/catalogue.mjs';
+import {loadCatalogue} from '../fvtt/scripts/services/catalogue.mjs';
 import {createArmy,newSquad,squadContext,armyReview} from '../web/model.mjs';
-import {validateRoster} from '../scripts/roster/format.mjs';
+import {validateRoster} from '../fvtt/scripts/roster/format.mjs';
 globalThis.fetch=async url=>({ok:true,json:async()=>JSON.parse(await readFile(new URL(url),'utf8'))});
-const data=await loadCatalogue({baseUrl:new URL('../compendiums/',import.meta.url)});
+const data=await loadCatalogue({baseUrl:new URL('../fvtt/compendiums/',import.meta.url)});
 test('web journey prices an eight-man British section and exports source choices and loader pairing',async()=>{
  const army=createArmy(),row=data.units.find(r=>r.slug==='great-britain-regular-infantry');const squad=await newSquad(row,army.platoons[0].id);army.squads.push(squad);
  assert.equal(squad.models.length,5);assert.equal(squad.models.filter(m=>m.isNco).length,1);

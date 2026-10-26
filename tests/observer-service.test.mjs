@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {callObserver,resolveObserver} from '../scripts/services/observer-service.mjs';
+import {callObserver,resolveObserver} from '../fvtt/scripts/services/observer-service.mjs';
 test('observer persists one-use mission, waits a round, delays and then arrives',async()=>{
  const u={uuid:'Actor.observer',name:'Observer',type:'unit',isOwner:true,system:{observerKind:'artillery',observerUsed:false,order:'fire'},async update(data){for(const [key,value]of Object.entries(data))this.system[key.slice(7)]=value;}};
  globalThis.canvas={scene:{uuid:'Scene.table'}};

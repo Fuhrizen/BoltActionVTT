@@ -67,7 +67,7 @@ function setup() {
   };
   return {deploy(...units) { scene.tokens.push(...units.map(u => ({id: `token-${u.id}`, actorId: u.id}))); }};
 }
-const api = await import('../scripts/services/api.mjs');
+const api = await import('../fvtt/scripts/services/api.mjs');
 
 test('profiles inherit faction traits and custom selector validation checks configured roster limits', async () => {
   setup();
@@ -302,14 +302,14 @@ test('failed reserve entry retains reserve state and still consumes this round o
 
 test('scenario configuration loads catalogue, persists chosen sides and reports the configured profile', async () => {
   setup();
-  const rows = JSON.parse(await readFile(new URL('../compendiums/scenarios.json', import.meta.url), 'utf8'));
+  const rows = JSON.parse(await readFile(new URL('../fvtt/compendiums/scenarios.json', import.meta.url), 'utf8'));
   const previousFetch = globalThis.fetch;
   globalThis.fetch = async url => {
     assert.equal(url, 'systems/boltaction/compendiums/scenarios.json');
     return {ok: true, json: async () => structuredClone(rows)};
   };
   try {
-    const scenarios = await import('../scripts/services/scenario-service.mjs');
+    const scenarios = await import('../fvtt/scripts/services/scenario-service.mjs');
     assert.equal(await scenarios.scenarioStatus(), null);
     assert.equal((await scenarios.listScenarios()).length, 12);
     const chosen = await scenarios.configureScenario({scenarioId: 'top-secret', attackerSide: 'red', defenderSide: 'blue'});
@@ -354,7 +354,7 @@ test('complete main module boots with V14 namespaces and registers schemas, shee
   CONFIG.Item = {dataModels: {}};
   game.settings.register = (namespace, key, options) => registered.push({namespace, key, options});
   game.keybindings = {register: () => {}};
-  await import('../scripts/main.mjs');
+  await import('../fvtt/scripts/main.mjs');
   assert.equal(typeof hooks.get('init'), 'function');
   await hooks.get('init')();
   assert.deepEqual(Object.keys(CONFIG.Actor.dataModels).sort(), ['army', 'model', 'modelStatic', 'modelVehicle', 'unit']);

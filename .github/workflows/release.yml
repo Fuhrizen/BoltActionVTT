@@ -2,7 +2,7 @@ name: Publish installable release
 on:
   push:
     branches: [main]
-    paths: ['system.json', '.github/workflows/release.yml']
+    paths: ['fvtt/system.json', '.github/workflows/release.yml']
   workflow_dispatch:
 permissions:
   contents: write
@@ -25,10 +25,10 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          VERSION=$(node -p "JSON.parse(require('fs').readFileSync('system.json')).version")
+          VERSION=$(node -p "JSON.parse(require('fs').readFileSync('fvtt/system.json')).version")
           TAG="v$VERSION"
           if gh release view "$TAG" >/dev/null 2>&1; then
-            echo "Version already published; bump system.json for a new release."
+            echo "Version already published; bump fvtt/system.json for a new release."
             exit 0
           fi
           gh release create "$TAG" dist/boltaction.zip dist/system.json dist/web-builder.zip --target "$GITHUB_SHA" --latest --title "$TAG" --notes "Unofficial Bolt Action 2e alpha for Foundry V14. Live Foundry validation remains pending; specialist rules require manual adjudication."

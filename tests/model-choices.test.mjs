@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {getModelChoices,applyModelChoice} from '../scripts/services/model-choices.mjs';
-import {loadCatalogue,modelTemplate} from '../scripts/services/catalogue.mjs';
+import {getModelChoices,applyModelChoice} from '../fvtt/scripts/services/model-choices.mjs';
+import {loadCatalogue,modelTemplate} from '../fvtt/scripts/services/catalogue.mjs';
 
-globalThis.fetch = async path => ({ok:true,json:async()=>JSON.parse(await readFile(new URL(`../${path.replace('systems/boltaction/','')}`,import.meta.url),'utf8'))});
+globalThis.fetch = async path => ({ok:true,json:async()=>JSON.parse(await readFile(new URL(`../fvtt/${path.replace('systems/boltaction/','')}`,import.meta.url),'utf8'))});
 let counter = 0;
 function item(source) {
   const data = structuredClone(source); data._id ??= `item${++counter}`;
@@ -94,12 +94,12 @@ test('vehicle variant choices apply priced loadouts reversibly without overwriti
  const actor=await model('germany-sdkfz234');const custom=item({name:'Custom gear',type:'weapon',system:{slug:'custom'}});actor.items.push(custom);
  const before=actor.items.map(i=>i.id);const choice=(await getModelChoices(actor)).equipment.find(c=>c.label.toLowerCase()==='puma');assert.ok(choice);assert.equal(choice.cost,50);
  await applyModelChoice(actor,{choiceId:choice.id});assert.ok(actor.items.some(i=>i.system.slug==='medium-at-gun'));assert.ok(actor.items.some(i=>i.id===custom.id));assert.ok((await getModelChoices(actor)).equipment.find(c=>c.id===choice.id).selected);
- const {calculateCost}=await import('../scripts/services/costs.mjs');const cost=await calculateCost(actor);assert.equal(cost.options,50);
+ const {calculateCost}=await import('../fvtt/scripts/services/costs.mjs');const cost=await calculateCost(actor);assert.equal(cost.options,50);
  await applyModelChoice(actor,{choiceId:choice.id,enabled:false});assert.deepEqual(new Set(actor.items.map(i=>i.id)),new Set(before));
 });
 test('vehicle capacity conversions and dependent HMG upgrades are selectable rather than manual',async()=>{
  const actor=await model('united-states-jeep');let config=await getModelChoices(actor);assert.equal(config.manualOptions.length,0);
  const mmg=config.equipment.find(c=>c.weaponSlug==='mmg');await applyModelChoice(actor,{choiceId:mmg.id});
- const hmg=(await getModelChoices(actor)).equipment.find(c=>c.weaponSlug==='hmg');await applyModelChoice(actor,{choiceId:hmg.id});assert.ok(actor.items.some(i=>i.system.slug==='hmg'));const {calculateCost}=await import('../scripts/services/costs.mjs');assert.equal((await calculateCost(actor)).options,25);await assert.rejects(applyModelChoice(actor,{choiceId:mmg.id,enabled:false}),/dependent upgrade/);await applyModelChoice(actor,{choiceId:hmg.id,enabled:false});
+ const hmg=(await getModelChoices(actor)).equipment.find(c=>c.weaponSlug==='hmg');await applyModelChoice(actor,{choiceId:hmg.id});assert.ok(actor.items.some(i=>i.system.slug==='hmg'));const {calculateCost}=await import('../fvtt/scripts/services/costs.mjs');assert.equal((await calculateCost(actor)).options,25);await assert.rejects(applyModelChoice(actor,{choiceId:mmg.id,enabled:false}),/dependent upgrade/);await applyModelChoice(actor,{choiceId:hmg.id,enabled:false});
  await applyModelChoice(actor,{choiceId:mmg.id,enabled:false});assert.equal(actor.items.some(i=>i.system.slug==='mmg'),false);
 });

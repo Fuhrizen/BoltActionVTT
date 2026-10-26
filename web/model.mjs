@@ -1,5 +1,5 @@
-import {loadCatalogue,squadTemplate} from '../scripts/services/catalogue.mjs';
-import {getModelChoices} from '../scripts/services/model-choices.mjs';
+import {loadCatalogue,squadTemplate} from '../fvtt/scripts/services/catalogue.mjs';
+import {getModelChoices} from '../fvtt/scripts/services/model-choices.mjs';
 export const uid=()=>crypto.randomUUID();
 export function createArmy(){const id=uid();return {format:'boltaction-army',version:1,name:'New army',faction:'great-britain',pointsLimit:1000,platoons:[{id,name:'Platoon 1'}],squads:[]};}
 export function limits(row,quality){const p=row.profile??{},extra=(p.options??[]).find(o=>['additional-model','attendants'].includes(o.option)),min=p.baseModels??row.count??1;return {min,max:p.maxModels??(extra?.max!==undefined?min+extra.max:row.system.maxSize??min),extra:p.extraModelPoints??extra?.pointsByQuality?.[quality]??extra?.costEach??null};}

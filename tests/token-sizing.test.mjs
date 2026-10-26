@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {tokenFootprint,preservesTokenSize} from '../scripts/services/token-sizing.mjs';
+import {tokenFootprint,preservesTokenSize} from '../fvtt/scripts/services/token-sizing.mjs';
 const actor=(type,system={},flags={})=>({type,system,flags:{boltaction:flags}});
 test('baseline tabletop footprints use infantry, static and vehicle class profiles',()=>{
  assert.deepEqual(tokenFootprint(actor('model')),{width:1,height:1});

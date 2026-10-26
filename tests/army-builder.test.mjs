@@ -1,5 +1,5 @@
-import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';import {armyBuilderCatalogue,addArmySquad,optionPrice,validateArmy,armyOrbat,createArmyPlatoon,assignSquadPlatoon} from '../scripts/services/army-builder.mjs';
-globalThis.fetch=async path=>({ok:true,json:async()=>JSON.parse(await readFile(new URL('../'+path.replace('systems/boltaction/',''),import.meta.url),'utf8'))});
+import test from 'node:test';import assert from 'node:assert/strict';import {readFile} from 'node:fs/promises';import {armyBuilderCatalogue,addArmySquad,optionPrice,validateArmy,armyOrbat,createArmyPlatoon,assignSquadPlatoon} from '../fvtt/scripts/services/army-builder.mjs';
+globalThis.fetch=async path=>({ok:true,json:async()=>JSON.parse(await readFile(new URL('../fvtt/'+path.replace('systems/boltaction/',''),import.meta.url),'utf8'))});
 test('Army catalogue filters source profiles by selected faction without compendium browsing',async()=>{globalThis.fromUuid=async()=>({system:{slug:'great-britain'}});const army={type:'army',isOwner:true,system:{factionUuid:'Item.faction'}};const entries=await armyBuilderCatalogue(army);assert.ok(entries.length>10);assert.ok(entries.every(row=>row.slug.startsWith('great-britain-')&&row.sourcePage));assert.ok(entries.some(row=>row.options.length));army.system.factionUuid='';assert.deepEqual(await armyBuilderCatalogue(army),[]);});
 test('Army builder rejects out-of-faction and unauthorized source construction',async()=>{globalThis.fromUuid=async()=>({system:{slug:'great-britain'}});const army={type:'army',isOwner:true,system:{factionUuid:'Item.faction'}};await assert.rejects(addArmySquad(army,'germany-regular-infantry'),/selected Army faction/);army.isOwner=false;await assert.rejects(armyBuilderCatalogue(army),/owned/);});
 
@@ -7,7 +7,7 @@ test('option price metadata distinguishes per-model spending and unresolved pric
 test('empty Army fails source-backed generic platoon requirements',async()=>{globalThis.fromUuid=async()=>({system:{slug:'great-britain'}});globalThis.game={actors:[]};const report=await validateArmy({uuid:'Actor.army',type:'army',isOwner:true,system:{factionUuid:'Item.faction',unitUuids:[],pointsLimit:1000}});assert.equal(report.valid,false);assert.ok(report.errors.some(s=>s.includes('squad')));assert.equal(report.selectorSource.page,153);assert.ok(report.errors.some(s=>s.includes('lieutenant')));});
 
 test('generic rulebook platoon validates lieutenant plus two complete infantry squads',async()=>{
- const units=JSON.parse(await readFile(new URL('../compendiums/units.json',import.meta.url),'utf8'));
+ const units=JSON.parse(await readFile(new URL('../fvtt/compendiums/units.json',import.meta.url),'utf8'));
  const army={uuid:'Actor.army',type:'army',isOwner:true,system:{factionUuid:'Item.faction',unitUuids:[],pointsLimit:1000}};
  const actors=[army];
  for(const [index,slug]of ['great-britain-second-lieutenant','great-britain-regular-infantry','great-britain-regular-infantry'].entries()){

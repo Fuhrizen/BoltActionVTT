@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-const units=JSON.parse(await readFile(new URL('../compendiums/units.json',import.meta.url),'utf8'));
+const units=JSON.parse(await readFile(new URL('../fvtt/compendiums/units.json',import.meta.url),'utf8'));
 test('source infantry composition includes Japan seven-model exception and late-war militia',()=>{
  const infantry=units.filter(r=>r.profile?.entryName);
  assert.equal(infantry.length,15);

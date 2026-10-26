@@ -1,8 +1,8 @@
 import {readFile} from 'node:fs/promises';
-import {CATALOGUE_FILES,validateCatalogue} from '../scripts/services/catalogue.mjs';
+import {CATALOGUE_FILES,validateCatalogue} from '../fvtt/scripts/services/catalogue.mjs';
 export async function readCatalogue() {
   const entries = await Promise.all(CATALOGUE_FILES.map(async key => {
-    const source = await readFile(new URL(`../compendiums/${key}.json`,import.meta.url),'utf8');
+    const source = await readFile(new URL(`../fvtt/compendiums/${key}.json`,import.meta.url),'utf8');
     return [key, JSON.parse(source)];
   }));
   return validateCatalogue(Object.fromEntries(entries));

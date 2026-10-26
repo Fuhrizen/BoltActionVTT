@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {resolveTraitModifiers,greenResult,initiativeTraining,toughFighterDamage,sniperShot} from '../scripts/rules/traits.mjs';
+import {resolveTraitModifiers,greenResult,initiativeTraining,toughFighterDamage,sniperShot} from '../fvtt/scripts/rules/traits.mjs';
 test('German light and medium MG bonus includes vehicle mounts but excludes heavy MG',()=>{
  for(const kind of ['infantry','vehicle'])for(const weaponSlug of ['lmg','mmg'])assert.equal(resolveTraitModifiers({factionSlug:'germany',kind,weaponSlug}).extraShots,1);
  assert.equal(resolveTraitModifiers({factionSlug:'germany',weaponSlug:'hmg'}).extraShots,0);

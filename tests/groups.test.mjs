@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import * as groups from '../scripts/services/groups.mjs';
+import * as groups from '../fvtt/scripts/services/groups.mjs';
 let actors, users, nextId;
 function assignPath(target, key, value) {const path = key.split('.'), last = path.pop();let at = target;for (const part of path) at = at[part] ??= {};at[last] = structuredClone(value);}
 function mergeData(target, source) {for(const [key,value] of Object.entries(source)){if(value && typeof value==='object' && !Array.isArray(value)) mergeData(target[key] ??= {},value);else target[key]=structuredClone(value);}return target;}
@@ -203,7 +203,7 @@ test('squad deletion validates every model ownership before deleting anything',a
  setup();const army=await groups.createTeam(),squad=await groups.createGroup(army),model=actor();await groups.linkGroupMember(squad,model);game.user={id:'player',isGM:false};squad.ownership={player:3};model.ownership={other:3};await assert.rejects(groups.deleteGroupActor(squad),/own/);assert.ok(actors.includes(model));assert.ok(actors.includes(squad));
 });
 
-test('only system art is eligible for automatic faction replacement',async()=>{const {isDefaultModelArt}=await import('../scripts/services/faction-appearance.mjs');assert.equal(isDefaultModelArt('icons/svg/mystery-man.svg'),false);assert.equal(isDefaultModelArt('worlds/campaign/my-nco.webp'),false);assert.equal(isDefaultModelArt('systems/boltaction/assets/soldier.svg'),true);});
+test('only system art is eligible for automatic faction replacement',async()=>{const {isDefaultModelArt}=await import('../fvtt/scripts/services/faction-appearance.mjs');assert.equal(isDefaultModelArt('icons/svg/mystery-man.svg'),false);assert.equal(isDefaultModelArt('worlds/campaign/my-nco.webp'),false);assert.equal(isDefaultModelArt('systems/boltaction/assets/soldier.svg'),true);});
 test('pin counters require an owned squad and bounded whole numbers',async()=>{setup();const squad=actor({type:'unit'});await groups.setPins(squad,4);assert.equal(squad.system.pins,4);await assert.rejects(groups.setPins(squad,-1),/Pins/);await assert.rejects(groups.setPins(squad,2.5),/Pins/);game.user={id:'other',isGM:false};await assert.rejects(groups.setPins(squad,1),/own/);});
 
 test('army Delete All deletes nested reciprocal descendants and preserves unrelated actors',async()=>{

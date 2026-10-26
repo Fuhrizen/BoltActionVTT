@@ -1,8 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {previewUpgrade,applyUpgrade,calculateRosterCost} from '../scripts/services/upgrades.mjs';
-const catalogue=Object.fromEntries(await Promise.all(['weapons','traits','factions','units'].map(async key=>[key,JSON.parse(await readFile(new URL(`../compendiums/${key}.json`,import.meta.url),'utf8'))])));
+import {previewUpgrade,applyUpgrade,calculateRosterCost} from '../fvtt/scripts/services/upgrades.mjs';
+const catalogue=Object.fromEntries(await Promise.all(['weapons','traits','factions','units'].map(async key=>[key,JSON.parse(await readFile(new URL(`../fvtt/compendiums/${key}.json`,import.meta.url),'utf8'))])));
 globalThis.fetch=async url=>({ok:true,json:async()=>catalogue[url.split('/').at(-1).replace('.json','')]});
 let id=0;
 function actor(name,type,system,flags={}){

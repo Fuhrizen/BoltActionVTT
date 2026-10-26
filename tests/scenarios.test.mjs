@@ -1,10 +1,10 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
-import {SCENARIOS, scenarioDuration, scenarioScore, objectiveControl, reserveEntry, preparatoryBombardment} from '../scripts/rules/scenarios.mjs';
+import {SCENARIOS, scenarioDuration, scenarioScore, objectiveControl, reserveEntry, preparatoryBombardment} from '../fvtt/scripts/rules/scenarios.mjs';
 
 test('all twelve scenario catalogue rows match pure duration and scoring definitions', async () => {
-  const rows = JSON.parse(await readFile(new URL('../compendiums/scenarios.json', import.meta.url), 'utf8'));
+  const rows = JSON.parse(await readFile(new URL('../fvtt/compendiums/scenarios.json', import.meta.url), 'utf8'));
   assert.deepEqual(rows.map(row => row.id), Array.from({length: 12}, (_, i) => i + 1));
   assert.equal(new Set(rows.map(row => row.slug)).size, 12);
   for (const row of rows) {
