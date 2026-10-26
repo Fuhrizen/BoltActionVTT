@@ -7,7 +7,8 @@ function role(actor,flag,name){return Boolean(actor.system?.[flag])||String(acto
 export function generatedModelName(actor){
  if(!TYPES.has(actor?.type))return actor?.name??'';
  if(actor.type==='modelVehicle')return actor.system?.profileName||sourceFlag(actor,'sourceName')||'Vehicle';
- if(role(actor,'isNco','nco'))return 'NCO';
+ if(actor.system?.role==='officer')return 'Officer';
+ if(role(actor,'isNco','nco')&&!['medic','observer'].includes(actor.system?.role))return 'NCO';
  if(role(actor,'isMedic','medic'))return 'Medic';
  if(role(actor,'isObserver','observer'))return 'Observer';
  if(role(actor,'isLoader','loader'))return 'Loader';

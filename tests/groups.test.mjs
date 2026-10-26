@@ -223,3 +223,12 @@ test('loader pairing requires a living reciprocal team gunner and yields matchin
 test('deleting a paired gunner clears surviving loader assignment',async()=>{
  setup();const squad=actor({type:'unit'}),gunner=actor({items:[{type:'weapon',system:{slug:'lmg'}}]}),loader=actor();await groups.linkGroupMember(squad,gunner);await groups.linkGroupMember(squad,loader);await groups.setLoaderPair(loader,gunner.uuid);await groups.deleteGroupActor(gunner);assert.equal(loader.system.loaderForUuid,'');assert.equal(loader.system.isLoader,false);assert.ok(actors.includes(loader));
 });
+
+test('infantry groups designate an officer leader without replacing the source role or custom identity',async()=>{
+ setup();const parent=actor({type:'unit'}),officer=actor({name:'Captain Allen',system:{role:'officer',customName:'Captain Allen'}}),attendant=actor({system:{role:'rifleman'}});await groups.linkGroupMember(parent,officer);await groups.linkGroupMember(parent,attendant);assert.equal(officer.system.isNco,true);assert.equal(officer.system.role,'officer');assert.equal(officer.name,'Captain Allen');assert.equal(Boolean(attendant.system.isNco),false);
+ await groups.setInfantryLeader(parent,attendant.uuid);assert.equal(attendant.system.isNco,true);assert.equal(officer.system.isNco,false);assert.equal(officer.system.role,'officer');
+});
+test('leader repair preserves dead designated leaders and excludes static or vehicle models',async()=>{
+ setup();const parent=actor({type:'unit'}),dead=actor({system:{role:'nco',dead:true,unitUuid:parent.uuid}}),other=actor({system:{unitUuid:parent.uuid}});parent.system.modelUuids=[dead.uuid,other.uuid];await groups.ensureInfantryLeader(parent);assert.equal(dead.system.isNco,true);assert.equal(Boolean(other.system.isNco),false);
+ const staticGroup=actor({type:'unit',system:{squadKind:'vehicleStatic'}}),gun=actor({type:'modelStatic',system:{isNco:true,role:'nco',unitUuid:staticGroup.uuid}}),vehicle=actor({type:'modelVehicle',system:{isNco:true,unitUuid:staticGroup.uuid}});staticGroup.system.modelUuids=[gun.uuid,vehicle.uuid];await groups.ensureInfantryLeader(staticGroup);assert.equal(gun.system.isNco,false);assert.equal(gun.system.role,'crew');assert.equal(vehicle.system.isNco,false);await assert.rejects(groups.setInfantryLeader(staticGroup,gun.uuid),/infantry/);
+});

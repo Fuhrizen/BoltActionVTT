@@ -1,22 +1,31 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {access} from 'node:fs/promises';
 import {modelTokenArt,synchronizeModelArt} from '../scripts/services/token-art.mjs';
 import {isDefaultModelArt,isGeneratedTokenArt,GENERATED_ART_PREFIX} from '../scripts/services/faction-appearance.mjs';
 const weapon=slug=>({name:slug,type:'weapon',system:{slug}});
 const actor=(type='model',extra={})=>({id:'m',uuid:'Actor.m',type,isOwner:true,name:'Rifleman',system:{},flags:{boltaction:{factionSlug:'germany'}},items:[weapon('rifle')],img:'systems/boltaction/assets/soldier.svg',prototypeToken:{texture:{src:'systems/boltaction/assets/model-token.svg'}},...extra});
-test('every infantry combination is layered deterministic managed SVG without overwriting custom files',()=>{
- const a=actor(),base=modelTokenArt(a);assert.equal(base,modelTokenArt(a));assert.ok(isGeneratedTokenArt(base));assert.ok(isDefaultModelArt(base));assert.match(decodeURIComponent(base.slice('data:image/svg+xml;charset=utf-8,'.length)),/<svg/);
- assert.notEqual(base,modelTokenArt({...a,items:[weapon('lmg'),weapon('panzerfaust')],system:{isLoader:true}}));
- assert.notEqual(base,modelTokenArt(a,'great-britain'));
- assert.equal(isDefaultModelArt('worlds/campaign/custom.svg'),false);assert.equal(isDefaultModelArt('data:image/svg+xml;base64,custom'),false);
+test('infantry loadouts resolve existing tracked SVG files rather than rejected data URIs',async()=>{
+ const a=actor(),base=modelTokenArt(a);assert.equal(base,modelTokenArt(a));assert.ok(isGeneratedTokenArt(base));assert.ok(isDefaultModelArt(base));assert.match(base,/\.svg\?v=22$/);assert.ok(!base.startsWith('data:'));
+ const paired=modelTokenArt({...a,items:[weapon('lmg'),weapon('panzerfaust')],system:{isLoader:true}});assert.notEqual(base,paired);
+ for(const src of [base,paired,modelTokenArt(a,'great-britain')])await access(src.replace('systems/boltaction/','').split('?')[0]);
+ assert.equal(isDefaultModelArt('worlds/campaign/custom.svg'),false);assert.equal(isDefaultModelArt('data:image/svg+xml;base64,custom'),false);assert.equal(isDefaultModelArt(GENERATED_ART_PREFIX+'old'),true);
 });
-test('vehicle source and conversions alter layered art deterministically',()=>{
- const a=actor('modelVehicle',{name:'Sherman',system:{profileName:'Sherman',damageValue:9},items:[weapon('medium-at-gun')]});
- const base=modelTokenArt(a);assert.notEqual(base,modelTokenArt({...a,name:'Tiger',system:{profileName:'Tiger',damageValue:10}}));
- assert.notEqual(base,modelTokenArt({...a,items:[...a.items,{name:'Pintle HMG',type:'trait',flags:{boltaction:{modelChoiceId:'vehicle:1'}}}]}));
+test('source vehicle conversions select tracked variant SVGs',async()=>{
+ const a=actor('modelVehicle',{flags:{boltaction:{factionSlug:'great-britain',catalogueSlug:'great-britain-sherman-75'}},name:'Sherman',system:{profileName:'Sherman',damageValue:9},items:[weapon('medium-at-gun')]});
+ const base=modelTokenArt(a),upgrade=modelTokenArt({...a,items:[...a.items,{name:'Pintle HMG',type:'trait',flags:{boltaction:{modelChoiceId:'vehicle:1'}}}]});assert.notEqual(base,upgrade);
+ for(const src of [base,upgrade])await access(src.replace('systems/boltaction/','').split('?')[0]);
 });
 test('art synchronization preserves custom portrait and placed token independently',async()=>{
  const updates=[],tokens=[];const a=actor('model',{img:'worlds/a/portrait.webp',update:async(data)=>updates.push(data)});
  globalThis.game={actors:[a],scenes:[{tokens:[{id:'default',actorId:'m',actorLink:true,texture:{src:'systems/boltaction/assets/model-token.svg'}},{id:'custom',actorId:'m',actorLink:true,texture:{src:'worlds/a/token.webp'}}],updateEmbeddedDocuments:async(type,data)=>tokens.push(...data)}]};
- await synchronizeModelArt(a);assert.equal(updates.length,1);assert.equal(updates[0].img,undefined);assert.ok(updates[0]['prototypeToken.texture.src'].startsWith(GENERATED_ART_PREFIX));assert.equal(tokens.length,1);assert.equal(tokens[0]._id,'default');assert.equal(tokens[0]['texture.scaleY'],1);
+ await synchronizeModelArt(a);assert.equal(updates.length,1);assert.equal(updates[0].img,undefined);assert.match(updates[0]['prototypeToken.texture.src'],/\.svg\?v=22$/);assert.equal(tokens.length,1);assert.equal(tokens[0]._id,'default');assert.equal(tokens[0]['texture.scaleY'],1);
+});
+
+test('every generated infantry and vehicle asset manifest references a real extension-safe SVG',async()=>{
+ const {infantryTokenAssets}=await import('../scripts/token-art/infantry-manifest.mjs');
+ const {vehicleTokenVariants}=await import('../scripts/token-art/vehicle-manifest.mjs');
+ for(const path of [...Object.values(infantryTokenAssets),...Object.values(vehicleTokenVariants)]){
+  assert.match(path,/^assets\/tokens\/(infantry|vehicles)\/[a-z0-9-]+\/[a-z0-9-]+\.svg$/);await access(path);
+ }
 });

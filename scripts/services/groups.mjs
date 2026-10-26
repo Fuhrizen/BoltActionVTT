@@ -34,6 +34,30 @@ function childActors(parent) {
   return [...new Set(parent.system[field] ?? [])].map(worldActor).filter(actor => actor && actor.system[childField] === parent.uuid && (parent.type === 'army' ? actor.type === 'unit' : MODELS.has(actor.type)));
 }
 function descendants(parent) {return childActors(parent).flatMap(child => [child, ...descendants(child)]);}
+const leaderFlag = model => Boolean(model.system?.isNco || model.system?.role === 'nco');
+/** Each infantry group has a designated leader. A dead leader stays designated until explicitly reassigned. */
+export async function ensureInfantryLeader(parent, {snapshots=[]}={}) {
+  squad(parent);
+  const members=childActors(parent),infantry=members.filter(member=>member.type==='model');
+  const chosen=infantry.find(leaderFlag)??infantry.find(member=>member.system.role==='officer')??infantry.find(member=>!member.system.dead)??infantry[0]??null;
+  for(const member of members){
+    const value=member===chosen;
+    if(Boolean(member.system.isNco)===value && (value || member.system.role!=='nco'))continue;
+    owned(member);snapshots.push({actor:member,data:{'system.isNco':Boolean(member.system.isNco),'system.role':member.system.role}});
+    await member.update({'system.isNco':value,'system.role':member.system.role==='nco'&&!value?(member.type==='model'?'rifleman':member.type==='modelStatic'?'crew':'vehicle'):member.system.role},{render:false});
+  }
+  return chosen;
+}
+/** Reassign the single infantry leader without changing source roles or identities. */
+export async function setInfantryLeader(parent, uuid) {
+  squad(parent);
+  const members=childActors(parent),chosen=members.find(member=>member.uuid===uuid&&member.type==='model');
+  if(!chosen)throw new Error('Choose an infantry model in this squad as its leader.');
+  const snapshots=[];
+  try{for(const member of members){owned(member);const value=member===chosen;if(Boolean(member.system.isNco)===value&&(value||member.system.role!=='nco'))continue;snapshots.push({actor:member,data:{'system.isNco':Boolean(member.system.isNco),'system.role':member.system.role}});await member.update({'system.isNco':value,'system.role':member.system.role==='nco'&&!value?(member.type==='model'?'rifleman':member.type==='modelStatic'?'crew':'vehicle'):member.system.role},{render:false});}}
+  catch(error){await restore(snapshots);throw error;}
+  return chosen;
+}
 function validateSquadKind(kind) {
   if (!SQUAD_KINDS.has(kind)) throw new Error('Choose an infantry or vehicle/static squad.');
   return kind;
@@ -99,6 +123,7 @@ export async function linkGroupMember(parent, child) {
       await setOwnership([child, ...descendants(child)], parent.ownership ?? {}, snapshots);
       const army=parent.type==='army'?parent:worldActor(parent.system.armyUuid);
       if(army?.system.factionUuid){const faction=await fromUuid(army.system.factionUuid);for(const member of [child,...descendants(child)]){const art=factionAppearance(faction?.system?.slug||faction?.getFlag?.('boltaction','catalogueSlug'),member.type),changes={};if(isDefaultModelArt(member.img))changes.img=art.img;if(isDefaultModelArt(member.prototypeToken?.texture?.src))changes['prototypeToken.texture.src']=art.tokenSrc;if(Object.keys(changes).length)await member.update(changes);}}
+      if(parent.type==='unit')await ensureInfantryLeader(parent,{snapshots});
       return child;
     } catch (error) {await restore(snapshots); throw error;}
   });

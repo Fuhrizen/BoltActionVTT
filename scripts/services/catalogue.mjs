@@ -152,6 +152,7 @@ export async function squadTemplate(row, packed = new Map()) {
     member.flags.boltaction.builderTemplateVersion = BUILDER_TEMPLATE_VERSION;
     memberTemplates.push(member);
   }
+  if(base.type==='model'&&memberTemplates.length){const leader=memberTemplates.find(member=>member.system.role==='nco')??memberTemplates.find(member=>member.system.role==='officer')??memberTemplates[0];for(const member of memberTemplates)member.system.isNco=member===leader;}
   const appearance = factionAppearance(row.factionSlug,'unit');
   return {
     name:squadProfileName(row,catalogue.units),type:'unit',img:appearance.img,

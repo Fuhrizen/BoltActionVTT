@@ -68,6 +68,7 @@ export function renderVehicle({row={},palette={},options=[]}={}){
  if(optionText.includes('dozer'))parts.push(`<path d="M${x-7} ${y+4}Q64 ${y-7} ${x+w+7} ${y+4}V${y+12}Q64 ${y+3} ${x-7} ${y+12}Z" fill="${metal}"/>`);
  if(optionText.includes('capacity')||optionText.includes('transport'))parts.push(rect(x+w-11,y+l-22,7,15,wood,1));
  if(optionText.includes('skirts')||optionText.includes('armour'))for(const side of [x-5,x+w-1])parts.push(rect(side,y+18,6,l-33,p.uniform,1));
+ if(optionText.includes('upgrade'))parts.push(rect(x+w-13,y+l-16,7,7,p.color,1));
  // Stable profile-specific fittings avoid a single generic tank icon for every entry.
  for(let n=0;n<=s.detail;n++)parts.push(rect(x+6+n*6,y+l-5,4,2,p.highlight,0));
  parts.push(line(x+7,y+7,x+14,y+7,p.color,3));

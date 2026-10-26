@@ -1,24 +1,28 @@
-import {renderInfantry} from '../token-art/infantry.mjs';
-import {renderVehicle} from '../token-art/vehicles.mjs';
-import {palettes,isDefaultModelArt,isGeneratedTokenArt,GENERATED_ART_PREFIX} from './faction-appearance.mjs';
+import {infantryTokenAssets} from '../token-art/infantry-manifest.mjs';
+import {vehicleTokenAssets,vehicleTokenVariants} from '../token-art/vehicle-manifest.mjs';
+import {infantryAssetKey,vehicleVisualKey} from '../token-art/asset-keys.mjs';
+import {palettes,isDefaultModelArt} from './faction-appearance.mjs';
 const models=new Set(['model','modelStatic','modelVehicle']);
 const values=value=>value?.contents??Array.from(value??[]);
 const flag=(actor,key)=>actor?.getFlag?.('boltaction',key)??actor?.flags?.boltaction?.[key];
-/** Pure layered output: every loadout is generated, without requiring an asset per combination. */
+/** Only checked-in .svg paths enter Foundry FilePathFields; never SVG data URIs. */
 export function modelTokenArt(actor,factionSlug=flag(actor,'factionSlug')){
  if(!models.has(actor?.type))return null;
- const palette=palettes[factionSlug]??{color:'#758353',uniform:'#758353',helmet:'#4e5b3a',highlight:'#9fae82'};
- const weapons=values(actor.items).filter(i=>i.type==='weapon');
- const slugs=weapons.map(i=>i.system?.slug||flag(i,'catalogueSlug')||'rifle');
- const roles=['nco','loader','medic','observer'].filter(role=>actor.system?.['is'+role[0].toUpperCase()+role.slice(1)]||actor.system?.role===role);
- const options=values(actor.items).filter(i=>flag(i,'modelChoiceId')).map(i=>i.name||flag(i,'modelChoiceId'));
- let svg;
+ const faction=palettes[factionSlug]?factionSlug:'germany';
+ const weapons=values(actor.items).filter(i=>i.type==='weapon'),slugs=weapons.map(i=>i.system?.slug||flag(i,'catalogueSlug')||'rifle');
  if(actor.type==='modelVehicle'){
-  const profile=flag(actor,'profile')??{};
-  const row={slug:flag(actor,'catalogueSlug')||actor.system?.profileName||actor.name,name:actor.system?.profileName||flag(actor,'sourceName')||actor.name,profile,system:actor.system??{},weaponLoadout:weapons.map(i=>({weaponSlug:i.system?.slug,mount:flag(i,'mount'),quantity:i.system?.quantity??1}))};
-  svg=renderVehicle({row,palette,options});
- }else svg=renderInfantry({palette,weaponSlug:slugs[0]||(actor.type==='modelStatic'?'unarmed':'rifle'),roles:[...roles,...(actor.type==='modelStatic'?['crew']:[])],extras:[...slugs.slice(1),...values(actor.items).filter(i=>i.type==='trait').map(i=>i.system?.slug||flag(i,'catalogueSlug')).filter(Boolean)]});
- return GENERATED_ART_PREFIX+encodeURIComponent(svg);
+  const source=flag(actor,'catalogueSlug');
+  const slug=vehicleTokenAssets[source]?source:Object.keys(vehicleTokenAssets).find(key=>key.startsWith(faction+'-')&&key.endsWith(String(actor.system?.profileName||actor.name||'').toLowerCase().replaceAll(' ','-')));
+  if(!slug)return `systems/boltaction/assets/factions/${faction}/vehicle-token.svg?v=22`;
+  const options=values(actor.items).filter(i=>flag(i,'modelChoiceId')).map(i=>i.name||flag(i,'modelChoiceId'));
+  const key=vehicleVisualKey(options);
+  return 'systems/boltaction/'+(vehicleTokenVariants[slug+':'+key]||vehicleTokenVariants[slug+':'+(key?128:0)]||vehicleTokenAssets[slug])+'?v=22';
+ }
+ const roles=['nco','loader','medic','observer'].filter(role=>actor.system?.['is'+role[0].toUpperCase()+role.slice(1)]||actor.system?.role===role);
+ if(actor.type==='modelStatic')roles.push('crew');
+ const options={weaponSlug:slugs[0]||(actor.type==='modelStatic'?'unarmed':'rifle'),roles,extras:slugs.slice(1)};
+ const key=infantryAssetKey(options),fallback=infantryAssetKey({...options,extras:[]});
+ return 'systems/boltaction/'+(infantryTokenAssets[faction+':'+key]||infantryTokenAssets[faction+':'+fallback]||infantryTokenAssets[faction+':'+options.weaponSlug]||infantryTokenAssets[faction+':rifle'])+'?v=22';
 }
 function worldActor(uuid){return values(game.actors).find(a=>a.uuid===uuid);}
 async function factionFor(actor){

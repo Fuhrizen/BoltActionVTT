@@ -411,3 +411,8 @@ test('every audited five-faction army-list base entry has its verified source pa
   assert.equal(units.get('imperial-japan-truck').system.capacity,13);assert.equal(units.get('united-states-jeep').system.moveAdvance,12);assert.equal(units.get('germany-pak40').system.moveRun,0);
   assert.equal(data.traits.find(row=>row.slug==='he-4').profile.parameters.buildingHits,'3d6');
 });
+
+test('every infantry source group has exactly one leader and statics and vehicles have none',async()=>{
+ const data=await readCatalogue();globalThis.fetch=async url=>({ok:true,json:async()=>JSON.parse(await readFile(new URL('../'+url.replace('systems/boltaction/',''),import.meta.url),'utf8'))});
+ for(const row of data.units){const template=await squadTemplate(row),members=template.flags.boltaction.memberTemplates;if(members.some(m=>m.type==='model')){assert.equal(members.filter(m=>m.system.isNco).length,1,row.slug);const officer=members.find(m=>m.system.role==='officer');if(officer)assert.equal(officer.system.isNco,true,row.slug);}else assert.equal(members.filter(m=>m.system.isNco).length,0,row.slug);}
+});
