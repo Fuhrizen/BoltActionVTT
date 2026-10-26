@@ -97,3 +97,18 @@
 .boltaction .ba-strength-controls{display:flex;gap:12px;align-items:center}.boltaction .ba-strength-controls strong{font-size:1.5em;min-width:32px;text-align:center}.boltaction .ba-strength-controls button{flex:1}
 .boltaction .ba-loadout-grid{display:grid;grid-template-columns:minmax(110px,.7fr) minmax(200px,1.4fr) minmax(170px,1fr);gap:0 12px;align-items:start}
 .boltaction .ba-loadout-grid>div{padding:12px 0;border-top:1px solid var(--color-border-light-primary,#8886);min-width:0}.boltaction .ba-loadout-grid label{display:block;margin:0 0 7px}.boltaction .ba-loadout-grid small{display:block;margin:5px 0}
+
+/* Application chrome must not inherit the document's padded scrolling layout. */
+.application.boltaction {padding:0;gap:0;overflow:hidden;max-width:calc(100vw - 24px);max-height:calc(100vh - 24px);}
+.application.boltaction>.window-content {min-height:0;min-width:0;overflow:auto;}
+.ba-sheet {box-sizing:border-box;min-width:0;}
+.ba-sheet.standard-form>* {flex-shrink:0;}
+.ba-sheet .ba-builder-workspace {min-width:0;}
+.ba-sheet .ba-builder-workspace>* {min-width:0;overflow-wrap:anywhere;}
+.ba-sheet .ba-orbat-tree,.ba-sheet .ba-builder-summary {position:static;max-height:none;display:flex;flex-direction:column;gap:10px;}
+.ba-sheet .ba-builder-config {overflow:hidden;}
+.ba-sheet .ba-builder-workspace {grid-template-columns:minmax(200px,.8fr) minmax(0,2fr) minmax(220px,.85fr);}
+.ba-sheet .ba-loadout-grid {grid-template-columns:minmax(80px,.7fr) minmax(0,1.4fr) minmax(0,1fr);}
+.ba-sheet .ba-builder-workspace button {height:auto;min-height:32px;white-space:normal;overflow-wrap:anywhere;}
+@media(max-width:1100px) {.ba-sheet .ba-builder-workspace {grid-template-columns:minmax(180px,.7fr) minmax(0,2fr);}.ba-sheet .ba-builder-summary {grid-column:1/-1;}}
+@media(max-width:700px) {.ba-sheet .ba-builder-workspace {grid-template-columns:minmax(0,1fr);}.ba-sheet .ba-loadout-grid {grid-template-columns:minmax(0,1fr);}}

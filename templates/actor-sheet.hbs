@@ -51,7 +51,7 @@
     {{#each members}}<button type="button" data-action="openMember" data-uuid="{{uuid}}">{{name}} · {{count}} models</button>{{else}}<p>No squads yet.</p>{{/each}}
   </section>
   {{/if}}
-  {{#if legality}}<section class="ba-card ba-legality"><h2>Army legality checks</h2>{{#if legalityPassed}}<p>No errors reported by the implemented checks.</p>{{else}}<p>Needs review. Unverified costs or incomplete source data prevent a complete result.</p>{{/if}}{{#if legalityErrors}}<ul>{{#each legalityErrors}}<li>{{this}}</li>{{/each}}</ul>{{/if}}{{#if legalityWarnings}}<details open><summary>Warnings and limitations</summary><ul>{{#each legalityWarnings}}<li>{{this}}</li>{{/each}}</ul></details>{{/if}}</section>{{/if}}
+  {{#unless isArmyBuilder}}{{#if legality}}<section class="ba-card ba-legality"><h2>Army legality checks</h2>{{#if legalityPassed}}<p>No errors reported by the implemented checks.</p>{{else}}<p>Needs review. Unverified costs or incomplete source data prevent a complete result.</p>{{/if}}{{#if legalityErrors}}<ul>{{#each legalityErrors}}<li>{{this}}</li>{{/each}}</ul>{{/if}}{{#if legalityWarnings}}<details open><summary>Warnings and limitations</summary><ul>{{#each legalityWarnings}}<li>{{this}}</li>{{/each}}</ul></details>{{/if}}</section>{{/if}}{{/unless}}
   {{/if}}
   {{#if isSquad}}
   <div class="ba-grid" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;">
