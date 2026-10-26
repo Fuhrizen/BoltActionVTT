@@ -81,3 +81,19 @@
 .boltaction .ba-option-limit {border-inline-start:2px solid var(--ba-faction-color);padding-inline-start:8px;}
 .boltaction .ba-builder-workspace [hidden] {display:none !important;}
 @media(max-width:1000px) {.boltaction .ba-builder-workspace {grid-template-columns:1fr;}.boltaction .ba-builder-workspace>.ba-catalogue-panel {position:static;max-height:45vh;}}
+/* Commander-led ORBAT construction workspace. */
+.boltaction .ba-builder-workspace{grid-template-columns:minmax(240px,.8fr) minmax(600px,2fr) minmax(250px,.85fr);align-items:start;gap:16px}
+.boltaction .ba-orbat-tree,.boltaction .ba-builder-summary{position:sticky;top:0;max-height:76vh;overflow:auto;padding:12px}
+.boltaction .ba-builder-config{min-width:0}.boltaction .ba-builder-config>.ba-catalogue-panel{position:static;max-height:none}
+.boltaction .ba-platoon-branch{border-left:3px solid var(--ba-faction-color);padding:0 0 14px 12px;margin:14px 0}
+.boltaction .ba-orbat-children{display:grid;gap:6px;margin:10px 0 10px 8px;padding-left:10px;border-left:1px solid var(--color-border-light-primary,#8886)}
+.boltaction .ba-orbat-children button{display:flex;justify-content:space-between;text-align:left;white-space:normal;height:auto;min-height:42px;gap:8px;padding:8px}
+.boltaction .ba-orbat-children button[aria-pressed=true]{border:2px solid var(--ba-faction-color);font-weight:700;background:color-mix(in srgb,var(--ba-faction-color) 12%,transparent)}
+.boltaction .ba-orbat-issue{display:block;border-left:3px solid #bc8533;padding:6px 8px;margin:8px 0;line-height:1.4}
+.boltaction .ba-budget{display:grid;gap:6px;border-bottom:2px solid var(--ba-faction-color);padding:12px 0}.boltaction .ba-budget strong{font-size:1.4em}
+.boltaction .ba-model-assignments>summary{padding:12px;border:1px solid var(--color-border-light-primary,#8886);margin:12px 0;font-weight:600}
+@media(max-width:1150px){.boltaction .ba-builder-workspace{grid-template-columns:230px minmax(400px,1fr)}.boltaction .ba-builder-summary{grid-column:1/-1;position:static;max-height:none}}
+.boltaction .ba-strength-card{border:1px solid var(--color-border-light-primary,#8886);border-radius:6px;padding:12px;margin-top:14px;background:color-mix(in srgb,var(--ba-faction-color) 6%,transparent)}
+.boltaction .ba-strength-controls{display:flex;gap:12px;align-items:center}.boltaction .ba-strength-controls strong{font-size:1.5em;min-width:32px;text-align:center}.boltaction .ba-strength-controls button{flex:1}
+.boltaction .ba-loadout-grid{display:grid;grid-template-columns:minmax(110px,.7fr) minmax(200px,1.4fr) minmax(170px,1fr);gap:0 12px;align-items:start}
+.boltaction .ba-loadout-grid>div{padding:12px 0;border-top:1px solid var(--color-border-light-primary,#8886);min-width:0}.boltaction .ba-loadout-grid label{display:block;margin:0 0 7px}.boltaction .ba-loadout-grid small{display:block;margin:5px 0}

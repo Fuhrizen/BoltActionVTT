@@ -196,7 +196,8 @@
           "costPerModel": 2,
           "excludes": "panzerfaust"
         }
-      ]
+      ],
+      "entryName": "Wehrmacht Infantry Squad"
     },
     "system": {
       "kind": "infantry",
@@ -251,7 +252,8 @@
       "aliases": [
         "Waffen-SS",
         "Fallschirmjaeger"
-      ]
+      ],
+      "entryName": "Waffen-SS, Fallschirmjäger or Veteran Infantry Squad"
     },
     "system": {
       "kind": "infantry",
@@ -316,7 +318,8 @@
       "aliases": [
         "Volkssturm",
         "Osttruppen"
-      ]
+      ],
+      "entryName": "Volkssturm, Osttruppen or Inexperienced Infantry Squad"
     },
     "system": {
       "kind": "infantry",
@@ -358,7 +361,8 @@
           "option": "anti-tank-grenades",
           "costPerModel": 2
         }
-      ]
+      ],
+      "entryName": "Regular Infantry Squad"
     },
     "system": {
       "kind": "infantry",
@@ -405,7 +409,8 @@
         "Rangers",
         "Airborne",
         "Marines"
-      ]
+      ],
+      "entryName": "Rangers, Airborne, Marines or Veteran Infantry Squad"
     },
     "system": {
       "kind": "infantry",
@@ -447,7 +452,8 @@
           "option": "anti-tank-grenades",
           "costPerModel": 2
         }
-      ]
+      ],
+      "entryName": "Inexperienced Infantry Squad"
     },
     "system": {
       "kind": "infantry",
@@ -491,7 +497,8 @@
           "option": "anti-tank-grenades",
           "costPerModel": 2
         }
-      ]
+      ],
+      "entryName": "Regular Infantry Section"
     },
     "system": {
       "kind": "infantry",
@@ -541,7 +548,8 @@
         "Chindits",
         "Royal Marines",
         "Airborne"
-      ]
+      ],
+      "entryName": "Commandos, Chindits, Royal Marines, Airborne or Veteran Infantry Section"
     },
     "system": {
       "kind": "infantry",
@@ -585,7 +593,8 @@
           "option": "anti-tank-grenades",
           "costPerModel": 2
         }
-      ]
+      ],
+      "entryName": "Inexperienced Infantry Section"
     },
     "system": {
       "kind": "infantry",
@@ -629,7 +638,8 @@
           "option": "anti-tank-grenades",
           "costPerModel": 2
         }
-      ]
+      ],
+      "entryName": "Regular Infantry Squad"
     },
     "system": {
       "kind": "infantry",
@@ -683,7 +693,8 @@
       "aliases": [
         "Guards",
         "NKVD"
-      ]
+      ],
+      "entryName": "Guard, NKVD or Veteran Infantry Squad"
     },
     "system": {
       "kind": "infantry",
@@ -731,7 +742,8 @@
           "option": "green",
           "cost": 0
         }
-      ]
+      ],
+      "entryName": "Inexperienced Infantry Squad"
     },
     "system": {
       "kind": "infantry",
@@ -774,7 +786,8 @@
           "option": "anti-tank-grenades",
           "costPerModel": 2
         }
-      ]
+      ],
+      "entryName": "IJA Infantry Squad"
     },
     "system": {
       "kind": "infantry",
@@ -821,7 +834,8 @@
       "aliases": [
         "SNLF",
         "Paratroopers"
-      ]
+      ],
+      "entryName": "IJA Veteran Infantry Squad, SNLF, Paratroopers"
     },
     "system": {
       "kind": "infantry",
@@ -7586,7 +7600,9 @@
       ],
       "verification": "base-profile-verified; optional-conversions-partial",
       "extraModelPoints": 5,
-      "basePoints": 25
+      "basePoints": 25,
+      "entryName": "Militia Squad (Late-war)",
+      "ncoCount": 1
     },
     "system": {
       "kind": "infantry",

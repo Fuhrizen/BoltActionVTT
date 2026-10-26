@@ -1,5 +1,5 @@
 import {calculateCost} from './costs.mjs';
-import {loadCatalogue,preferredModelRows,squadTemplate} from './catalogue.mjs';
+import {loadCatalogue,squadTemplate} from './catalogue.mjs';
 import {importSquad,deleteGroupActor} from './groups.mjs';
 async function selectedFaction(army){
  if(army?.type!=='army'||!army.isOwner||army.pack)throw new Error('Choose an owned world Army.');
@@ -10,9 +10,9 @@ async function selectedFaction(army){
 export async function armyBuilderCatalogue(army){
  const slug=await selectedFaction(army);if(!slug)return [];
  const data=await loadCatalogue();
- return preferredModelRows(data.units.filter(row=>row.factionSlug===slug&&row.profile?.sourcePage)).map(row=>({slug:row.slug,name:row.name,kind:row.system.kind,quality:row.system.quality,baseModels:row.profile.baseModels??row.count??1,extraModelCost:squadModelLimit(row).extraModelCost,maxModels:squadModelLimit(row).max,sourcePage:row.profile.sourcePage,options:(row.profile.options??[]).map(option=>({...option,...optionPrice(option,row.system.quality),label:option.label??option.name??(option.weaponSlug??option.option??option.variant??'Profile option').replaceAll('-',' ')}))}));
+ return data.units.filter(row=>row.factionSlug===slug&&row.profile?.sourcePage).map(row=>({slug:row.slug,name:row.profile.entryName??row.name,kind:row.system.kind,quality:row.system.quality,baseModels:row.profile.baseModels??row.count??1,extraModelCost:squadModelLimit(row).extraModelCost,maxModels:squadModelLimit(row).max,sourcePage:row.profile.sourcePage,options:(row.profile.options??[]).map(option=>({...option,...optionPrice(option,row.system.quality),label:option.label??option.name??(option.weaponSlug??option.option??option.variant??'Profile option').replaceAll('-',' ')}))}));
 }
-export async function addArmySquad(army,slug){
+export async function addArmySquad(army,slug,{platoonId}={}){
  const faction=await selectedFaction(army),data=await loadCatalogue();
  const row=data.units.find(row=>row.slug===slug&&row.factionSlug===faction&&row.profile?.sourcePage);
  if(!row)throw new Error('Choose a source profile for the selected Army faction.');
@@ -20,7 +20,7 @@ export async function addArmySquad(army,slug){
  const proxy={...source,documentName:'Actor',pack:'boltaction-source',visible:true,toObject:()=>structuredClone(source)};
  const squad=await importSquad(army,proxy);
  const traits=(row.traitSlugs??[]).map(slug=>data.traits.find(trait=>trait.slug===slug)).filter(Boolean).map(trait=>({name:trait.name,type:'trait',system:structuredClone(trait.system),flags:{boltaction:{catalogueSlug:trait.slug,sourceName:row.name}}}));
- try{if(traits.length&&squad.createEmbeddedDocuments)await squad.createEmbeddedDocuments('Item',traits);}catch(error){await deleteGroupActor(squad);throw error;}
+ try{if(platoonId)await assignSquadPlatoon(army,squad,platoonId);if(traits.length&&squad.createEmbeddedDocuments)await squad.createEmbeddedDocuments('Item',traits);}catch(error){await deleteGroupActor(squad);throw error;}
  return squad;
 }
 
@@ -66,21 +66,11 @@ export async function validateArmy(army){
   if(selector.system.factionUuid&&selector.system.factionUuid!==army.system.factionUuid)errors.push('The selected platoon selector belongs to another faction.');
   for(const slot of selector.system.slots??[]){const count=squads.filter(s=>{const row=rows.get(s.uuid);return s.system.battlefieldRole===slot.kind||row?.system.kind===slot.kind;}).length;if(count<slot.min||count>slot.max)errors.push(`${slot.kind}: selector permits ${slot.min}–${slot.max}; currently ${count}.`);}
  }else{
-  const counts={};for(const squad of squads){const row=rows.get(squad.uuid);if(!row)continue;const category=reinforcedPlatoonCategory(row,squad);if(!category){warnings.push(`${squad.name}: could not determine a reinforced-platoon slot.`);continue;}counts[category]=(counts[category]??0)+1;}
-  const platoons=counts.lieutenant??0;
-  if(!platoons)errors.push('Generic reinforced platoon requires a first or second lieutenant (rulebook p.153).');
-  const infantry=counts.infantry??0;
-  if(platoons&&(infantry<2*platoons||infantry>5*platoons))errors.push(`For ${platoons} reinforced platoon(s), select ${2*platoons}–${5*platoons} infantry squads (p.153); currently ${infantry}.`);
-  for(const category of ['seniorOfficer','medic','observer','machineGun','mortar','sniper','flamethrower','antiTank','artillery','armouredCar','combatVehicle']){
-   const allowance=category==='machineGun'&&faction==='united-states'?3*platoons:platoons;
-   if((counts[category]??0)>allowance)errors.push(`${category}: ${counts[category]} selected, reinforced platoon allowance ${allowance} (${category==='machineGun'&&faction==='united-states'?'p.169':'p.153'}).`);
-  }
-  const transportAllowance=squads.filter(s=>rows.get(s.uuid)?.system.kind!=='vehicle').length;
-  if((counts.transport??0)>transportAllowance)errors.push(`Transport/tow allowance is one per infantry or artillery unit: ${transportAllowance} (p.153).`);
+  const orbat=await armyOrbat(army);for(const platoon of orbat.platoons)errors.push(...platoon.errors.map(error=>`${platoon.name}: ${error}`));
  }
  const cost=await calculateCost(army);warnings.push(...cost.unknown);
  if(Number.isFinite(army.system.pointsLimit)&&cost.total>army.system.pointsLimit)errors.push(`Army exceeds its ${army.system.pointsLimit} point limit by ${cost.total-army.system.pointsLimit}.`);
- return {valid:errors.length===0&&warnings.length===0,errors:[...new Set(errors)],warnings:[...new Set(warnings)],total:cost.total,selectorSource};
+ return {valid:errors.length===0&&warnings.length===0,errors:[...new Set(errors)],warnings:[...new Set(warnings)],total:cost.total,selectorSource,platoons:(await armyOrbat(army)).platoons};
 }
 
 /** Slot names from the generic selector, rulebook p.153; US MMG exception p.169. */
@@ -114,5 +104,38 @@ export async function squadBuilderLimits(squad){
  if(!source)return null;
  const family=value=>value.replace(/(?:^|-)(inexperienced|regular|veteran)(?=-|$)/g,'');
  const row=data.units.find(row=>row.factionSlug===source.factionSlug&&family(row.slug)===family(source.slug)&&row.system.quality===squad.system.quality)??source;
- return squadModelLimit(row,squad.system.quality);
+ return {...squadModelLimit(row,squad.system.quality),qualities:[...new Set([row.system.quality,...Object.keys(row.profile?.pointsByQuality??{})])]};
+}
+
+/** Explicit ORBAT groups; legacy unassigned squads belong to the first platoon. */
+export async function armyOrbat(army){
+ const faction=await selectedFaction(army),data=await loadCatalogue();
+ const definitions=(army.system.platoons?.length?army.system.platoons:[{id:'platoon-1',name:'Platoon 1'}]).filter(p=>p?.id);
+ const squads=values(game.actors).filter(s=>s.type==='unit'&&(army.system.unitUuids??[]).includes(s.uuid)&&s.system.armyUuid===army.uuid&&s.visible!==false);
+ const platoons=definitions.map((definition,index)=>{
+  const members=squads.filter(s=>s.system.platoonId===definition.id||index===0&&!definitions.some(p=>p.id===s.system.platoonId));
+  const entries=members.map(s=>{const row=data.units.find(r=>r.slug===flag(s,'catalogueSlug'))??data.units.find(r=>r.name===flag(s,'sourceName')&&r.factionSlug===(flag(s,'factionSlug')||faction));return {uuid:s.uuid,name:s.name,category:row?reinforcedPlatoonCategory(row,s):null};});
+  const counts={};for(const e of entries)if(e.category)counts[e.category]=(counts[e.category]??0)+1;
+  const errors=[];if(counts.lieutenant!==1)errors.push(`Requires 1 first or second lieutenant; currently ${counts.lieutenant??0} (p.153).`);
+  if((counts.infantry??0)<2||(counts.infantry??0)>5)errors.push(`Requires 2–5 infantry squads; currently ${counts.infantry??0} (p.153).`);
+  for(const category of ['seniorOfficer','medic','observer','machineGun','mortar','sniper','flamethrower','antiTank','artillery','armouredCar','combatVehicle']){
+   const max=category==='machineGun'&&faction==='united-states'?3:1;if((counts[category]??0)>max)errors.push(`${category}: ${counts[category]} selected; maximum ${max}.`);
+  }
+  const transportMax=entries.filter(e=>e.category&&!['transport','armouredCar','combatVehicle'].includes(e.category)).length;
+  if((counts.transport??0)>transportMax)errors.push(`Transport/tow allowance ${transportMax}; currently ${counts.transport}.`);
+  for(const entry of entries)if(!entry.category)errors.push(`${entry.name}: slot could not be verified.`);
+  return {...definition,squads:entries,counts,commanderUuid:entries.find(e=>e.category==='lieutenant')?.uuid??'',errors,valid:errors.length===0};
+ });return {platoons};
+}
+export async function createArmyPlatoon(army,name){
+ await selectedFaction(army);const existing=(await armyOrbat(army)).platoons.map(({id,name})=>({id,name}));
+ const id=globalThis.crypto?.randomUUID?.()??`platoon-${Date.now()}-${Math.random()}`;
+ const platoon={id,name:String(name||`Platoon ${existing.length+1}`).trim()||`Platoon ${existing.length+1}`};
+ await army.update({'system.platoons':[...existing,platoon]},{render:false});return platoon;
+}
+export const addPlatoon=createArmyPlatoon;
+export async function assignSquadPlatoon(army,squad,platoonId){
+ await selectedFaction(army);if(!squad?.isOwner||squad.pack||squad.type!=='unit'||squad.system.armyUuid!==army.uuid||!(army.system.unitUuids??[]).includes(squad.uuid))throw new Error('Choose an owned squad in this Army.');
+ if(!(await armyOrbat(army)).platoons.some(p=>p.id===platoonId))throw new Error('Choose a platoon in this Army.');
+ await squad.update({'system.platoonId':platoonId},{render:false});return squad;
 }

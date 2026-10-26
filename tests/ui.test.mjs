@@ -85,3 +85,13 @@ test('reference inspection uses the selected document and rejects invisible refe
  setup();let rendered=false;globalThis.fromUuid=async()=>({visible:true,sheet:{render:async()=>{rendered=true;}}});
  await BoltActorSheet.openReference(null,{dataset:{uuid:'Compendium.world.weapons.rifle'}});assert.equal(rendered,true);
 });
+
+test('ORBAT builder shows platoon membership, selected strength and advisory finish controls',async()=>{
+ setup();const squad=actor('unit',{uuid:'Actor.squad',system:{armyUuid:'Actor.one',platoonId:'p2',quality:'regular'},members:[actor('model',{system:{isNco:true}}),actor('model')]});const army=actor('army',{system:{pointsLimit:100,platoons:[{id:'p2',name:'Second Platoon'}]},members:[squad]});
+ game.boltaction.armyOrbat=async()=>({platoons:[{id:'p2',name:'Second Platoon',squads:[{uuid:squad.uuid}],commanderUuid:'Actor.commander',errors:[]}]});game.boltaction.squadBuilderLimits=async()=>({min:5,max:10});
+ const app=new BoltArmyBuilder();app.actor=army;const c=await app._prepareContext({});assert.equal(c.orbatPlatoons[0].commanderPresent,true);assert.equal(c.selectedArmySquads[0].modelCount,2);assert.equal(c.selectedArmySquads[0].ncoCount,1);assert.equal(c.selectedArmySquads[0].maximum,10);assert.equal(c.selectedArmySquads[0].platoonOptions[0].selected,true);
+ const template=await readFile(new URL('../templates/actor-sheet.hbs',import.meta.url),'utf8');assert.match(template,/data-action="finishBuilder"/);assert.match(template,/Legality is advisory/);assert.match(template,/ba-loadout-grid/);
+});
+test('builder adds a selected faction profile to the chosen platoon and selects the created squad',async()=>{
+ setup();let call;game.boltaction.addArmySquad=async(...args)=>{call=args;return {uuid:'Actor.newSquad'};};const app=new BoltArmyBuilder();app.actor=actor('army');app._selectedBuilderPlatoon='p2';app.refreshLive=async()=>{};await BoltActorSheet.addArmySquad.call(app,null,{dataset:{slug:'british-infantry'}});assert.deepEqual(call,[app.actor,'british-infantry',{platoonId:'p2'}]);assert.equal(app._selectedBuilderSquad,'Actor.newSquad');assert.equal(app._showBuilderCatalogue,false);
+});

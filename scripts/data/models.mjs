@@ -8,14 +8,14 @@ const quality = () => text("regular", {choices: ["inexperienced", "regular", "ve
 
 export class ArmyData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
-    return {side: text("allies"), factionUuid: text(), selectorUuid: text(), unitUuids: list(), score: int(), pointsLimit: int(1000), notes: text()};
+    return {platoons: new f.ArrayField(new f.ObjectField(),{initial:[]}), side: text("allies"), factionUuid: text(), selectorUuid: text(), unitUuids: list(), score: int(), pointsLimit: int(1000), notes: text()};
   }
 }
 export class UnitData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     return {
       nationalAllowance: bool(), identity: text("Unnamed Squad"), profileName: text(), squadKind: text("", {choices: ["", "infantry", "vehicleStatic"]}),
-      armyUuid: text(), factionUuid: text(), modelUuids: list(), side: text("allies"),
+      platoonId: text(), armyUuid: text(), factionUuid: text(), modelUuids: list(), side: text("allies"),
       kind: text("infantry", {choices: ["infantry", "artillery", "vehicle"]}), battlefieldRole: text("infantry"),
       quality: quality(), pins: int(), order: text("", {choices: ["", "fire", "advance", "run", "ambush", "rally", "down"]}),
       actionState: text("ready",{choices:["ready","ordered","attacked","complete"]}), attackReservation: text(), movementTaken: bool(), actionLog: new f.ArrayField(new f.ObjectField(),{initial:[]}), activated: bool(), destroyed: bool(), ncoAlive: bool(true), moraleBonus: int(0, {min: -10, max: 10}),
