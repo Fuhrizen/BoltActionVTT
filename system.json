@@ -2,7 +2,7 @@
   "id": "boltaction",
   "title": "Bolt Action 2e (Unofficial)",
   "description": "Unofficial Bolt Action 2e: armies, squads and individual models for Foundry V14.",
-  "version": "0.1.0-alpha.18",
+  "version": "0.1.0-alpha.19",
   "compatibility": {
     "minimum": "14",
     "maximum": "14",
@@ -15,7 +15,7 @@
   ],
   "url": "https://github.com/Fuhrizen/BoltActionVTT",
   "manifest": "https://github.com/Fuhrizen/BoltActionVTT/releases/latest/download/system.json",
-  "download": "https://github.com/Fuhrizen/BoltActionVTT/releases/download/v0.1.0-alpha.18/boltaction.zip",
+  "download": "https://github.com/Fuhrizen/BoltActionVTT/releases/download/v0.1.0-alpha.19/boltaction.zip",
   "esmodules": [
     "scripts/main.mjs"
   ],

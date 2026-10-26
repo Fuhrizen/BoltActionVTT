@@ -112,3 +112,9 @@
 .ba-sheet .ba-builder-workspace button {height:auto;min-height:32px;white-space:normal;overflow-wrap:anywhere;}
 @media(max-width:1100px) {.ba-sheet .ba-builder-workspace {grid-template-columns:minmax(180px,.7fr) minmax(0,2fr);}.ba-sheet .ba-builder-summary {grid-column:1/-1;}}
 @media(max-width:700px) {.ba-sheet .ba-builder-workspace {grid-template-columns:minmax(0,1fr);}.ba-sheet .ba-loadout-grid {grid-template-columns:minmax(0,1fr);}}
+
+/* Document content uses normal flow; Foundry form flex sizing must not compress it. */
+.application.boltaction .window-content {display:block;overflow:auto;min-height:0;}
+.boltaction.ba-sheet.standard-form {display:block !important;height:auto;max-height:none;overflow:visible;}
+.boltaction.ba-sheet.standard-form>* {margin-block:0 12px;}
+.boltaction.ba-sheet.standard-form>.ba-builder-workspace {height:auto;min-height:max-content;flex:none;}
