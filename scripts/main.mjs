@@ -10,6 +10,8 @@ import * as actions from './services/actions.mjs';
 import * as costs from './services/costs.mjs';
 import * as lineOfSight from './services/line-of-sight.mjs';
 import * as rolls from './services/rolls.mjs';
+import * as manualRolls from './services/manual-rolls.mjs';
+import {registerTokenArt} from './services/token-art.mjs';
 import * as groups from './services/groups.mjs';
 import * as modelChoices from './services/model-choices.mjs';
 import {registerActorDirectoryHierarchy} from './applications/actor-directory.mjs';
@@ -20,7 +22,7 @@ const modelTypes=['model','modelStatic','modelVehicle'];
 function activeGM(){return game.user.isGM&&(!game.users?.activeGM||game.users.activeGM.id===game.user.id);}
 Hooks.once('init',()=>{
  registerActorDirectoryHierarchy();
- registerSceneGroups();
+ registerSceneGroups();registerTokenArt();
  game.settings.register(SID,'battleRound',{scope:'world',config:false,type:Number,default:1});
  registerModelIdentities();
  game.settings.register(SID,'catalogueFolderVersion',{scope:'world',config:false,type:String,default:''});
@@ -29,12 +31,12 @@ Hooks.once('init',()=>{
  Object.assign(CONFIG.Item.dataModels,{weapon:WeaponData,trait:TraitData,faction:FactionData,selector:SelectorData});
  foundry.documents.collections.Actors.registerSheet(SID,BoltActorSheet,{types:['army','unit',...modelTypes],makeDefault:true,label:'Team, squad and model sheets'});
  foundry.documents.collections.Items.registerSheet(SID,BoltItemSheet,{types:['weapon','trait','faction','selector'],makeDefault:true,label:'Bolt Action profile'});
- game.boltaction={apiVersion:1,actions,openArmyBuilder,...actions,prepareMacros,...groups,...modelChoices,...armyBuilder,...costs,...rolls,...lineOfSight,profiles,prepareCatalogue,importStarter:prepareCatalogue};
+ game.boltaction={apiVersion:1,actions,openArmyBuilder,...actions,prepareMacros,...groups,...modelChoices,...armyBuilder,...costs,...rolls,...manualRolls,...lineOfSight,profiles,prepareCatalogue,importStarter:prepareCatalogue};
 });
 Hooks.once('ready',async()=>{
  if(activeGM())for(const squad of game.actors){if(squad.type!=='unit'||squad.system.identity&&squad.system.identity!=='Unnamed Squad')continue;const vehicle=squad.members?.find(m=>m.type==='modelVehicle');if(vehicle)await squad.update({'system.identity':vehicle.system.profileName||vehicle.name},{render:false});}
- if(activeGM()&&game.settings.get(SID,'catalogueFolderVersion')!=='alpha15'){
-  try{await prepareCatalogue();await prepareMacros();for(const actor of game.actors)if(actor.type==='unit'){if(!actor.system.profileName)await actor.update({'system.identity':actor.name.replace(/^(Inexperienced|Regular|Veteran)\s+/i,'')||'Unnamed Squad','system.profileName':actor.getFlag?.(SID,'sourceName')||''});await groups.setSquadExperience(actor,actor.system.quality||'regular');}for(const actor of game.actors)if(modelTypes.includes(actor.type)&&['nco','loader'].includes(actor.system.role))await actor.update({'system.isNco':actor.system.role==='nco','system.isLoader':actor.system.role==='loader'});await game.settings.set(SID,'catalogueFolderVersion','alpha15');}catch(error){console.error('Bolt Action compendium preparation',error);ui.notifications.error(`Could not prepare model compendiums: ${error.message}`);}
+ if(activeGM()&&game.settings.get(SID,'catalogueFolderVersion')!=='alpha21'){
+  try{await prepareCatalogue();await prepareMacros();for(const actor of game.actors)if(actor.type==='unit'){if(!actor.system.profileName)await actor.update({'system.identity':actor.name.replace(/^(Inexperienced|Regular|Veteran)\s+/i,'')||'Unnamed Squad','system.profileName':actor.getFlag?.(SID,'sourceName')||''});await groups.setSquadExperience(actor,actor.system.quality||'regular');}for(const actor of game.actors)if(modelTypes.includes(actor.type)&&['nco','loader'].includes(actor.system.role))await actor.update({'system.isNco':actor.system.role==='nco','system.isLoader':actor.system.role==='loader'});await game.settings.set(SID,'catalogueFolderVersion','alpha21');}catch(error){console.error('Bolt Action compendium preparation',error);ui.notifications.error(`Could not prepare model compendiums: ${error.message}`);}
  }
  if(activeGM())for(const actor of game.actors){if(!modelTypes.includes(actor.type)||actor.system.profileName)continue;const source=actor.getFlag?.(SID,'sourceName')||actor.name;const original=actor.getFlag?.(SID,'sourceName');const generic=Boolean(original)&&(actor.name===original||actor.name===original.replace(/squad|section/gi,'model'));await actor.update({'system.profileName':source,...(generic?{name:actor.type==='model'?'Unnamed Soldier':actor.type==='modelStatic'?'Unnamed Crew':'Unnamed Vehicle'}:{})});}
 

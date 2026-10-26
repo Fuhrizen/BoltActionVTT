@@ -10,3 +10,16 @@
 .ba-audit-card summary{cursor:pointer;font-weight:600;line-height:1.5}.ba-audit-card dl{margin:8px 0}.ba-audit-card dl>div{display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-bottom:1px dotted #8884}.ba-audit-card dd{margin:0;text-align:right}.ba-audit-card dt{font-weight:500}
 .ba-dice-audit{margin:9px 0}.ba-dice-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}.ba-die{display:inline-flex;gap:4px;align-items:center;justify-content:center;min-width:28px;padding:4px 6px;border:1px solid #8886;border-radius:4px;font-weight:700;font-variant-numeric:tabular-nums}.ba-die small{font-size:.8em}
 .ba-audit-card footer{padding:10px 12px;border-top:1px solid #8884;font-size:.85em;line-height:1.45}.ba-check-equation{font-size:1.1em;padding:8px;background:#8881;border-radius:4px}.ba-card-muted{font-size:.9em;opacity:.85}.ba-weapon-result{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}
+
+/* Rules-neutral roller: one compact summary; audit expands only on request. */
+.ba-manual-dialog{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.ba-manual-dialog label{display:flex;flex-direction:column;gap:4px;min-width:0;}
+.ba-manual-dialog input{width:100%;min-width:0;}
+.ba-manual-dialog>small{grid-column:1/-1;line-height:1.4;}
+.ba-manual-roll{border:1px solid var(--color-border-light-primary,#8886);border-radius:6px;overflow:hidden;font-size:13px;}
+.ba-manual-roll header{padding:7px 9px;display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;}
+.ba-manual-roll header small{opacity:.8;}
+.ba-manual-result{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;align-items:baseline;padding:7px 9px;background:#8881;border-block:1px solid #8884;}
+.ba-manual-result b{font-size:1.1em;}.ba-manual-result span{font-size:.9em;}
+.ba-manual-roll details{padding:6px 9px;}.ba-manual-roll summary{cursor:pointer;font-size:.9em;}.ba-manual-roll p{margin:5px 0;}
+.ba-manual-roll .ba-success{background:#36865d22;border-color:#36865d;}.ba-manual-roll .ba-failure{background:#ad454522;border-color:#ad4545;}

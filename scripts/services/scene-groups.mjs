@@ -1,7 +1,7 @@
 import {getLoaderPair} from './groups.mjs';
 import {DEFAULT_TOKEN_FOOTPRINTS,tokenFootprint,preservesTokenSize} from './token-sizing.mjs';
 import {BoltToken} from '../documents/token.mjs';
-import {isDefaultModelArt} from './faction-appearance.mjs';
+import {isDefaultModelArt,isGeneratedTokenArt} from './faction-appearance.mjs';
 const MODEL_TYPES = new Set(['model', 'modelStatic', 'modelVehicle']);
 const values = collection => collection?.contents ?? Array.from(collection ?? []);
 const groupTypes = new Set(['army', 'unit']);
@@ -24,7 +24,7 @@ export function collectGroupModels(parent, actors = globalThis.game?.actors) {
 /** Managed default artwork always fills its token bounds; custom artwork is untouched. */
 export function centeredDefaultTokenTexture(texture = {}, preserveTransform = false) {
   if (!isDefaultModelArt(texture.src) || preserveTransform) return {...texture};
-  return {...texture,...(texture.src?{src:texture.src.split('?')[0]+'?v=13'}:{}),anchorX:.5,anchorY:.5,scaleX:1,scaleY:-1,fit:'contain'};
+  return {...texture,...(texture.src?{src:isGeneratedTokenArt(texture.src)?texture.src:texture.src.split('?')[0]+'?v=13'}:{}),anchorX:.5,anchorY:.5,scaleX:1,scaleY:isGeneratedTokenArt(texture.src)?1:-1,fit:'contain'};
 }
 
 function hasManagedTokenArt(source) {

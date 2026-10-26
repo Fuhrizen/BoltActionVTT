@@ -1,5 +1,5 @@
 // A consistent tabletop palette, rather than a claim about every historical uniform or theatre.
-const palettes = Object.freeze({
+export const palettes = Object.freeze({
   germany:{color:'#37a6b2',uniform:'#62747b',helmet:'#435b65',highlight:'#8ca0a8'},
   'united-states':{color:'#3f8f45',uniform:'#526844',helmet:'#354c32',highlight:'#758c5b'},
   'great-britain':{color:'#c8494d',uniform:'#8b7958',helmet:'#746344',highlight:'#ae9a70'},
@@ -20,5 +20,9 @@ export function factionAppearance(factionSlug, actorType = 'model') {
 /** Only system-provided defaults  are eligible for automatic recolouring. */
 export function isDefaultModelArt(path) {
   if (!path) return true;
+  if (isGeneratedTokenArt(path)) return true;
   return typeof path === 'string' && /^systems\/boltaction\/assets\/(?:factions\/(?:germany|united-states|great-britain|soviet-union|imperial-japan)\/)?(?:soldier|model-token|vehicle-token|army|unit)\.svg$/.test(path.split(/[?#]/)[0]);
 }
+
+export const GENERATED_ART_PREFIX='data:image/svg+xml;charset=utf-8,'+encodeURIComponent('<!--boltaction-generated:v1-->');
+export function isGeneratedTokenArt(path){return typeof path==='string'&&path.startsWith(GENERATED_ART_PREFIX);}

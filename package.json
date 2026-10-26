@@ -1,6 +1,6 @@
 {
   "name": "boltaction-foundry-vtt",
-  "version": "0.1.0-alpha.20",
+  "version": "0.1.0-alpha.21",
   "private": true,
   "type": "module",
   "engines": {
@@ -11,6 +11,7 @@
     "test": "node --test",
     "build": "node tools/package.mjs",
     "scaffold": "node tools/scaffold.mjs",
-    "tasks": "node tools/tasks.mjs"
+    "tasks": "node tools/tasks.mjs",
+    "tokens": "node tools/token-infantry.mjs && node tools/token-vehicles.mjs"
   }
 }
