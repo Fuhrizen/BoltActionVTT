@@ -205,3 +205,11 @@ test('squad deletion validates every model ownership before deleting anything',a
 
 test('only system art is eligible for automatic faction replacement',async()=>{const {isDefaultModelArt}=await import('../scripts/services/faction-appearance.mjs');assert.equal(isDefaultModelArt('icons/svg/mystery-man.svg'),false);assert.equal(isDefaultModelArt('worlds/campaign/my-nco.webp'),false);assert.equal(isDefaultModelArt('systems/boltaction/assets/soldier.svg'),true);});
 test('pin counters require an owned squad and bounded whole numbers',async()=>{setup();const squad=actor({type:'unit'});await groups.setPins(squad,4);assert.equal(squad.system.pins,4);await assert.rejects(groups.setPins(squad,-1),/Pins/);await assert.rejects(groups.setPins(squad,2.5),/Pins/);game.user={id:'other',isGM:false};await assert.rejects(groups.setPins(squad,1),/own/);});
+
+test('army Delete All deletes nested reciprocal descendants and preserves unrelated actors',async()=>{
+ setup();const army=await groups.createTeam(),squad=await groups.createGroup(army),model=actor(),stranger=actor();await groups.linkGroupMember(squad,model);
+ const deleted=await groups.deleteGroupActor(army);assert.deepEqual(new Set(deleted.map(a=>a.uuid)),new Set([army.uuid,squad.uuid,model.uuid]));assert.ok(actors.includes(stranger));assert.ok(!actors.includes(model));assert.ok(!actors.includes(squad));assert.ok(!actors.includes(army));
+});
+test('army Delete All validates descendant ownership before any deletion',async()=>{
+ setup();const army=await groups.createTeam(),squad=await groups.createGroup(army),model=actor();await groups.linkGroupMember(squad,model);game.user={id:'player',isGM:false};army.ownership={player:3};squad.ownership={player:3};model.ownership={other:3};await assert.rejects(groups.deleteGroupActor(army),/own/);for(const a of [army,squad,model])assert.ok(actors.includes(a));
+});

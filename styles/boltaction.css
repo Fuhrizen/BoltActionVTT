@@ -62,3 +62,22 @@
 .boltaction .ba-card {border-inline-start:3px solid var(--ba-faction-color, currentColor);}
 .boltaction input[type="checkbox"] {appearance:auto !important;-webkit-appearance:checkbox !important;background:none !important;width:16px !important;height:16px !important;min-width:16px;min-height:16px;margin:0;flex:0 0 16px;}
 .boltaction input[type="checkbox"]::before,.boltaction input[type="checkbox"]::after {display:none !important;content:none !important;}
+
+/* Army construction: independently scrolling profile browser and roster workspace. */
+.boltaction .ba-builder-workspace {display:grid;grid-template-columns:minmax(300px,.8fr) minmax(520px,1.65fr);gap:16px;align-items:start;min-height:0;}
+.boltaction .ba-builder-workspace>.ba-catalogue-panel {position:sticky;top:0;max-height:72vh;overflow-y:auto;}
+.boltaction .ba-builder-workspace .ba-catalogue-grid {display:grid;grid-template-columns:1fr;gap:10px;}
+.boltaction .ba-profile-card {display:flex;flex-direction:column;gap:8px;}
+.boltaction .ba-profile-title {display:flex;align-items:start;justify-content:space-between;gap:10px;}
+.boltaction .ba-price {flex:none;border:1px solid var(--color-border-light-primary,#7776);border-radius:4px;padding:3px 6px;white-space:nowrap;}
+.boltaction .ba-army-squad {border:1px solid var(--color-border-light-primary,#7776);border-radius:6px;margin:0 0 12px;padding:12px;}
+.boltaction .ba-army-squad>summary {cursor:pointer;padding:5px 0;font-size:1.05rem;line-height:1.5;border-bottom:2px solid var(--ba-faction-color);}
+.boltaction .ba-army-squad .ba-roster-grid {grid-template-columns:repeat(auto-fit,minmax(245px,1fr)) !important;}
+.boltaction .ba-reference {display:inline-flex;align-items:center;justify-content:center;width:auto;min-height:24px;line-height:1.3;padding:2px 6px;font-size:.85em;vertical-align:middle;}
+.boltaction .ba-weapon-reference {display:flex;flex-direction:column;gap:5px;padding:8px 0;border-top:1px solid var(--color-border-light-primary,#7776);}
+.boltaction .ba-weapon-reference button {height:auto;white-space:normal;text-align:left;padding:6px;}
+.boltaction .ba-trait-reference {border:1px solid var(--color-border-light-primary,#7776);border-radius:5px;padding:10px;line-height:1.5;}
+.boltaction .ba-trait-reference>small {display:block;font-weight:600;opacity:.8;margin-top:5px;}
+.boltaction .ba-option-limit {border-inline-start:2px solid var(--ba-faction-color);padding-inline-start:8px;}
+.boltaction .ba-builder-workspace [hidden] {display:none !important;}
+@media(max-width:1000px) {.boltaction .ba-builder-workspace {grid-template-columns:1fr;}.boltaction .ba-builder-workspace>.ba-catalogue-panel {position:static;max-height:45vh;}}

@@ -311,12 +311,37 @@ export function renderActorDirectoryHierarchy(app, html) {
   transforms.set(root, state);
 }
 
+/** Replace the native single-document deletion for folder-like group actors. */
+export function groupDeletionContextOptions(application, entries) {
+  const resolve = element => {
+    const node = element?.[0] ?? element;
+    const row = node?.closest?.(ENTRY_SELECTOR) ?? node;
+    const id = row?.dataset?.entryId ?? row?.dataset?.documentId ?? row?.dataset?.actorId;
+    return game.actors.get?.(id) ?? values(game.actors).find(actor => actor.id === id);
+  };
+  for (const entry of entries) {
+    if (!/trash/.test(entry.icon ?? '') && !/(^|\.)Delete$/.test(entry.name ?? '')) continue;
+    const original = entry.condition;
+    entry.condition = element => !isGroup(resolve(element)) && (typeof original === 'function' ? original(element) : original !== false);
+  }
+  entries.push({name:'Delete All',icon:'<i class="fas fa-trash"></i>',
+    condition:element=>{const actor=resolve(element);return isGroup(actor)&&actor.isOwner&&!actor.pack;},
+    callback:async element=>{
+      const actor=resolve(element);if(!isGroup(actor))return;
+      const confirmed=await foundry.applications.api.DialogV2.confirm({window:{title:'Delete All'},content:'<p>Delete this group and all of its contained squads and models? This cannot be undone.</p>'});
+      if(!confirmed)return;
+      try {await game.boltaction.deleteGroupActor(actor);}
+      catch(error){globalThis.ui?.notifications?.error(error.message??'Could not delete this group.');}
+    }});
+}
+
 /** Called once during system init. Group services retain membership/ownership authority. */
 export function registerActorDirectoryHierarchy() {
   if (registered) return;
   registered = true;
   game.settings.register(SID, SETTING, {scope: 'client', config: false, type: Array, default: []});
   Hooks.on('renderActorDirectory', renderActorDirectoryHierarchy);
+  Hooks.on('getActorContextOptions', groupDeletionContextOptions);
   let timer;
   function refresh() {
     clearTimeout(timer);

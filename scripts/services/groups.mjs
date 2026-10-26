@@ -239,7 +239,7 @@ export function squadDisplayName(identity='Unnamed Squad',quality='regular') {
 }
 export async function deleteGroupActor(actor) {
   owned(actor);
-  const members=actor.type==='unit'?childActors(actor):[];
+  const members=['army','unit'].includes(actor.type)?descendants(actor).sort((a,b)=>Number(a.type==='unit')-Number(b.type==='unit')):[];
   for(const member of members)owned(member);
   const documents=[...members,actor];
   if(actorClass().deleteDocuments)await actorClass().deleteDocuments(documents.map(a=>a.id));

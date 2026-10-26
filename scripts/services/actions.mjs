@@ -1,3 +1,4 @@
+import {checkCard} from './chat-cards.mjs';
 import {ask} from '../applications/dialogs.mjs';
 import {ORDERS,orderTest,fubarResult,pinRout,moraleTest,movementBudget} from '../rules/index.mjs';
 import {profiles} from './group-profiles.mjs';
@@ -6,9 +7,8 @@ const locks=new Map();
 function serial(actor,fn){const previous=locks.get(actor.uuid)??Promise.resolve();const job=previous.catch(()=>{}).then(fn);locks.set(actor.uuid,job);return job.finally(()=>{if(locks.get(actor.uuid)===job)locks.delete(actor.uuid);});}
 function owned(squad){if(squad?.type!=='unit'||!squad.isOwner||squad.pack)throw new Error('Choose an owned world squad.');return squad;}
 const models=squad=>Array.from(squad.members??[]).filter(m=>m.system.unitUuid===squad.uuid);
-const escape=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 async function dice(count,rolls){const roll=await new Roll(`${count}d6`).evaluate();rolls.push(roll);return roll.dice.flatMap(d=>d.results.filter(r=>r.active!==false).map(r=>r.result));}
-async function card(squad,title,text,rolls=[]){return ChatMessage.create({speaker:ChatMessage.getSpeaker({actor:squad}),rolls,content:`<section class="boltaction-action-card"><h3>${escape(squad.name)} — ${escape(title)}</h3><p>${escape(text)}</p></section>`});}
+async function card(squad,title,text,rolls=[],result={},options={}){return ChatMessage.create({speaker:ChatMessage.getSpeaker({actor:squad}),rolls,content:checkCard(squad,title,text,rolls,result,options),flags:{boltaction:{kind:title.toLowerCase(),apiVersion:1,actorUuid:squad.uuid,result,confirmed:options}}});}
 export async function issueOrder(squad,requested){owned(squad);if(!ORDERS.includes(requested))throw new Error('Choose one of the six Bolt Action orders.');return serial(squad,async()=>{
  if(squad.system.activated||squad.system.order)throw new Error('This squad already has an order; begin a new round or ask the GM to reset it.');
  if(squad.system.destroyed)throw new Error('A destroyed or routed squad cannot receive orders.');
@@ -22,7 +22,7 @@ export async function issueOrder(squad,requested){owned(squad);if(!ORDERS.includ
  let result=traits.automaticBanzai?{passed:true,automatic:true,order:requested,pinsRemoved:0,fubar:false}:orderTest(options);if(traits.automaticBanzai){const bonus=(await dice(1,rolls))[0];result={...result,passed:true,order:requested,pinsRemoved:Math.min(squad.system.pins??0,bonus+1),fubar:false};}if(result.canReroll){const retry=await ask('Full strength re-roll',[{name:'reroll',label:'Use the eligible full-strength order re-roll?',type:'checkbox'}]);if(retry?.reroll){options.rerollDice=await dice(2,rolls);result=orderTest(options);}}if(result.needsBonusDie){options.bonusDie=(await dice(1,rolls))[0];result=orderTest(options);}
  if(result.fubar){const situation=await ask('Confirm FUBAR situation',[{name:'friendlyAvailable',label:'A legal friendly-fire target is available (confirm enemy proximity)',type:'checkbox'},{name:'enemyVisible',label:'Enemy visible for panic',type:'checkbox',checked:true},{name:'canMove',label:'Panic movement is possible',type:'checkbox',checked:true}]);if(situation){result.fubarResolution=fubarResult({roll:(await dice(1,rolls))[0],kind:squad.system.kind,friendlyTargetAvailable:Boolean(situation.friendlyAvailable),enemyVisible:Boolean(situation.enemyVisible),canMove:Boolean(situation.canMove)});result.order=result.fubarResolution.order;}}
  await squad.update({'system.order':result.order,'system.activated':true,'system.pins':Math.max(0,(squad.system.pins??0)-result.pinsRemoved),'system.actionState':['fire','advance','ambush'].includes(result.order)?'ordered':'complete','system.movementTaken':false,'system.attackReservation':'','system.shotTargetUuid':'','system.actionLog':[...(squad.system.actionLog??[]),{kind:'order',requested,order:result.order,passed:result.passed,round:game.settings?.get?.('boltaction','battleRound')??1}].slice(-50)},{render:false});
- await card(squad,'Order',`${requested}: ${result.passed?'passed':result.fubar?'FUBAR → '+result.order:'failed; Down'}. Pins remaining ${squad.system.pins}. ${result.fubar?'FUBAR: confirm the reported friendly-fire target or panic direction before continuing.':''} ${traits.manual?.length?'Additional traits need review: '+traits.manual.join(', '):''}`,rolls);return result;
+ await card(squad,'Order',`${requested}: ${result.passed?'passed':result.fubar?'FUBAR → '+result.order:'failed; Down'}. Pins remaining ${squad.system.pins}. ${result.fubar?'FUBAR: confirm the reported friendly-fire target or panic direction before continuing.':''} ${traits.manual?.length?'Additional traits need review: '+traits.manual.join(', '):''}`,rolls,result,{...options,ignorePins:requested==='rally'});return result;
  });}
 export async function assertCanAttack(squad){owned(squad);if(squad.system.destroyed||!squad.system.activated||!['fire','advance','ambush'].includes(squad.system.order))throw new Error('Issue Fire, Advance or Ambush before attacking.');if(squad.system.actionState==='attacked'||squad.system.attackReservation)throw new Error('This squad has already attacked or is resolving an attack.');return squad;}
 export async function reserveAttack(squad){return serial(owned(squad),async()=>{await assertCanAttack(squad);const id=globalThis.crypto?.randomUUID?.()??`${Date.now()}-${Math.random()}`;await squad.update({'system.attackReservation':id},{render:false});return id;});}
@@ -47,12 +47,12 @@ export async function checkSquadMorale(squad){
  owned(squad);const confirmation=await ask('Confirm squad morale',[{name:'modifier',label:'Other morale modifier',type:'number',value:0}]);if(!confirmation)return null;
  const modifier=Number(confirmation.modifier??0);if(!Number.isFinite(modifier)||Math.abs(modifier)>10)throw new Error('Invalid morale modifier.');
  const inherited=await profiles(squad),living=models(squad).filter(m=>!m.system.dead),traits=resolveTraitModifiers({traits:inherited.traits,factionSlug:inherited.faction?.system?.slug,kind:squad.system.kind,pins:squad.system.pins??0,testType:'morale',wouldBeDestroyed:true,livingSize:living.length});
- if(traits.ignoreCasualtyMorale){await card(squad,'Morale','Fanatic protection: casualty morale test not required while two or more models survive.');return {passed:true,automatic:true};}
+ if(traits.ignoreCasualtyMorale){await card(squad,'Morale','Fanatic protection: casualty morale test not required while two or more models survive.',[],{passed:true,automatic:true});return {passed:true,automatic:true};}
  const rolls=[],options={quality:squad.system.quality,pins:squad.system.pins??0,ignorePins:traits.ignoreMoralePins,modifier,moraleBonus:squad.system.moraleBonus??0,ncoAlive:(models(squad).some(m=>m.system.isNco||m.system.role==='nco')?models(squad).some(m=>(m.system.isNco||m.system.role==='nco')&&!m.system.dead):squad.system.ncoAlive!==false)};
  let result=moraleTest({...options,dice:await dice(2,rolls)});
- if(!result.passed&&traits.moraleRerollEligible){const retry=await ask('National morale re-roll',[{name:'reroll',label:'Use the eligible morale re-roll?',type:'checkbox'}]);if(retry?.reroll)result=moraleTest({...options,dice:await dice(2,rolls)});}
+ if(!result.passed&&traits.moraleRerollEligible){const retry=await ask('National morale re-roll',[{name:'reroll',label:'Use the eligible morale re-roll?',type:'checkbox'}]);if(retry?.reroll)result={...moraleTest({...options,dice:await dice(2,rolls)}),rerolled:true};}
  if(!result.passed){for(const model of living)await model.update({'system.dead':true},{render:false});await squad.update({'system.destroyed':true},{render:false});}
- await card(squad,'Morale',result.passed?'Passed':'Failed: squad destroyed',rolls);return result;
+ await card(squad,'Morale',result.passed?'Squad holds its position.':'Squad destroyed: all surviving models marked as casualties.',rolls,result,options);return result;
 }
 export async function applyVehicleResults(attacker,target,{pins=0,states=[],dead=false}={}){
  if(attacker?.type!=='unit'||attacker.pack||attacker.visible===false)throw new Error('Choose a visible attacking squad.');

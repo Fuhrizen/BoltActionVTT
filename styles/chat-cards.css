@@ -1,0 +1,12 @@
+.ba-audit-card{border:1px solid var(--color-border-light-primary,#8886);border-radius:8px;overflow:hidden;font-size:var(--font-size-13,13px)}
+.ba-audit-card header{padding:12px;background:var(--color-bg-option,#7771)}
+.ba-audit-card header small{text-transform:uppercase;letter-spacing:.07em;font-weight:700;font-size:.75em}
+.ba-audit-card h3{margin:4px 0 0;font-size:1.15em;border:0}
+.ba-audit-card .ba-result{padding:12px;border-block:1px solid #8884;display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px}
+.ba-audit-card .ba-result strong{font-size:1.25em}.ba-audit-card .ba-result span{font-size:.9em}
+.ba-audit-card .ba-success{border-color:#36865d;background:#36865d19}.ba-audit-card .ba-failure{border-color:#ad4545;background:#ad454519}.ba-audit-card .ba-warning{border-color:#b98629;background:#b9862919}
+.ba-card-body{padding:0 12px 12px}.ba-card-body article{padding:12px 0;border-bottom:1px solid #8884}.ba-card-body article:last-child{border-bottom:0}
+.ba-audit-card p{margin:8px 0}.ba-audit-card h4{margin:0 0 5px;font-size:1em}.ba-audit-card details{margin-top:9px;border:1px solid #8884;border-radius:5px;padding:7px}
+.ba-audit-card summary{cursor:pointer;font-weight:600;line-height:1.5}.ba-audit-card dl{margin:8px 0}.ba-audit-card dl>div{display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-bottom:1px dotted #8884}.ba-audit-card dd{margin:0;text-align:right}.ba-audit-card dt{font-weight:500}
+.ba-dice-audit{margin:9px 0}.ba-dice-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px}.ba-die{display:inline-flex;gap:4px;align-items:center;justify-content:center;min-width:28px;padding:4px 6px;border:1px solid #8886;border-radius:4px;font-weight:700;font-variant-numeric:tabular-nums}.ba-die small{font-size:.8em}
+.ba-audit-card footer{padding:10px 12px;border-top:1px solid #8884;font-size:.85em;line-height:1.45}.ba-check-equation{font-size:1.1em;padding:8px;background:#8881;border-radius:4px}.ba-card-muted{font-size:.9em;opacity:.85}.ba-weapon-result{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap}

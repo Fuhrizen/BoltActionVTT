@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {buildActorTree, renderActorDirectoryHierarchy, registerActorDirectoryHierarchy, syncActorGroupFolder, actorDirectoryNeedsRefresh} from '../scripts/applications/actor-directory.mjs';
+import {buildActorTree, renderActorDirectoryHierarchy, registerActorDirectoryHierarchy, syncActorGroupFolder, actorDirectoryNeedsRefresh, groupDeletionContextOptions} from '../scripts/applications/actor-directory.mjs';
 
 const actor = (id, type, system = {}, extra = {}) => ({id, uuid: `Actor.${id}`, name: id, type,
   documentName: 'Actor', visible: true, isOwner: true, system, ...extra});
@@ -182,7 +182,7 @@ test('registration is idempotent and mundane Actor updates never queue a directo
   assert.equal(settings.length, 1);
   assert.equal(settings[0][1], 'expandedActorGroups');
   assert.equal(settings[0][2].scope, 'client');
-  assert.deepEqual(hooks.map(([name]) => name).sort(), ['renderActorDirectory', 'createActor', 'updateActor', 'deleteActor', 'updateUser'].sort());
+  assert.deepEqual(hooks.map(([name]) => name).sort(), ['renderActorDirectory', 'createActor', 'updateActor', 'deleteActor', 'updateUser', 'getActorContextOptions'].sort());
   renderActorDirectoryHierarchy({collection: {metadata: {type: 'Actor'}}}, f.root);
   assert.equal(f.root.querySelectorAll('.ba-actor-group').length, 0);
   let renders = 0;
@@ -378,4 +378,14 @@ test('only the active GM cascades a group folder move to reciprocal descendants'
   game.users.activeGM = null;
   await syncActorGroupFolder(f.team, {folder: 'fallback'});
   assert.deepEqual(batches[2].updates, [{_id: f.squad.id, folder: 'fallback'}, {_id: f.model.id, folder: 'fallback'}]);
+});
+
+test('group context menu replaces native Delete with confirmed Delete All and keeps ordinary Actor deletion',async()=>{
+ const army=actor('army','army'),model=actor('model','model');let confirmed=false,deleted;
+ globalThis.game={actors:new Map([[army.id,army],[model.id,model]]),boltaction:{deleteGroupActor:async a=>{deleted=a;}}};
+ globalThis.foundry={applications:{api:{DialogV2:{confirm:async()=>confirmed}}}};
+ const original={name:'SIDEBAR.Delete',icon:'<i class="fas fa-trash"></i>',condition:()=>true};const entries=[original];groupDeletionContextOptions({},entries);
+ const row=id=>({dataset:{entryId:id}});assert.equal(original.condition(row(army.id)),false);assert.equal(original.condition(row(model.id)),true);
+ const option=entries.at(-1);assert.equal(option.name,'Delete All');assert.equal(option.condition(row(army.id)),true);assert.equal(option.condition(row(model.id)),false);
+ await option.callback(row(army.id));assert.equal(deleted,undefined);confirmed=true;await option.callback(row(army.id));assert.equal(deleted,army);
 });

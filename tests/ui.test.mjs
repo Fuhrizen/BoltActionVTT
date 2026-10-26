@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {readFile} from 'node:fs/promises';
+globalThis.fetch=async url=>({ok:true,json:async()=>JSON.parse(await readFile(new URL('../'+url.replace('systems/boltaction/',''),import.meta.url),'utf8'))});
 class Sheet {async _prepareContext(){return {core:true};}}
 globalThis.foundry={applications:{api:{HandlebarsApplicationMixin:Base=>Base,ApplicationV2:Sheet,DialogV2:{wait:async config=>config}},sheets:{ActorSheetV2:Sheet,ItemSheetV2:Sheet}}};
 const {BoltActorSheet,BoltArmyBuilder}=await import('../scripts/applications/actor-sheet.mjs');
@@ -70,3 +71,17 @@ test('sheet form writes suppress native redraw and refresh live content after su
 test('Army summary and dedicated builder separate roster controls while exposing checked legality',async()=>{setup();let catalogueReads=0;game.boltaction.armyBuilderCatalogue=async()=>{catalogueReads++;return [{slug:'squad',kind:'infantry'}];};game.boltaction.validateArmy=async()=>({valid:false,errors:['Too many choices'],warnings:['Unknown source'],total:120});const summary=new BoltActorSheet();summary.actor=actor('army');let c=await summary._prepareContext({});assert.equal(c.isArmyBuilder,false);assert.deepEqual(c.armySquads,[]);assert.equal(catalogueReads,0);assert.equal(c.legalityPassed,false);assert.deepEqual(c.legalityErrors,['Too many choices']);const builder=new BoltArmyBuilder();builder.actor=summary.actor;c=await builder._prepareContext({});assert.equal(c.isArmyBuilder,true);assert.equal(catalogueReads,1);});
 test('weapon traits appear in the unified panel with their inherited provenance',async()=>{setup();game.items=[{type:'trait',name:'Team',system:{slug:'team',effect:'Team weapon rule'}}];const sheet=new BoltActorSheet();sheet.actor=actor('model',{unit:{name:'Gun squad',system:{quality:'regular'},items:[{type:'weapon',name:'Machine gun',system:{traits:['team']}}]}});const c=await sheet._prepareContext({});assert.equal(c.ruleProfiles[0].name,'Team');assert.match(c.ruleProfiles[0].source,/Inherited weapon: Machine gun/);assert.equal(c.ruleProfiles[0].effect,'Team weapon rule');});
 test('squad order buttons delegate the selected order to the action service',async()=>{setup();let call;game.boltaction.actions={issueOrder:async(...args)=>{call=args;}};const sheet=new BoltActorSheet();sheet.actor=actor('unit');await BoltActorSheet.issueOrder.call(sheet,null,{dataset:{order:'ambush'}});assert.deepEqual(call,[sheet.actor,'ambush']);});
+
+test('builder weapon options retain named aliases, base classes, prices and cached compendium references',async()=>{
+ setup();let reads=0;game.packs=[{metadata:{name:'boltaction-weapons'},collection:'world.boltaction-weapons',getIndex:async()=>{reads++;return [{_id:'rifleRef',system:{slug:'rifle'}}];}}];
+ game.boltaction.profiles=async()=>({traits:[],faction:{system:{slug:'great-britain'}}});
+ game.boltaction.getModelChoices=async()=>({equipment:[{id:'rifle',weaponSlug:'rifle',kind:'primary',cost:0,selected:true}]});
+ const sheet=new BoltActorSheet();sheet.actor=actor('unit',{members:[actor('model')]});
+ const context=await sheet._prepareContext({}),choice=context.members[0].primarySlots[0].choices[0];
+ assert.match(choice.label,/Lee-Enfield.*\(Rifle\).*0 pts/);assert.equal(choice.referenceUuid,'Compendium.world.boltaction-weapons.rifleRef');
+ await sheet._prepareContext({});assert.equal(reads,1);
+});
+test('reference inspection uses the selected document and rejects invisible references',async()=>{
+ setup();let rendered=false;globalThis.fromUuid=async()=>({visible:true,sheet:{render:async()=>{rendered=true;}}});
+ await BoltActorSheet.openReference(null,{dataset:{uuid:'Compendium.world.weapons.rifle'}});assert.equal(rendered,true);
+});
